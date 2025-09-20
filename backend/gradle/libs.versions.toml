@@ -1,0 +1,72 @@
+[versions]
+java = "17"
+spring-boot = "3.5.6"
+spring-context = "6.1.13"
+spring-boot-dependencies = "1.1.6"
+junit-bom = "5.10.4"
+junit-platform= "1.10.4"
+spring-boot-test = "3.5.6"
+postgresql = "42.7.7"
+jackson = "2.15.2"
+mockito = "5.2.0"
+jakarta-servlet-api = "6.1.0"
+assertj-core = "3.25.3"
+jacoco-tool = "0.8.11"
+archunit = "1.4.1"
+
+[libraries]
+#Spring
+spring-boot-starter = { group = "org.springframework.boot", name = "spring-boot-starter", version.ref="spring-boot" }
+spring-boot-starter-web = { group = "org.springframework.boot", name = "spring-boot-starter-web", version.ref="spring-boot" }
+spring-boot-starter-validation = { group = "org.springframework.boot", name = "spring-boot-starter-validation", version.ref="spring-boot" }
+spring-boot-starter-actuator = { group = "org.springframework.boot", name = "spring-boot-starter-actuator", version.ref="spring-boot" }
+spring-boot-starter-data-jpa = { group = "org.springframework.boot", name = "spring-boot-starter-data-jpa", version.ref="spring-boot" }
+spring-boot-starter-test = { group = "org.springframework.boot", name = "spring-boot-starter-test", version.ref = "spring-boot" }
+spring-boot-starter-security = { group = "org.springframework.boot", name = "spring-boot-starter-security", version.ref = "spring-boot" }
+spring-boot-starter-oauth2-resource-server = { group = "org.springframework.boot", name = "spring-boot-starter-oauth2-resource-server", version.ref = "spring-boot" }
+spring-boot-configuration-processor = { group = "org.springframework.boot", name = "spring-boot-configuration-processor", version.ref = "spring-boot" }
+spring-context = { group = "org.springframework", name = "spring-context", version.ref="spring-context" }
+
+#Database
+postgresql = { group = "org.postgresql", name = "postgresql", version.ref = "postgresql" }
+
+# Databind
+jackson-databind = { group = "com.fasterxml.jackson.core", name = "jackson-databind", version.ref = "jackson" }
+
+# Testing
+junit-bom = { group = "org.junit", name = "junit-bom", version.ref = "junit-bom" }
+junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter" }
+junit-platform-engine = { group = "org.junit.platform", name = "junit-platform-engine", version.ref = "junit-platform" }
+junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform-launcher", version.ref = "junit-platform"}
+junit-platform-commons = { group = "org.junit.platform", name = "junit-platform-commons", version.ref = "junit-platform"}
+spring-boot-test = { group = "org.springframework.boot", name = "spring-boot-test", version.ref = "spring-boot-test" }
+mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mockito" }
+mockito-junit-jupiter = { group = "org.mockito", name = "mockito-junit-jupiter", version.ref = "mockito" }
+jakarta-servlet-api = { group = "jakarta.servlet", name = "jakarta.servlet-api", version.ref = "jakarta-servlet-api" }
+assertj-core = { group = "org.assertj", name = "assertj-core", version.ref = "assertj-core" }
+archunit-junit5-api = { group = "com.tngtech.archunit", name = "archunit-junit5-api", version = "1.4.1" }
+archunit-core = { group = "com.tngtech.archunit", name = "archunit", version = "1.4.1" }
+
+[plugins]
+#Spring
+spring-boot= { id = "org.springframework.boot", version.ref = "spring-boot" }
+spring-boot-dependencies= { id = "io.spring.dependency-management", version.ref = "spring-boot-dependencies" }
+
+# Java
+java = { id = "java"}
+java-library = { id = "java-library"}
+
+# Jacoco
+jacoco = { id = "jacoco"}
+
+#Custom Conventions
+convention-delivery = { id = "ie.universityofgalway.groupnine.library.delivery"}
+convention-domain = { id = "ie.universityofgalway.groupnine.library.domain"}
+convention-infrastructure = { id = "ie.universityofgalway.groupnine.library.infrastructure"}
+convention-integration = { id = "ie.universityofgalway.groupnine.library.integration"}
+convention-service = { id = "ie.universityofgalway.groupnine.library.service"}
+convention-jacoco = { id = "ie.universityofgalway.groupnine.library.jacoco"}
+convention-testing = { id = "ie.universityofgalway.groupnine.library.testing"}
+convention-security = { id = "ie.universityofgalway.groupnine.library.security"}
+
+[bundles]

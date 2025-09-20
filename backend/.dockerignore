@@ -1,0 +1,21 @@
+# .dockerignore at repo root
+.git
+.gitignore
+.gradle
+build/
+**/build/
+out/
+**/.idea
+**/.vscode
+**/*.iml
+**/.DS_Store
+**/node_modules
+# Ignore local env & secrets
+.env
+.env.*
+# Kotlin/Java junk
+**/.kotlinc
+**/.kotlin
+**/.scannerwork
+# Logs
+**/*.log

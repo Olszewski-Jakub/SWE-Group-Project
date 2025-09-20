@@ -1,0 +1,41 @@
+# Dockerfile.dev
+FROM eclipse-temurin:17 AS jre-build
+
+# Install required tools (Debian/Ubuntu)
+RUN apt-get update && apt-get install -y --no-install-recommends bash && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /workspace
+
+# Gradle wrapper + build logic first for better layer caching
+COPY gradlew gradlew
+COPY gradle gradle
+COPY settings.gradle.kts settings.gradle.kts
+COPY build.gradle.kts build.gradle.kts
+COPY build-logic build-logic
+
+# Make wrapper executable
+RUN chmod +x ./gradlew
+
+# Verify Gradle
+RUN ./gradlew --version
+
+# Bring in the rest of the project
+COPY . .
+
+# Build the Spring Boot fat jar for :integration
+RUN ./gradlew :integration:bootJar -x test --no-daemon
+
+FROM eclipse-temurin:17 AS runtime
+
+# Non-root user
+RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
+
+WORKDIR /app
+
+# NOTE: fix here — use the correct stage name "jre-build"
+COPY --from=jre-build /workspace/integration/build/libs/*-SNAPSHOT.jar /app/app.jar
+
+EXPOSE 8080
+USER appuser
+
+ENTRYPOINT ["java","-jar","/app/app.jar","--spring.profiles.active=local"]
