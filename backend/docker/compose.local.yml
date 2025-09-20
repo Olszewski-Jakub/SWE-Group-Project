@@ -1,0 +1,45 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:17.6-alpine3.22
+    container_name: demo_db
+    environment:
+      POSTGRES_USER: demo
+      POSTGRES_PASSWORD: demo
+      POSTGRES_DB: demo_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U demo -d demo_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app:
+    # Build from source using the dev Dockerfile (no need to prebuild the jar)
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.dev
+    container_name: clean_arch_app
+    depends_on:
+      - db
+    environment:
+      SPRING_PROFILES_ACTIVE: "application-local"
+      # The app's application-local.yml already points to jdbc:postgresql://db:5432/demo_db
+      # If you prefer env-only config, uncomment:
+      # SPRING_DATASOURCE_URL: "jdbc:postgresql://db:5432/demo_db"
+      # SPRING_DATASOURCE_USERNAME: "demo"
+      # SPRING_DATASOURCE_PASSWORD: "demo"
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/api/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  db-data:

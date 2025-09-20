@@ -1,0 +1,84 @@
+# ================================
+# OS-specific files
+# ================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ================================
+# IDEs / Editors
+# ================================
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# VS Code (optional)
+.vscode/
+
+# ================================
+# Build tools
+# ================================
+# Gradle
+.gradle/
+build/
+out/
+
+# Maven
+target/
+
+# Wrapper (keep gradlew scripts, ignore caches)
+!gradle/wrapper/gradle-wrapper.jar
+!gradlew
+!gradlew.bat
+
+# ================================
+# Logs / Temp
+# ================================
+*.log
+*.tmp
+*.bak
+*.swp
+*.swo
+
+# Spring Boot runtime files
+*.pid
+*.seed
+*.key
+*.db
+
+# ================================
+# Coverage / Reports
+# ================================
+# JaCoCo
+jacoco.exec
+build/reports/
+target/site/
+
+# ================================
+# Security
+# ================================
+# Don’t commit secrets
+application-*.yml
+application-*.yaml
+application-*.properties
+secret.yml
+secret.yaml
+secret.properties
+
+# ================================
+# Misc
+# ================================
+# Node / frontend (if mixed project)
+node_modules/
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
