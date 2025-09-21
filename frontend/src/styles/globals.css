@@ -1,0 +1,8 @@
+@import "tailwindcss";
+
+/* Global styles */
+html, body { height: 100%; }
+body { @apply bg-gray-50 text-gray-900; }
+
+a { @apply text-indigo-600; }
+a:hover { @apply text-indigo-700; }
