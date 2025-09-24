@@ -1,6 +1,6 @@
 package ie.universityofgalway.groupnine.security;
 
-import ie.universityofgalway.groupnine.security.JwtConverters;
+import ie.universityofgalway.groupnine.security.jwt.JwtConverters;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.oauth2.jwt.Jwt;

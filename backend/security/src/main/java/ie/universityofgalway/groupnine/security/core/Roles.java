@@ -1,4 +1,4 @@
-package ie.universityofgalway.groupnine.security;
+package ie.universityofgalway.groupnine.security.core;
 
 public final class Roles {
     private Roles() {}

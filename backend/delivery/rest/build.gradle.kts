@@ -9,6 +9,9 @@ plugins {
 dependencies {
     implementation(project(":service"))
     implementation(project(":domain"))
+    implementation(project(":security"))
+    implementation(project(":util"))
+
 
     implementation(libs.spring.boot.starter.web)
     implementation(libs.spring.boot.starter.validation)

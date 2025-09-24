@@ -11,5 +11,6 @@ internal fun Project.configureInfrastructure() {
         implementation(libs.library("spring-context"))
         implementation(project(":domain"))
         implementation(project(":service"))
+        implementation(project(":util"))
     }
 }

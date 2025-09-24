@@ -1,5 +1,7 @@
 package ie.universityofgalway.groupnine.security;
 
+import ie.universityofgalway.groupnine.security.core.Roles;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

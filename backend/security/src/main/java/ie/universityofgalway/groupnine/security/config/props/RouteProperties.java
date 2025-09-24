@@ -1,4 +1,4 @@
-package ie.universityofgalway.groupnine.security;
+package ie.universityofgalway.groupnine.security.config.props;
 
 import jakarta.validation.constraints.NotNull;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -8,12 +8,12 @@ import org.springframework.validation.annotation.Validated;
 import java.util.List;
 import java.util.Map;
 
-@ConfigurationProperties(prefix = "app.security")
+@ConfigurationProperties(prefix = "app.security.routes")
 @Validated
 public class RouteProperties {
 
-    private Routes routes = new Routes();
-    private Jwt jwt = new Jwt();
+    private final Routes routes = new Routes();
+    private final Jwt jwt = new Jwt();
 
     public Routes getRoutes() { return routes; }
     public Jwt getJwt() { return jwt; }
@@ -51,4 +51,3 @@ public class RouteProperties {
         public void setAuthoritiesClaim(String authoritiesClaim) { this.authoritiesClaim = authoritiesClaim; }
     }
 }
-

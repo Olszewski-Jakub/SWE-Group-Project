@@ -1,4 +1,4 @@
-package ie.universityofgalway.groupnine.security;
+package ie.universityofgalway.groupnine.security.config;
 
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -6,29 +6,30 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
 
 @Configuration
-@EnableConfigurationProperties(RouteProperties.class)
+@EnableConfigurationProperties({ie.universityofgalway.groupnine.security.config.props.RouteProperties.class, ie.universityofgalway.groupnine.security.config.props.AppSecurityProps.class})
 public class SecurityConfig {
 
     @Bean
     SecurityFilterChain securityFilterChain(
             HttpSecurity http,
-            RouteProperties props,
-            JsonAuthHandlers handlers
+            ie.universityofgalway.groupnine.security.config.props.AppSecurityProps props,
+            ie.universityofgalway.groupnine.security.web.JsonAuthHandlers handlers,
+            ie.universityofgalway.groupnine.security.web.JwtAuthFilter jwtAuthFilter
     ) throws Exception {
-        http.csrf(csrf -> csrf.disable());
+        http.csrf(AbstractHttpConfigurer::disable);
         http.cors(Customizer.withDefaults());
         http.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
@@ -37,35 +38,31 @@ public class SecurityConfig {
             registry.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll();
             registry.requestMatchers(ant("/actuator/info")).permitAll();
 
-            // 2) permit-all from YAML
-            for (String p : safe(props.getRoutes().getPermitAll())) {
-                registry.requestMatchers(ant(p)).permitAll();
-            }
-
-            // 3) role-based rules (specific first)
-            for (Map.Entry<String, List<String>> e : safeMap(props.getRoutes().getRoles()).entrySet()) {
-                String role = e.getKey();
-                for (String p : safe(e.getValue())) {
-                    registry.requestMatchers(ant(p)).hasRole(role);
+            // 2) public routes
+            // Always allow health endpoint by default
+            if (props.getRoutes() != null && props.getRoutes().getPublicRoutes() != null) {
+                for (ie.universityofgalway.groupnine.security.config.props.AppSecurityProps.PublicRoute r : props.getRoutes().getPublicRoutes()) {
+                    registry.requestMatchers(ant(r.getPattern())).permitAll();
                 }
             }
 
-            // 4) authenticated catch-alls
-            for (String p : safe(props.getRoutes().getAuthenticated())) {
-                registry.requestMatchers(ant(p)).authenticated();
+            // 3) secure routes
+            if (props.getRoutes() != null && props.getRoutes().getSecureRoutes() != null) {
+                props.getRoutes().getSecureRoutes().forEach(r -> {
+                    if (r.getRole() != null && !r.getRole().isBlank()) {
+                        registry.requestMatchers(ant(r.getPattern())).hasRole(r.getRole());
+                    } else {
+                        registry.requestMatchers(ant(r.getPattern())).authenticated();
+                    }
+                });
             }
 
-            // 5) finally, the terminal rule — must be LAST:
+            // 4) terminal rule
             registry.anyRequest().denyAll();
         });
 
-        // Resource server (JWT)
-        http.oauth2ResourceServer(oauth -> oauth.jwt(jwt -> jwt
-                .jwtAuthenticationConverter(
-                        JwtConverters.jwtAuthenticationConverter(props.getJwt().getAuthoritiesClaim())
-                )
-        ));
-
+        // Add JWT filter
+        http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         // Add custom JSON error handling
         http.exceptionHandling(ex -> ex
@@ -77,7 +74,13 @@ public class SecurityConfig {
     }
 
     @Bean
-    JwtDecoder jwtDecoder(RouteProperties props) {
+    java.time.Clock clock() {
+        return java.time.Clock.systemUTC();
+    }
+
+    // Keep JwtDecoder bean for tests and potential future use
+    @Bean
+    public JwtDecoder jwtDecoder(ie.universityofgalway.groupnine.security.config.props.RouteProperties props) {
         byte[] secret = props.getJwt().getHmacSecret().getBytes(StandardCharsets.UTF_8);
         NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(new SecretKeySpec(secret, "HmacSHA256")).build();
         if (props.getJwt().getIssuer() != null && !props.getJwt().getIssuer().isBlank()) {
@@ -90,11 +93,4 @@ public class SecurityConfig {
         return new AntPathRequestMatcher(pattern);
     }
 
-    private static List<String> safe(List<String> list) {
-        return list == null ? List.of() : list;
-    }
-
-    private static Map<String, List<String>> safeMap(Map<String, List<String>> map) {
-        return map == null ? Map.of() : map;
-    }
 }

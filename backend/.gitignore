@@ -71,6 +71,8 @@ application-*.properties
 secret.yml
 secret.yaml
 secret.properties
+.env
+!.env.schema
 
 # ================================
 # Misc

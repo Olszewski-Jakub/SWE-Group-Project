@@ -22,6 +22,7 @@ internal fun Project.configureIntegration() {
         implementation(project(":infrastructure"))
         implementation(project(":security"))
         implementation(project(":delivery:rest"))
+        implementation(project(":util"))
         implementation(libs.library("spring-boot-starter-actuator"))
         implementation(libs.library("spring-boot-starter"))
         implementation(libs.library("spring-boot-starter-data-jpa"))
