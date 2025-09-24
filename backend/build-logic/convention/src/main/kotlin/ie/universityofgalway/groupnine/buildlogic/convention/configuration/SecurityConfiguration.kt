@@ -20,6 +20,7 @@ internal fun Project.configureSecurity() {
         implementation(libs.library("spring-boot-starter-oauth2-resource-server"))
         implementation(libs.library("spring-boot-starter-validation"))
         implementation(libs.library("spring-boot-configuration-processor"))
+        implementation(project(":util"))
 
     }
 }

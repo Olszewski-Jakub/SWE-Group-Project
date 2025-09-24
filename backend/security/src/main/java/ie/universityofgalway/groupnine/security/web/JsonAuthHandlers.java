@@ -1,4 +1,4 @@
-package ie.universityofgalway.groupnine.security;
+package ie.universityofgalway.groupnine.security.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;

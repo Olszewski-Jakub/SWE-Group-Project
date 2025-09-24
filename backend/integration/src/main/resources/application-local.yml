@@ -25,3 +25,18 @@ management:
 logging:
   level:
     com.example: DEBUG
+
+app:
+  security:
+    routes:
+      public-routes:
+        - pattern: /api/health
+        - pattern: /dev/**
+      secure-routes:
+        - pattern: /api/admin/**
+          role: ADMIN
+        - pattern: /api/**
+    jwt:
+      issuer: "https://example-issuer"
+      hmac-secret: "${JWT_SECRET:change-me}"
+      authorities-claim: "roles"

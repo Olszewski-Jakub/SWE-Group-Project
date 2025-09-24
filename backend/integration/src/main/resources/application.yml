@@ -6,10 +6,14 @@ spring:
     name: backend
   main:
     banner-mode: "console"
+  config:
+    import:
+      - optional:file:.env[.properties]
+      - optional:file:../.env[.properties]
   datasource:
-    url: jdbc:postgresql://localhost:5432/demo_db
-    username: demo
-    password: demo
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/demo_db}
+    username: ${DB_USERNAME:demo}
+    password: ${DB_PASSWORD:demo}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 5
@@ -35,3 +39,18 @@ logging:
   level:
     root: INFO
     com.example: INFO
+
+app:
+  security:
+    routes:
+      public-routes:
+        - pattern: /api/health
+        - pattern: /dev/**
+      secure-routes:
+        - pattern: /api/admin/**
+          role: ADMIN
+        - pattern: /api/**
+    jwt:
+      issuer: "https://example-issuer"
+      hmac-secret: "${JWT_SECRET:change-me}"
+      authorities-claim: "roles"

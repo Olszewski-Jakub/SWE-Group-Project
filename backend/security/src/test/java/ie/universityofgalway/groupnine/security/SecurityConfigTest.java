@@ -1,5 +1,8 @@
 package ie.universityofgalway.groupnine.security;
 
+import ie.universityofgalway.groupnine.security.config.SecurityConfig;
+import ie.universityofgalway.groupnine.security.config.props.RouteProperties;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -35,4 +38,3 @@ class SecurityConfigTest {
         Assertions.assertNotNull(decoder);
     }
 }
-

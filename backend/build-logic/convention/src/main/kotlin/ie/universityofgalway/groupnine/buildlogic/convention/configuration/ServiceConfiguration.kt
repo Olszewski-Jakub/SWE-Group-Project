@@ -10,5 +10,6 @@ internal fun Project.configureSerivce() {
     dependencies {
         implementation(project(":domain"))
         implementation(libs.library("spring-boot-starter"))
+        implementation(project(":util"))
     }
 }
