@@ -13,6 +13,7 @@ jakarta-servlet-api = "6.1.0"
 assertj-core = "3.25.3"
 jacoco-tool = "0.8.11"
 archunit = "1.4.1"
+flyway = "10.15.0"
 
 [libraries]
 #Spring
@@ -29,7 +30,8 @@ spring-context = { group = "org.springframework", name = "spring-context", versi
 
 #Database
 postgresql = { group = "org.postgresql", name = "postgresql", version.ref = "postgresql" }
-
+flywaydb-core = {group = "org.flywaydb", name = "flyway-core", version.ref = "flyway" }
+flywaydb-postgres = {group = "org.flywaydb", name = "flyway-database-postgresql", version.ref = "flyway" }
 # Databind
 jackson-databind = { group = "com.fasterxml.jackson.core", name = "jackson-databind", version.ref = "jackson" }
 
