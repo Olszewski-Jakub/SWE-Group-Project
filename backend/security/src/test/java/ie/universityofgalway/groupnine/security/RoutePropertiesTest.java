@@ -1,7 +1,6 @@
 package ie.universityofgalway.groupnine.security;
 
 import ie.universityofgalway.groupnine.security.config.props.RouteProperties;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

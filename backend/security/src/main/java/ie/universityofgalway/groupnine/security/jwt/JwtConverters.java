@@ -17,13 +17,13 @@ public final class JwtConverters {
     }
 
     private record JwtAuthoritiesConverter(String claim) implements Converter<Jwt, Collection<GrantedAuthority>> {
-            private JwtAuthoritiesConverter(String claim) {
-                this.claim = Objects.requireNonNull(claim);
-            }
+        private JwtAuthoritiesConverter(String claim) {
+            this.claim = Objects.requireNonNull(claim);
+        }
 
-            @Override
-            public Collection<GrantedAuthority> convert(Jwt jwt) {
-                Object raw = jwt.getClaims().get(claim);
+        @Override
+        public Collection<GrantedAuthority> convert(Jwt jwt) {
+            Object raw = jwt.getClaims().get(claim);
             return Authorities.fromClaim(raw);
         }
     }

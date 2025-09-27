@@ -10,6 +10,10 @@ repositories {
 }
 
 dependencies {
+    implementation(libs.spring.boot.starter)
+    implementation(libs.spring.boot.starter.security)
+    implementation(libs.spring.boot.starter.data.jpa)
+    implementation("org.springframework.security:spring-security-crypto")
 }
 
 coverage {

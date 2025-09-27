@@ -1,6 +1,8 @@
 package ie.universityofgalway.groupnine.delivery.rest.health;
 
 import ie.universityofgalway.groupnine.domain.health.HealthStatus;
+import ie.universityofgalway.groupnine.service.auth.usecase.RegisterUserUseCase;
+import ie.universityofgalway.groupnine.service.auth.usecase.VerifyEmailUseCase;
 import ie.universityofgalway.groupnine.service.health.HealthCheckUseCase;
 import ie.universityofgalway.groupnine.testsupport.web.CommonWebMvcTest;
 import ie.universityofgalway.groupnine.testsupport.web.DeliveryWebMvcTest;
@@ -10,13 +12,20 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @DeliveryWebMvcTest(controllers = HealthController.class)
 class HealthControllerTest extends CommonWebMvcTest {
 
     @MockitoBean
     private HealthCheckUseCase useCase;
+
+    @MockitoBean
+    private RegisterUserUseCase registerUserUseCase;
+    @MockitoBean
+    private VerifyEmailUseCase verifyEmailUseCase;
 
     @Test
     void returns200_whenHealthUp() throws Exception {

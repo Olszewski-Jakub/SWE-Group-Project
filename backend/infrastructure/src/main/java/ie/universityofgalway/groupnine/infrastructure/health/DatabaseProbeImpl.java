@@ -13,7 +13,9 @@ import java.sql.ResultSet;
 public class DatabaseProbeImpl implements DatabaseProbe {
     private final DataSource dataSource;
 
-    public DatabaseProbeImpl(DataSource dataSource) { this.dataSource = dataSource; }
+    public DatabaseProbeImpl(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     @Override
     public boolean pingDatabase() {

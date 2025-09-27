@@ -3,11 +3,10 @@ package ie.universityofgalway.groupnine.security;
 import ie.universityofgalway.groupnine.security.jwt.JwtConverters;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.jwt.Jwt;
 
 import java.util.List;
-import java.util.Map;
 
 class JwtConvertersTest {
 

@@ -23,7 +23,8 @@ gradlePlugin {
     plugins {
         register("conventionTesting") {
             id = "ie.universityofgalway.groupnine.library.testing"
-            implementationClass = "ie.universityofgalway.groupnine.buildlogic.convention.library.TestingConventionPlugin"
+            implementationClass =
+                "ie.universityofgalway.groupnine.buildlogic.convention.library.TestingConventionPlugin"
             displayName = "Testing Convention"
             description = "JUnit 5, Kotlin tests (optional), common test logging"
         }
@@ -39,19 +40,23 @@ gradlePlugin {
         }
         register("conventionInfrastructure") {
             id = "ie.universityofgalway.groupnine.library.infrastructure"
-            implementationClass = "ie.universityofgalway.groupnine.buildlogic.convention.library.InfrastructureConventionPlugin"
+            implementationClass =
+                "ie.universityofgalway.groupnine.buildlogic.convention.library.InfrastructureConventionPlugin"
         }
         register("conventionSecurity") {
             id = "ie.universityofgalway.groupnine.library.security"
-            implementationClass = "ie.universityofgalway.groupnine.buildlogic.convention.library.SecurityConventionPlugin"
+            implementationClass =
+                "ie.universityofgalway.groupnine.buildlogic.convention.library.SecurityConventionPlugin"
         }
         register("conventionIntegration") {
             id = "ie.universityofgalway.groupnine.library.integration"
-            implementationClass = "ie.universityofgalway.groupnine.buildlogic.convention.library.IntegrationConventionPlugin"
+            implementationClass =
+                "ie.universityofgalway.groupnine.buildlogic.convention.library.IntegrationConventionPlugin"
         }
         register("conventionService") {
             id = "ie.universityofgalway.groupnine.library.service"
-            implementationClass = "ie.universityofgalway.groupnine.buildlogic.convention.library.ServiceConventionPlugin"
+            implementationClass =
+                "ie.universityofgalway.groupnine.buildlogic.convention.library.ServiceConventionPlugin"
         }
     }
 }

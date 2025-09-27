@@ -14,23 +14,15 @@ import java.util.StringJoiner;
  */
 public final class AppLogger {
     private static final String CID = "cid";
-
-    public static AppLogger get(Class<?> type) {
-        return new AppLogger(LoggerFactory.getLogger(type));
-    }
-
     private final Logger log;
 
     private AppLogger(Logger log) {
         this.log = log;
     }
 
-    public boolean isDebugEnabled() { return log.isDebugEnabled(); }
-
-    public void debug(String message, Object... kvPairs) { log.debug(format(message, kvPairs)); }
-    public void info(String message, Object... kvPairs)  { log.info(format(message, kvPairs)); }
-    public void warn(String message, Object... kvPairs)  { log.warn(format(message, kvPairs)); }
-    public void error(String message, Object... kvPairs) { log.error(format(message, kvPairs)); }
+    public static AppLogger get(Class<?> type) {
+        return new AppLogger(LoggerFactory.getLogger(type));
+    }
 
     public static AutoCloseable withCorrelationId(String correlationId) {
         final String previous = MDC.get(CID);
@@ -38,7 +30,8 @@ public final class AppLogger {
             MDC.put(CID, correlationId);
         }
         return () -> {
-            if (previous == null) MDC.remove(CID); else MDC.put(CID, previous);
+            if (previous == null) MDC.remove(CID);
+            else MDC.put(CID, previous);
         };
     }
 
@@ -60,6 +53,26 @@ public final class AppLogger {
     private static String safeKey(Object k) {
         String s = Objects.toString(k);
         return s.replaceAll("\\s+", "_");
+    }
+
+    public boolean isDebugEnabled() {
+        return log.isDebugEnabled();
+    }
+
+    public void debug(String message, Object... kvPairs) {
+        log.debug(format(message, kvPairs));
+    }
+
+    public void info(String message, Object... kvPairs) {
+        log.info(format(message, kvPairs));
+    }
+
+    public void warn(String message, Object... kvPairs) {
+        log.warn(format(message, kvPairs));
+    }
+
+    public void error(String message, Object... kvPairs) {
+        log.error(format(message, kvPairs));
     }
 }
 

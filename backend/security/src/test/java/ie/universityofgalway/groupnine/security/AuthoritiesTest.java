@@ -1,7 +1,6 @@
 package ie.universityofgalway.groupnine.security;
 
 import ie.universityofgalway.groupnine.security.jwt.Authorities;
-
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.core.GrantedAuthority;

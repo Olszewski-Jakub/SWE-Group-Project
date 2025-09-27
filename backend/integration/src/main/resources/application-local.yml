@@ -31,6 +31,7 @@ app:
     routes:
       public-routes:
         - pattern: /api/health
+        - pattern: /auth/**
         - pattern: /dev/**
       secure-routes:
         - pattern: /api/admin/**

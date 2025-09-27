@@ -22,6 +22,10 @@ import java.nio.charset.StandardCharsets;
 @EnableConfigurationProperties({ie.universityofgalway.groupnine.security.config.props.RouteProperties.class, ie.universityofgalway.groupnine.security.config.props.AppSecurityProps.class})
 public class SecurityConfig {
 
+    private static AntPathRequestMatcher ant(String pattern) {
+        return new AntPathRequestMatcher(pattern);
+    }
+
     @Bean
     SecurityFilterChain securityFilterChain(
             HttpSecurity http,
@@ -87,10 +91,6 @@ public class SecurityConfig {
             decoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(props.getJwt().getIssuer()));
         }
         return decoder;
-    }
-
-    private static AntPathRequestMatcher ant(String pattern) {
-        return new AntPathRequestMatcher(pattern);
     }
 
 }
