@@ -1,6 +1,6 @@
 package ie.universityofgalway.groupnine.security;
 
-import com.nimbusds.jwt.JWTClaimsSet;
+import ie.universityofgalway.groupnine.security.jwt.JwtClaims;
 import ie.universityofgalway.groupnine.security.config.props.AppSecurityProps;
 import ie.universityofgalway.groupnine.security.jwt.JwtException;
 import ie.universityofgalway.groupnine.security.jwt.JwtService;
@@ -41,15 +41,11 @@ class JwtServiceTest {
     @Test
     void createAndValidate_roundtrip() {
         String token = service.createAccessToken("user-1", List.of("ADMIN", "USER"), Map.of("x", 1));
-        JWTClaimsSet claims = service.validate(token);
+        JwtClaims claims = service.validate(token);
 
         Assertions.assertThat(claims.getSubject()).isEqualTo("user-1");
         Assertions.assertThat(claims.getIssuer()).isEqualTo("https://issuer");
-        Object roles = claims.getClaims().get("roles");
-        Assertions.assertThat(roles).isInstanceOf(List.class);
-        @SuppressWarnings("unchecked") List<Object> rolesList = (List<Object>) roles;
-        Assertions.assertThat(rolesList.stream().map(String::valueOf).toList())
-                .containsExactlyInAnyOrder("ADMIN", "USER");
+        Assertions.assertThat(claims.getRoles()).containsExactlyInAnyOrder("ADMIN", "USER");
         Object x = claims.getClaims().get("x");
         Assertions.assertThat(x).isInstanceOf(Number.class);
         Assertions.assertThat(((Number) x).longValue()).isEqualTo(1L);

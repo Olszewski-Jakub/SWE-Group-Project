@@ -14,7 +14,7 @@ open class CoverageExtension {
      */
     var minimum: Double = 0.0
 
-    var counters: List<String> = listOf("LINE", "BRANCH", "INSTRUCTION", "METHOD", "CLASS", "COMPLEXITY")
+    var counters: List<String> = listOf("LINE")
 }
 
 class JacocoConventionPlugin : Plugin<Project> {

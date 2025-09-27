@@ -95,7 +95,7 @@ public class JwtService {
         return token;
     }
 
-    public JWTClaimsSet validate(String token) {
+    public JwtClaims validate(String token) {
         try {
             SignedJWT signed = SignedJWT.parse(token);
             byte[] key = resolveSecretKeyBytes(props.getJwt().getHmacSecret());
@@ -113,7 +113,7 @@ public class JwtService {
                     "iss", claims.getIssuer() == null ? "" : claims.getIssuer(),
                     "exp", claims.getExpirationTime() == null ? "" : claims.getExpirationTime().toInstant().toString()
             );
-            return claims;
+            return toAppClaims(claims);
         } catch (ParseException e) {
             LOG.warn("jwt_invalid", "reason", "parse_error", "error", e.getMessage());
             throw new JwtException("Invalid token format", e);
@@ -154,5 +154,23 @@ public class JwtService {
             );
             throw new JwtException("HMAC secret too short (need at least 32 bytes). Set JWT_SECRET to a strong value, e.g., `openssl rand -base64 32`.");
         }
+    }
+
+    private JwtClaims toAppClaims(JWTClaimsSet claims) {
+        java.time.Instant iat = claims.getIssueTime() == null ? null : claims.getIssueTime().toInstant();
+        java.time.Instant exp = claims.getExpirationTime() == null ? null : claims.getExpirationTime().toInstant();
+        // Extract roles from configured claim
+        Object raw = claims.getClaim(props.getJwt().getAuthoritiesClaim());
+        java.util.List<String> roles;
+        if (raw instanceof java.util.List<?> list) {
+            roles = list.stream().map(String::valueOf).toList();
+        } else if (raw instanceof String s) {
+            roles = java.util.List.of(s);
+        } else {
+            roles = java.util.List.of();
+        }
+        // All claims map
+        java.util.Map<String, Object> map = claims.getClaims();
+        return new JwtClaims(claims.getSubject(), claims.getIssuer(), iat, exp, roles, map);
     }
 }

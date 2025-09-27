@@ -1,10 +1,7 @@
 package ie.universityofgalway.groupnine.delivery.rest.auth;
 
 import ie.universityofgalway.groupnine.delivery.rest.support.ApiError;
-import ie.universityofgalway.groupnine.domain.auth.EmailAlreadyUsed;
-import ie.universityofgalway.groupnine.domain.auth.ExpiredVerificationToken;
-import ie.universityofgalway.groupnine.domain.auth.InvalidVerificationToken;
-import ie.universityofgalway.groupnine.domain.auth.TokenAlreadyUsed;
+import ie.universityofgalway.groupnine.domain.auth.*;
 import ie.universityofgalway.groupnine.util.logging.AppLogger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,6 +37,51 @@ public class AuthExceptionHandler {
     public ResponseEntity<ApiError> handleUsed(TokenAlreadyUsed ex, WebRequest req) {
         log.info("auth_conflict_used_token", "message", ex.getMessage());
         return toBody(HttpStatus.CONFLICT, ex.getMessage(), req);
+    }
+
+    @ExceptionHandler(InvalidCredentials.class)
+    public ResponseEntity<ApiError> handleInvalidCredentials(InvalidCredentials ex, WebRequest req) {
+        log.info("auth_unauthorized_invalid_credentials", "message", ex.getMessage());
+        return toBody(HttpStatus.UNAUTHORIZED, ex.getMessage(), req);
+    }
+
+    @ExceptionHandler(UserNotVerified.class)
+    public ResponseEntity<ApiError> handleNotVerified(UserNotVerified ex, WebRequest req) {
+        log.info("auth_forbidden_not_verified", "message", ex.getMessage());
+        return toBody(HttpStatus.FORBIDDEN, ex.getMessage(), req);
+    }
+
+    @ExceptionHandler(UserLocked.class)
+    public ResponseEntity<ApiError> handleLocked(UserLocked ex, WebRequest req) {
+        log.info("auth_locked_user", "message", ex.getMessage());
+        return toBody(HttpStatus.LOCKED, ex.getMessage(), req);
+    }
+
+    @ExceptionHandler({InvalidRefreshToken.class, ExpiredRefreshToken.class})
+    public ResponseEntity<ApiError> handleRefreshInvalid(RuntimeException ex, WebRequest req) {
+        log.info("auth_unauthorized_refresh", "message", ex.getMessage());
+        return toBody(HttpStatus.UNAUTHORIZED, ex.getMessage(), req);
+    }
+
+    @ExceptionHandler(RefreshReuseDetected.class)
+    public ResponseEntity<ApiError> handleReuse(RefreshReuseDetected ex, WebRequest req) {
+        log.info("auth_conflict_refresh_reuse", "message", ex.getMessage());
+        return toBody(HttpStatus.CONFLICT, ex.getMessage(), req);
+    }
+
+    @ExceptionHandler(TooManyAttempts.class)
+    public ResponseEntity<ApiError> handleTooMany(TooManyAttempts ex, WebRequest req) {
+        log.info("auth_rate_limited", "retry_after_seconds", ex.getRetryAfterSeconds());
+        ApiError body = new ApiError(
+                HttpStatus.TOO_MANY_REQUESTS.value(),
+                HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase(),
+                ex.getMessage(),
+                req.getDescription(false).replace("uri=", ""),
+                java.util.List.of("retryAfterSeconds=" + ex.getRetryAfterSeconds())
+        );
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .header(org.springframework.http.HttpHeaders.RETRY_AFTER, String.valueOf(ex.getRetryAfterSeconds()))
+                .body(body);
     }
 
     private ResponseEntity<ApiError> toBody(HttpStatus status, String message, WebRequest request) {

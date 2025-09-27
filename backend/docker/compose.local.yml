@@ -27,7 +27,7 @@ services:
     depends_on:
       - db
     environment:
-      SPRING_PROFILES_ACTIVE: "application-local"
+      SPRING_PROFILES_ACTIVE: "local"
       # The app's application-local.yml already points to jdbc:postgresql://db:5432/demo_db
       # If you prefer env-only config, uncomment:
       # SPRING_DATASOURCE_URL: "jdbc:postgresql://db:5432/demo_db"
@@ -40,6 +40,17 @@ services:
       interval: 5s
       timeout: 3s
       retries: 20
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: demo_redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
 volumes:
   db-data:

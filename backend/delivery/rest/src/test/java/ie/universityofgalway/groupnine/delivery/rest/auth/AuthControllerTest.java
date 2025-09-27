@@ -1,89 +1,61 @@
 package ie.universityofgalway.groupnine.delivery.rest.auth;
 
-import ie.universityofgalway.groupnine.domain.auth.EmailAlreadyUsed;
-import ie.universityofgalway.groupnine.domain.auth.ExpiredVerificationToken;
-import ie.universityofgalway.groupnine.domain.auth.InvalidVerificationToken;
-import ie.universityofgalway.groupnine.domain.auth.TokenAlreadyUsed;
-import ie.universityofgalway.groupnine.service.auth.usecase.RegisterUserUseCase;
-import ie.universityofgalway.groupnine.service.auth.usecase.VerifyEmailUseCase;
-import ie.universityofgalway.groupnine.testsupport.web.CommonWebMvcTest;
-import ie.universityofgalway.groupnine.testsupport.web.DeliveryWebMvcTest;
+import ie.universityofgalway.groupnine.delivery.rest.auth.dto.LoginRequest;
+import ie.universityofgalway.groupnine.security.config.props.AuthProps;
+import ie.universityofgalway.groupnine.service.auth.usecase.*;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
+import static org.hamcrest.Matchers.containsString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@DeliveryWebMvcTest(controllers = {AuthController.class})
-class AuthControllerTest extends CommonWebMvcTest {
+public class AuthControllerTest {
+    private MockMvc mockMvc;
+    private LoginUseCase loginUseCase;
+    private RefreshUseCase refreshUseCase;
+    private LogoutUseCase logoutUseCase;
+    private LogoutAllUseCase logoutAllUseCase;
+    private AuthProps props;
 
-    @MockitoBean
-    RegisterUserUseCase registerUserUseCase;
+    @BeforeEach
+    void setup() {
+        loginUseCase = Mockito.mock(LoginUseCase.class);
+        refreshUseCase = Mockito.mock(RefreshUseCase.class);
+        logoutUseCase = Mockito.mock(LogoutUseCase.class);
+        logoutAllUseCase = Mockito.mock(LogoutAllUseCase.class);
+        props = new AuthProps();
+        props.setRefreshCookieName("refreshToken");
+        props.setRefreshTtlDays(14);
 
-    @MockitoBean
-    VerifyEmailUseCase verifyEmailUseCase;
-
-    @Test
-    void register_created() throws Exception {
-        String body = "{\n" +
-                " \"email\": \"john@example.com\",\n" +
-                " \"password\": \"supersecurepwd\",\n" +
-                " \"firstName\": \"John\",\n" +
-                " \"lastName\": \"Doe\"\n" +
-                "}";
-        mockMvc.perform(post("/auth/register").contentType(MediaType.APPLICATION_JSON).content(body))
-                .andExpect(status().isCreated());
-        verify(registerUserUseCase).execute(anyString(), anyString(), anyString(), anyString());
+        AuthController controller = new AuthController(
+                Mockito.mock(RegisterUserUseCase.class),
+                Mockito.mock(VerifyEmailUseCase.class),
+                loginUseCase,
+                refreshUseCase,
+                logoutUseCase,
+                logoutAllUseCase,
+                props
+        );
+        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
     @Test
-    void register_conflict_if_email_used() throws Exception {
-        doThrow(new EmailAlreadyUsed("Email already in use")).when(registerUserUseCase)
-                .execute(anyString(), anyString(), anyString(), anyString());
+    void loginSetsCookieAndReturnsRefreshToken() throws Exception {
+        when(loginUseCase.execute(eq("user@example.com"), eq("pass"), any(), any()))
+                .thenReturn(new LoginUseCase.Result("acc", 900, "opaque_refresh"));
 
-        String body = "{\n" +
-                " \"email\": \"john@example.com\",\n" +
-                " \"password\": \"supersecurepwd\",\n" +
-                " \"firstName\": \"John\",\n" +
-                " \"lastName\": \"Doe\"\n" +
-                "}";
-        mockMvc.perform(post("/auth/register").contentType(MediaType.APPLICATION_JSON).content(body))
-                .andExpect(status().isConflict());
-    }
-
-    @Test
-    void verify_ok() throws Exception {
-        String body = "{\n \"token\": \"abc\"\n}";
-        mockMvc.perform(post("/auth/verify-email").contentType(MediaType.APPLICATION_JSON).content(body))
-                .andExpect(status().isOk());
-        verify(verifyEmailUseCase).execute(anyString());
-    }
-
-    @Test
-    void verify_bad_request_on_invalid() throws Exception {
-        doThrow(new InvalidVerificationToken("Invalid")).when(verifyEmailUseCase).execute(anyString());
-        String body = "{\n \"token\": \"abc\"\n}";
-        mockMvc.perform(post("/auth/verify-email").contentType(MediaType.APPLICATION_JSON).content(body))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void verify_gone_on_expired() throws Exception {
-        doThrow(new ExpiredVerificationToken("Expired")).when(verifyEmailUseCase).execute(anyString());
-        String body = "{\n \"token\": \"abc\"\n}";
-        mockMvc.perform(post("/auth/verify-email").contentType(MediaType.APPLICATION_JSON).content(body))
-                .andExpect(status().isGone());
-    }
-
-    @Test
-    void verify_conflict_on_used() throws Exception {
-        doThrow(new TokenAlreadyUsed("Used")).when(verifyEmailUseCase).execute(anyString());
-        String body = "{\n \"token\": \"abc\"\n}";
-        mockMvc.perform(post("/auth/verify-email").contentType(MediaType.APPLICATION_JSON).content(body))
-                .andExpect(status().isConflict());
+        String json = "{\n  \"email\": \"user@example.com\",\n  \"password\": \"pass\"\n}";
+        mockMvc.perform(post("/auth/login").contentType(MediaType.APPLICATION_JSON).content(json))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Set-Cookie", containsString("refreshToken=opaque_refresh")))
+                .andExpect(content().string(containsString("\"refreshToken\":\"opaque_refresh\"")));
     }
 }

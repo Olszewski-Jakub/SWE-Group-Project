@@ -1,17 +1,37 @@
 Auth endpoints
 
-How to test locally
+- POST `/auth/login`
+  Request: { "email": "user@example.com", "password": "secret" }
+  Response 200:
+  {
+    "accessToken": "<jwt>",
+    "expiresIn": 900,
+    "refreshToken": "<opaque_refresh>",
+    "tokenType": "Bearer"
+  }
+  Also sets cookie: `refreshToken=<opaque>; HttpOnly; Secure; SameSite=None; Path=/auth/refresh`.
 
-- Start the app from the `integration` module (it runs Flyway and exposes HTTP on `:8080`). Ensure Postgres and
-  `application.yml` creds are valid.
-- Register: `POST http://localhost:8080/auth/register` with JSON body: { "email": "user@example.com", "password": "
-  0123456789X", "firstName": "Jane", "lastName": "Doe" }. Expect 201.
-- Verify email: read the opaque token from logs (LoggingEmailSenderAdapter logs the verify URL), then call
-  `POST http://localhost:8080/auth/verify-email` with body: { "token": "<opaque-from-logs>" }. Expect 200.
-- Errors map to HTTP: duplicate email → 409, invalid token → 400, expired → 410, already used → 409.
+- POST `/auth/refresh`
+  Reads refresh token from cookie `refreshToken` or header `X-Refresh-Token`.
+  Response 200:
+  {
+    "accessToken": "<jwt>",
+    "expiresIn": 900,
+    "refreshToken": "<new_opaque_refresh>",
+    "tokenType": "Bearer"
+  }
+  Rotates the refresh token: sets new cookie and revokes previous session.
 
-Notes
+- POST `/auth/logout`
+  Revokes the current session and clears the refresh cookie.
 
-- Only a hash of the token is stored in DB; the opaque token appears only once in logs.
-- Endpoints are public as configured in `application.yml`.
+- POST `/auth/logout-all`
+  Revokes all sessions for the current user and clears the refresh cookie.
+
+Errors
+
+- 401 InvalidCredentials / InvalidRefreshToken / ExpiredRefreshToken
+- 403 UserNotVerified
+- 423 UserLocked
+- 409 RefreshReuseDetected (all sessions revoked; client must re-login)
 

@@ -26,6 +26,7 @@ internal fun Project.configureIntegration() {
         implementation(libs.library("spring-boot-starter-actuator"))
         implementation(libs.library("spring-boot-starter"))
         implementation(libs.library("spring-boot-starter-data-jpa"))
+        implementation(libs.library("spring-boot-starter-data-redis"))
         implementation(libs.library("spring-context"))
         runtimeOnly(libs.library("postgresql"))
     }

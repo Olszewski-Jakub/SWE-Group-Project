@@ -14,6 +14,7 @@ assertj-core = "3.25.3"
 jacoco-tool = "0.8.11"
 archunit = "1.4.1"
 flyway = "10.15.0"
+slf4j = "2.0.13"
 
 [libraries]
 #Spring
@@ -22,6 +23,7 @@ spring-boot-starter-web = { group = "org.springframework.boot", name = "spring-b
 spring-boot-starter-validation = { group = "org.springframework.boot", name = "spring-boot-starter-validation", version.ref = "spring-boot" }
 spring-boot-starter-actuator = { group = "org.springframework.boot", name = "spring-boot-starter-actuator", version.ref = "spring-boot" }
 spring-boot-starter-data-jpa = { group = "org.springframework.boot", name = "spring-boot-starter-data-jpa", version.ref = "spring-boot" }
+spring-boot-starter-data-redis = { group = "org.springframework.boot", name = "spring-boot-starter-data-redis", version.ref = "spring-boot" }
 spring-boot-starter-test = { group = "org.springframework.boot", name = "spring-boot-starter-test", version.ref = "spring-boot" }
 spring-boot-starter-security = { group = "org.springframework.boot", name = "spring-boot-starter-security", version.ref = "spring-boot" }
 spring-boot-starter-oauth2-resource-server = { group = "org.springframework.boot", name = "spring-boot-starter-oauth2-resource-server", version.ref = "spring-boot" }
@@ -46,8 +48,15 @@ mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mo
 mockito-junit-jupiter = { group = "org.mockito", name = "mockito-junit-jupiter", version.ref = "mockito" }
 jakarta-servlet-api = { group = "jakarta.servlet", name = "jakarta.servlet-api", version.ref = "jakarta-servlet-api" }
 assertj-core = { group = "org.assertj", name = "assertj-core", version.ref = "assertj-core" }
-archunit-junit5-api = { group = "com.tngtech.archunit", name = "archunit-junit5-api", version = "1.4.1" }
-archunit-core = { group = "com.tngtech.archunit", name = "archunit", version = "1.4.1" }
+archunit-junit5-api = { group = "com.tngtech.archunit", name = "archunit-junit5-api", version.ref = "archunit" }
+archunit-core = { group = "com.tngtech.archunit", name = "archunit", version.ref = "archunit" }
+
+# Spring Security (managed by Spring BOM, version omitted)
+spring-security-crypto = { group = "org.springframework.security", name = "spring-security-crypto" }
+spring-security-oauth2-jose = { group = "org.springframework.security", name = "spring-security-oauth2-jose" }
+
+# Logging
+slf4j-api = { group = "org.slf4j", name = "slf4j-api", version.ref = "slf4j" }
 
 [plugins]
 #Spring

@@ -9,6 +9,7 @@ import org.gradle.kotlin.dsl.dependencies
 internal fun Project.configureInfrastructure() {
     dependencies {
         implementation(libs.library("spring-context"))
+        implementation(libs.library("jackson-databind"))
         implementation(project(":domain"))
         implementation(project(":service"))
         implementation(project(":util"))
