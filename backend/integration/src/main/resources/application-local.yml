@@ -16,6 +16,12 @@ spring:
     enabled: true
     locations: classpath:db/migration
     baseline-on-migrate: true
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+      database: 0
+
 
 management:
   endpoint:
@@ -41,3 +47,16 @@ app:
       issuer: "https://example-issuer"
       hmac-secret: "${JWT_SECRET:change-me}"
       authorities-claim: "roles"
+    bruteforce:
+      email-max: 10
+      ip-max: 50
+      window-seconds: 900
+      key-prefix: "app:"
+      backoff-base-seconds: 60
+      backoff-factor: 2.0
+      backoff-max-seconds: 3600
+  auth:
+    refresh-ttl-days: 14
+    refresh-cookie-name: refreshToken
+  flyway:
+    repair-on-start: true

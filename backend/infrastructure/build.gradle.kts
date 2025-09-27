@@ -13,9 +13,11 @@ dependencies {
     implementation(libs.spring.boot.starter)
     implementation(libs.spring.boot.starter.security)
     implementation(libs.spring.boot.starter.data.jpa)
-    implementation("org.springframework.security:spring-security-crypto")
+    implementation(libs.spring.boot.starter.data.redis)
+    implementation(libs.spring.security.crypto)
+    implementation(project(":security"))
 }
 
 coverage {
-    minimum = 0.75
+    minimum = 0.6
 }

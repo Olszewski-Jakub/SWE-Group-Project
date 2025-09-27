@@ -9,7 +9,9 @@ dependencies {
     implementation(libs.flywaydb.core)
     implementation(libs.flywaydb.postgres)
     implementation(libs.spring.boot.starter.security)
-    implementation("org.springframework.security:spring-security-crypto")
+    implementation(libs.spring.security.crypto)
+    implementation(project(":security"))
+    implementation(libs.spring.boot.starter.data.redis)
 
 }
 

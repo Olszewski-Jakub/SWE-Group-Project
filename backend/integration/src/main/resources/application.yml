@@ -59,3 +59,6 @@ app:
   email:
     from: "no-reply@example.com"
     enabled: true
+  auth:
+    refresh-ttl-days: 14
+    refresh-cookie-name: refreshToken

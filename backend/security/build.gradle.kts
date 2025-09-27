@@ -10,7 +10,7 @@ repositories {
 }
 
 dependencies {
-    implementation("org.springframework.security:spring-security-oauth2-jose")
+    implementation(libs.spring.security.oauth2.jose)
 }
 
 coverage {

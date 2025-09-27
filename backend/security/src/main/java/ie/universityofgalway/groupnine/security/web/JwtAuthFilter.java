@@ -1,10 +1,10 @@
 package ie.universityofgalway.groupnine.security.web;
 
-import com.nimbusds.jwt.JWTClaimsSet;
 import ie.universityofgalway.groupnine.security.config.props.AppSecurityProps;
 import ie.universityofgalway.groupnine.security.jwt.Authorities;
 import ie.universityofgalway.groupnine.security.jwt.JwtException;
 import ie.universityofgalway.groupnine.security.jwt.JwtService;
+import ie.universityofgalway.groupnine.security.jwt.JwtClaims;
 import ie.universityofgalway.groupnine.util.logging.AppLogger;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -47,7 +47,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         if (auth != null && auth.startsWith("Bearer ")) {
             String token = auth.substring(7);
             try {
-                JWTClaimsSet claims = jwtService.validate(token);
+                JwtClaims claims = jwtService.validate(token);
                 Authentication authentication = toAuthentication(token, claims);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 LOG.info(
@@ -69,14 +69,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private Authentication toAuthentication(String token, JWTClaimsSet claims) {
+    private Authentication toAuthentication(String token, JwtClaims claims) {
         String subject = claims.getSubject();
         Collection<? extends GrantedAuthority> authorities = extractAuthorities(claims);
         return new UsernamePasswordAuthenticationToken(subject, token, authorities);
     }
 
-    private Collection<? extends GrantedAuthority> extractAuthorities(JWTClaimsSet claims) {
-        Object raw = claims.getClaim(props.getJwt().getAuthoritiesClaim());
+    private Collection<? extends GrantedAuthority> extractAuthorities(JwtClaims claims) {
+        Object raw = claims.getClaims().get(props.getJwt().getAuthoritiesClaim());
         return Authorities.fromClaim(raw);
     }
 }

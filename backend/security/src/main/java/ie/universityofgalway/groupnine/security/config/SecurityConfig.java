@@ -19,7 +19,11 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 
 @Configuration
-@EnableConfigurationProperties({ie.universityofgalway.groupnine.security.config.props.RouteProperties.class, ie.universityofgalway.groupnine.security.config.props.AppSecurityProps.class})
+@EnableConfigurationProperties({
+        ie.universityofgalway.groupnine.security.config.props.RouteProperties.class,
+        ie.universityofgalway.groupnine.security.config.props.AppSecurityProps.class,
+        ie.universityofgalway.groupnine.security.config.props.AuthProps.class
+})
 public class SecurityConfig {
 
     private static AntPathRequestMatcher ant(String pattern) {

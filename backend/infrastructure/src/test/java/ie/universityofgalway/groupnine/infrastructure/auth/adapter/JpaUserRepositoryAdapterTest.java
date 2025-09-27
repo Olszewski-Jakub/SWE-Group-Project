@@ -1,66 +1,55 @@
 package ie.universityofgalway.groupnine.infrastructure.auth.adapter;
 
+import ie.universityofgalway.groupnine.domain.auth.EmailAlreadyUsed;
 import ie.universityofgalway.groupnine.domain.user.Email;
 import ie.universityofgalway.groupnine.domain.user.User;
 import ie.universityofgalway.groupnine.domain.user.UserId;
 import ie.universityofgalway.groupnine.domain.user.UserStatus;
 import ie.universityofgalway.groupnine.infrastructure.auth.jpa.UserEntity;
 import ie.universityofgalway.groupnine.infrastructure.auth.jpa.UserJpaRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.time.Instant;
 import java.util.Optional;
+import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 class JpaUserRepositoryAdapterTest {
+    @Test
+    void existsAndFindMapCorrectly() {
+        UserJpaRepository repo = mock(UserJpaRepository.class);
+        JpaUserRepositoryAdapter adapter = new JpaUserRepositoryAdapter(repo);
+        when(repo.existsByEmail("a@b.com")).thenReturn(true);
+        assertTrue(adapter.existsByEmail(Email.of("a@b.com")));
 
-    private UserJpaRepository repo;
-    private JpaUserRepositoryAdapter adapter;
-
-    @BeforeEach
-    void setUp() {
-        repo = mock(UserJpaRepository.class);
-        adapter = new JpaUserRepositoryAdapter(repo);
+        UserEntity e = new UserEntity();
+        UUID id = UUID.randomUUID();
+        e.setId(id);
+        e.setEmail("a@b.com");
+        e.setFirstName("fn");
+        e.setLastName("ln");
+        e.setEmailVerified(true);
+        e.setPasswordHash("h");
+        e.setCreatedAt(Instant.now());
+        e.setUpdatedAt(Instant.now());
+        when(repo.findByEmail("a@b.com")).thenReturn(Optional.of(e));
+        Optional<User> u = adapter.findByEmail(Email.of("a@b.com"));
+        assertTrue(u.isPresent());
+        assertEquals(id, u.get().getId().value());
+        assertEquals("a@b.com", u.get().getEmail().value());
     }
 
     @Test
-    void save_and_find_roundtrip() {
-        Instant now = Instant.parse("2024-01-01T00:00:00Z");
-        User domain = new User(UserId.newId(), Email.of("u@example.com"), "U", "S", UserStatus.ACTIVE, false, "hash", now, now);
-
-        when(repo.save(any(UserEntity.class))).thenAnswer(inv -> inv.getArgument(0));
-        when(repo.existsByEmail("u@example.com")).thenReturn(true);
-
-        User saved = adapter.save(domain);
-        assertEquals(domain.getEmail(), saved.getEmail());
-        assertFalse(saved.isEmailVerified());
-
-        assertTrue(adapter.existsByEmail(Email.of("u@example.com")));
-
-        // map back from repo
-        UserEntity e = new UserEntity();
-        e.setId(saved.getId().value());
-        e.setEmail(saved.getEmail().value());
-        e.setFirstName(saved.getFirstName());
-        e.setLastName(saved.getLastName());
-        e.setStatus(saved.getStatus().name());
-        e.setEmailVerified(saved.isEmailVerified());
-        e.setPasswordHash(saved.getPasswordHash());
-        e.setCreatedAt(saved.getCreatedAt());
-        e.setUpdatedAt(saved.getUpdatedAt());
-
-        when(repo.findByEmail(eq("u@example.com"))).thenReturn(Optional.of(e));
-
-        Optional<User> found = adapter.findByEmail(Email.of("u@example.com"));
-        assertTrue(found.isPresent());
-        assertEquals("U", found.get().getFirstName());
+    void saveTranslatesUniqueViolationToDomain() {
+        UserJpaRepository repo = mock(UserJpaRepository.class);
+        JpaUserRepositoryAdapter adapter = new JpaUserRepositoryAdapter(repo);
+        User user = new User(UserId.newId(), Email.of("a@b.com"), "fn", "ln", UserStatus.ACTIVE, true, "h", Instant.now(), Instant.now());
+        when(repo.save(any(UserEntity.class))).thenThrow(new DataIntegrityViolationException("dup"));
+        assertThrows(EmailAlreadyUsed.class, () -> adapter.save(user));
     }
 }
+
