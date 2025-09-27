@@ -16,7 +16,11 @@ import java.text.ParseException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Base64;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * HS256 JWT creation and validation service.
@@ -29,13 +33,22 @@ import java.util.*;
 @Service
 public class JwtService {
 
+    private static final AppLogger LOG = AppLogger.get(JwtService.class);
     private final AppSecurityProps props;
     private final Clock clock;
-    private static final AppLogger LOG = AppLogger.get(JwtService.class);
 
     public JwtService(AppSecurityProps props, Clock clock) {
         this.props = props;
         this.clock = clock;
+    }
+
+    private static byte[] resolveSecretKeyBytes(String secret) {
+        // Try Base64 decode, fall back to raw bytes if it fails
+        try {
+            return Base64.getDecoder().decode(secret);
+        } catch (IllegalArgumentException e) {
+            return secret.getBytes(StandardCharsets.UTF_8);
+        }
     }
 
     public String createAccessToken(String subjectUserId, List<String> roles, Map<String, Object> extraClaims) {
@@ -129,15 +142,6 @@ public class JwtService {
             }
         }
         return claims;
-    }
-
-    private static byte[] resolveSecretKeyBytes(String secret) {
-        // Try Base64 decode, fall back to raw bytes if it fails
-        try {
-            return Base64.getDecoder().decode(secret);
-        } catch (IllegalArgumentException e) {
-            return secret.getBytes(StandardCharsets.UTF_8);
-        }
     }
 
     private void ensureMinKeyLength(byte[] key) {

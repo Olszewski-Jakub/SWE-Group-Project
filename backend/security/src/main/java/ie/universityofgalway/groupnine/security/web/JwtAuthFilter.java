@@ -28,10 +28,10 @@ import java.util.Collection;
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
 
+    private static final AppLogger LOG = AppLogger.get(JwtAuthFilter.class);
     private final JwtService jwtService;
     private final AppSecurityProps props;
     private final JsonAuthHandlers handlers;
-    private static final AppLogger LOG = AppLogger.get(JwtAuthFilter.class);
 
     public JwtAuthFilter(JwtService jwtService, AppSecurityProps props, JsonAuthHandlers handlers) {
         this.jwtService = jwtService;
@@ -58,7 +58,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             } catch (JwtException ex) {
                 // Return JSON 401
                 LOG.warn("jwt_auth_failed", "reason", ex.getMessage());
-                handlers.authenticationEntryPoint().commence(request, response, new AuthenticationException(ex.getMessage()) {});
+                handlers.authenticationEntryPoint().commence(request, response, new AuthenticationException(ex.getMessage()) {
+                });
                 return;
             }
         } else {

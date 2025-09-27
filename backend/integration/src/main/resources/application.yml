@@ -46,6 +46,7 @@ app:
       public-routes:
         - pattern: /api/health
         - pattern: /dev/**
+        - pattern: /auth/**
       secure-routes:
         - pattern: /api/admin/**
           role: ADMIN
@@ -54,3 +55,7 @@ app:
       issuer: "https://example-issuer"
       hmac-secret: "${JWT_SECRET:change-me}"
       authorities-claim: "roles"
+  base-url: "http://localhost:8080"
+  email:
+    from: "no-reply@example.com"
+    enabled: true

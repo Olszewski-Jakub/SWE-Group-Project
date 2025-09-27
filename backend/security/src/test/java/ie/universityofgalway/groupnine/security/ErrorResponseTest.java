@@ -1,7 +1,6 @@
 package ie.universityofgalway.groupnine.security;
 
 import ie.universityofgalway.groupnine.security.web.ErrorResponse;
-
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

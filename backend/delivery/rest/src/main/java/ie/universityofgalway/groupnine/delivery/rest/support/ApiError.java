@@ -19,10 +19,27 @@ public class ApiError {
         this.details = details;
     }
 
-    public Instant getTimestamp() { return timestamp; }
-    public int getStatus() { return status; }
-    public String getError() { return error; }
-    public String getMessage() { return message; }
-    public String getPath() { return path; }
-    public List<String> getDetails() { return details; }
+    public Instant getTimestamp() {
+        return timestamp;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public String getError() {
+        return error;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public List<String> getDetails() {
+        return details;
+    }
 }

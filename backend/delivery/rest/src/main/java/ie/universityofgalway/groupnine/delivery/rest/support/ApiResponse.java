@@ -26,8 +26,19 @@ public class ApiResponse<T> {
         return new ApiResponse<>(false, null, error);
     }
 
-    public Instant getTimestamp() { return timestamp; }
-    public boolean isSuccess() { return success; }
-    public T getData() { return data; }
-    public ApiError getError() { return error; }
+    public Instant getTimestamp() {
+        return timestamp;
+    }
+
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public T getData() {
+        return data;
+    }
+
+    public ApiError getError() {
+        return error;
+    }
 }

@@ -1,16 +1,13 @@
 package ie.universityofgalway.groupnine.testsupport.web;
 
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.SpringBootConfiguration;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * Minimal Boot configuration for MVC slice tests.
- * Scans only the delivery layer to keep the context small.
+ * Minimal Spring Boot application used to anchor test contexts.
+ * <p>
+ * Restricts component scanning to the delivery REST layer so MVC slice tests
+ * load quickly while still discovering controllers and controller advice.
  */
-@SpringBootConfiguration
-@EnableAutoConfiguration
-@EntityScan(basePackages = "ie.universityofgalway.groupnine")
-@ComponentScan(basePackages = "ie.universityofgalway.groupnine")
-public class TestBoot { }
+@SpringBootApplication(scanBasePackages = "ie.universityofgalway.groupnine.delivery.rest")
+public class TestBoot {
+}

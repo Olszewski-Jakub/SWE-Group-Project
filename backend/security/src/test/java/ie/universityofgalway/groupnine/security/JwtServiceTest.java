@@ -1,10 +1,9 @@
 package ie.universityofgalway.groupnine.security;
 
+import com.nimbusds.jwt.JWTClaimsSet;
 import ie.universityofgalway.groupnine.security.config.props.AppSecurityProps;
 import ie.universityofgalway.groupnine.security.jwt.JwtException;
 import ie.universityofgalway.groupnine.security.jwt.JwtService;
-
-import com.nimbusds.jwt.JWTClaimsSet;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

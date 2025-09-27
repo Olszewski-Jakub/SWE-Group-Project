@@ -13,7 +13,8 @@ import java.util.stream.Collectors;
  */
 public final class Authorities {
 
-    private Authorities() {}
+    private Authorities() {
+    }
 
     public static Collection<GrantedAuthority> fromClaim(Object rawClaim) {
         if (rawClaim instanceof List<?> list) {
