@@ -2,7 +2,7 @@
 
 /* Global styles */
 html, body { height: 100%; }
-body { @apply bg-gray-50 text-gray-900; }
+body { @apply bg-stone-50 text-stone-900; }
 
-a { @apply text-indigo-600; }
-a:hover { @apply text-indigo-700; }
+a { @apply text-amber-700; }
+a:hover { @apply text-amber-800; }

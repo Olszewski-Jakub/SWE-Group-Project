@@ -1,10 +1,11 @@
 import '../styles/globals.css';
 import { AuthProvider } from '../features/auth/AuthContext';
 import Navbar from '../components/layout/Navbar';
+import EnvBadge from '../components/common/EnvBadge';
 
 export const metadata = {
-  title: 'Acme App',
-  description: 'Frontend-only Next.js with token auth',
+  title: 'Copper Cup Coffee',
+  description: 'Copper Cup Coffee — artisanal roasts with a smooth shopping experience',
 };
 
 export default function RootLayout({ children }) {
@@ -14,6 +15,7 @@ export default function RootLayout({ children }) {
         <AuthProvider>
           <Navbar />
           <main className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">{children}</main>
+          <EnvBadge />
         </AuthProvider>
       </body>
     </html>

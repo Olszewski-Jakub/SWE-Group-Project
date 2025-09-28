@@ -90,9 +90,10 @@ public class LoginUseCase {
         if (user.getStatus() != UserStatus.ACTIVE) {
             throw new UserLocked("User account is not active");
         }
-        if (!user.isEmailVerified()) {
-            throw new UserNotVerified("Email address not verified");
-        }
+        // TODO: enable email verification when https://ct5106-group-9.atlassian.net/browse/BAC-11 is implemented
+//        if (!user.isEmailVerified()) {
+//            throw new UserNotVerified("Email address not verified");
+//        }
         if (user.getPasswordHash() == null || !passwordHasher.matches(password, user.getPasswordHash())) {
             bruteForceGuard.recordFailure(email, ipAddress);
             audit.record(user.getId(), AuditEvents.LOGIN_FAILED, java.util.Map.of(
