@@ -4,8 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
+    "dev:local": "NEXT_PUBLIC_ENVIRONMENT=local NEXT_PUBLIC_API_BASE_URL=http://localhost:8080 next dev --turbopack",
+    "dev:dev": "NEXT_PUBLIC_ENVIRONMENT=dev next dev --turbopack",
     "build": "next build --turbopack",
-    "start": "next start"
+    "build:dev": "NEXT_PUBLIC_ENVIRONMENT=dev next build --turbopack",
+    "build:prod": "NEXT_PUBLIC_ENVIRONMENT=prod next build --turbopack",
+    "start": "next start",
+    "start:dev": "NEXT_PUBLIC_ENVIRONMENT=dev next start",
+    "start:prod": "NEXT_PUBLIC_ENVIRONMENT=prod next start"
   },
   "dependencies": {
     "axios": "^1.12.2",

@@ -34,3 +34,30 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+---
+
+## Copper Cup Coffee — Auth Frontend
+
+- Base URL: set `NEXT_PUBLIC_API_BASE_URL` for the backend (defaults to `http://localhost:4000`).
+- Tokens: access token is kept in memory and mirrored to `sessionStorage`; refresh token is never stored and is handled via HttpOnly cookie by the backend.
+- Axios: all requests use a secure instance with `withCredentials` and automatic 401 refresh + single-flight queuing.
+- Pages: `/signin`, `/signup`, `/dashboard` (protected), `/admin` (ADMIN only).
+- Navbar: coffee-themed brand (Copper Cup), Home; Dashboard (when signed in); Admin (when `ADMIN`); right side shows Login or a user menu with Logout.
+
+### Run
+
+```bash
+npm i
+# Local (uses http://localhost:4000 backend)
+npm run dev:local
+
+# Dev (no API base URL set; uses same-origin or proxy)
+npm run dev:dev
+
+# Production build / start with environment badge
+npm run build:prod && npm run start:prod
+```
+
+Environment badge appears bottom-right (LOCAL/DEV/PROD) based on `NEXT_PUBLIC_ENVIRONMENT`.
+Configure backend URL via `NEXT_PUBLIC_API_BASE_URL` (only set for local by default).
