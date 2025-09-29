@@ -1,7 +1,7 @@
 package ie.universityofgalway.groupnine.security;
 
-import ie.universityofgalway.groupnine.security.jwt.JwtClaims;
 import ie.universityofgalway.groupnine.security.config.props.AppSecurityProps;
+import ie.universityofgalway.groupnine.security.jwt.JwtClaims;
 import ie.universityofgalway.groupnine.security.jwt.JwtException;
 import ie.universityofgalway.groupnine.security.jwt.JwtService;
 import org.assertj.core.api.Assertions;

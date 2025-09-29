@@ -21,6 +21,16 @@ spring:
       host: ${SPRING_DATA_REDIS_HOST:localhost}
       port: ${SPRING_DATA_REDIS_PORT:6379}
       database: 0
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+    listener:
+      simple:
+        acknowledge-mode: MANUAL
+        prefetch: 10
+        concurrency: 2
 
 
 management:
@@ -60,3 +70,14 @@ app:
     refresh-cookie-name: refreshToken
   flyway:
     repair-on-start: true
+
+email:
+  worker:
+    enabled: true
+
+mailjet:
+  apiKey: ${MAILJET_API_KEY:}
+  apiSecret: ${MAILJET_API_SECRET:}
+  from:
+    email: ${MAIL_FROM_EMAIL:no-reply@example.com}
+    name: ${MAIL_FROM_NAME:GroupNine}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuthContext } from '@/features/auth/AuthContext';
+import { useAuthContext } from '../features/auth/AuthContext';
 
 export function useAuth() {
   return useAuthContext();
