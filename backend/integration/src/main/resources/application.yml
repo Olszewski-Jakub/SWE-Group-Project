@@ -33,6 +33,9 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+  sql:
+    init: 
+      mode: always
 
 management:
   endpoints:
@@ -58,6 +61,8 @@ app:
         - pattern: /dev/**
         - pattern: /**/auth/**
         - pattern: /api/v1/auth/**
+        - pattern: /auth/**
+        - pattern: /api/products/*
       secure-routes:
         - pattern: /api/admin/**
           role: ADMIN

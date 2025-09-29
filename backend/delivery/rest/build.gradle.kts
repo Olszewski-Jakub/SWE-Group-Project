@@ -11,8 +11,9 @@ dependencies {
     implementation(project(":domain"))
     implementation(project(":security"))
     implementation(project(":util"))
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
 
-
+    implementation(libs.spring.boot.starter.data.jpa) 
     implementation(libs.spring.boot.starter.web)
     implementation(libs.spring.boot.starter.validation)
     testImplementation(libs.spring.boot.starter.test)
