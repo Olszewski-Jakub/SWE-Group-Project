@@ -12,6 +12,8 @@ dependencies {
     implementation(libs.spring.security.crypto)
     implementation(project(":security"))
     implementation(libs.spring.boot.starter.data.redis)
+    implementation(project(":delivery:worker"))
+    implementation(libs.spring.boot.starter.amqp)
 
 }
 

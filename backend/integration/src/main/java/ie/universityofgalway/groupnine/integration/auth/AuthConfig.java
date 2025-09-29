@@ -1,11 +1,24 @@
 package ie.universityofgalway.groupnine.integration.auth;
 
 import ie.universityofgalway.groupnine.security.config.props.AuthProps;
+import ie.universityofgalway.groupnine.service.audit.port.AuditEventPort;
 import ie.universityofgalway.groupnine.service.auth.factory.RefreshTokenFactory;
 import ie.universityofgalway.groupnine.service.auth.factory.TokenFactory;
-import ie.universityofgalway.groupnine.service.audit.port.AuditEventPort;
-import ie.universityofgalway.groupnine.service.auth.port.*;
-import ie.universityofgalway.groupnine.service.auth.usecase.*;
+import ie.universityofgalway.groupnine.service.auth.port.BruteForceGuardPort;
+import ie.universityofgalway.groupnine.service.auth.port.ClockPort;
+import ie.universityofgalway.groupnine.service.auth.port.JwtAccessTokenPort;
+import ie.universityofgalway.groupnine.service.auth.port.PasswordHasherPort;
+import ie.universityofgalway.groupnine.service.auth.port.RandomTokenPort;
+import ie.universityofgalway.groupnine.service.auth.port.SessionRepositoryPort;
+import ie.universityofgalway.groupnine.service.auth.port.UserRepositoryPort;
+import ie.universityofgalway.groupnine.service.auth.port.VerificationTokenRepositoryPort;
+import ie.universityofgalway.groupnine.service.auth.usecase.LoginUseCase;
+import ie.universityofgalway.groupnine.service.auth.usecase.LogoutAllUseCase;
+import ie.universityofgalway.groupnine.service.auth.usecase.LogoutUseCase;
+import ie.universityofgalway.groupnine.service.auth.usecase.RefreshUseCase;
+import ie.universityofgalway.groupnine.service.auth.usecase.RegisterUserUseCase;
+import ie.universityofgalway.groupnine.service.auth.usecase.VerifyEmailUseCase;
+import ie.universityofgalway.groupnine.service.email.port.EnqueueEmailPort;
 import ie.universityofgalway.groupnine.service.session.usecase.GetSessionChainUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,7 +42,7 @@ public class AuthConfig {
             @Autowired VerificationTokenRepositoryPort tokenRepository,
             @Autowired PasswordHasherPort passwordHasher,
             @Autowired ClockPort clock,
-            @Autowired EmailSenderPort emailSender,
+            @Autowired EnqueueEmailPort enqueueEmail,
             @Autowired TokenFactory tokenFactory,
             @Autowired @Value("${app.base-url}") String appBaseUrl
     ) {
@@ -38,7 +51,7 @@ public class AuthConfig {
                 tokenRepository,
                 passwordHasher,
                 clock,
-                emailSender,
+                enqueueEmail,
                 tokenFactory,
                 appBaseUrl
         );
@@ -49,9 +62,10 @@ public class AuthConfig {
             @Autowired VerificationTokenRepositoryPort tokenRepository,
             @Autowired UserRepositoryPort userRepository,
             @Autowired RandomTokenPort randomTokenPort,
-            @Autowired ClockPort clock
+            @Autowired ClockPort clock,
+            @Autowired EnqueueEmailPort enqueueEmail
     ) {
-        return new VerifyEmailUseCase(tokenRepository, userRepository, randomTokenPort, clock);
+        return new VerifyEmailUseCase(tokenRepository, userRepository, randomTokenPort, clock, enqueueEmail);
     }
 
     @Bean

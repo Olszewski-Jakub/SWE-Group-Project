@@ -1,1 +1,1 @@
-export {default} from '@/features/contact/pages/ContactPage';
+export {default} from '../../features/contact/pages/ContactPage';

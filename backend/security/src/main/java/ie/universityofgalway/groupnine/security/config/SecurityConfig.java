@@ -5,7 +5,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -53,7 +52,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests(registry -> {
             // 1) static & actuator
             registry.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll();
-            registry.requestMatchers(HttpMethod.OPTIONS,"/**").permitAll();
+            registry.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
             registry.requestMatchers(ant("/actuator/info")).permitAll();
             // 2) public routes
             // Always allow health endpoint by default

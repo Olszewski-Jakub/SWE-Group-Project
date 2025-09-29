@@ -28,7 +28,9 @@ public interface BruteForceGuardPort {
      * If the caller is currently rate-limited, return the number of seconds to wait before retrying.
      * Implementations may return {@code null} when no backoff is in effect or when not supported.
      */
-    default Long getRetryAfterSeconds(Email email, InetAddress ipAddress) { return null; }
+    default Long getRetryAfterSeconds(Email email, InetAddress ipAddress) {
+        return null;
+    }
 
     /**
      * Combined check returning the decision and an optional suggested retry-after seconds.
@@ -40,6 +42,9 @@ public interface BruteForceGuardPort {
         return new Verdict(allowed, retry);
     }
 
-    /** Immutable result of a brute-force decision. */
-    record Verdict(boolean allowed, Long retryAfterSeconds) {}
+    /**
+     * Immutable result of a brute-force decision.
+     */
+    record Verdict(boolean allowed, Long retryAfterSeconds) {
+    }
 }

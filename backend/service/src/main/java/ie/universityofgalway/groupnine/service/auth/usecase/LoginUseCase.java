@@ -10,9 +10,14 @@ import ie.universityofgalway.groupnine.domain.user.User;
 import ie.universityofgalway.groupnine.domain.user.UserId;
 import ie.universityofgalway.groupnine.domain.user.UserStatus;
 import ie.universityofgalway.groupnine.service.audit.AuditEvents;
-import ie.universityofgalway.groupnine.service.auth.factory.RefreshTokenFactory;
 import ie.universityofgalway.groupnine.service.audit.port.AuditEventPort;
-import ie.universityofgalway.groupnine.service.auth.port.*;
+import ie.universityofgalway.groupnine.service.auth.factory.RefreshTokenFactory;
+import ie.universityofgalway.groupnine.service.auth.port.BruteForceGuardPort;
+import ie.universityofgalway.groupnine.service.auth.port.ClockPort;
+import ie.universityofgalway.groupnine.service.auth.port.JwtAccessTokenPort;
+import ie.universityofgalway.groupnine.service.auth.port.PasswordHasherPort;
+import ie.universityofgalway.groupnine.service.auth.port.SessionRepositoryPort;
+import ie.universityofgalway.groupnine.service.auth.port.UserRepositoryPort;
 
 import java.net.InetAddress;
 import java.time.Duration;
@@ -23,8 +28,6 @@ import java.util.List;
  * Authenticates a user, issues an access token and creates a refresh-token session.
  */
 public class LoginUseCase {
-    public record Result(String accessToken, long expiresInSeconds, String refreshToken) {}
-
     private final UserRepositoryPort userRepository;
     private final PasswordHasherPort passwordHasher;
     private final SessionRepositoryPort sessionRepository;
@@ -34,7 +37,6 @@ public class LoginUseCase {
     private final AuditEventPort audit;
     private final ClockPort clock;
     private final Duration refreshTtl;
-
     public LoginUseCase(UserRepositoryPort userRepository,
                         PasswordHasherPort passwordHasher,
                         SessionRepositoryPort sessionRepository,
@@ -57,8 +59,9 @@ public class LoginUseCase {
 
     /**
      * Perform a login attempt.
-     * @param emailRaw user email address
-     * @param password raw password
+     *
+     * @param emailRaw  user email address
+     * @param password  raw password
      * @param userAgent caller user-agent (optional)
      * @param ipAddress caller IP address (optional)
      * @return access token payload including a new refresh token
@@ -90,10 +93,11 @@ public class LoginUseCase {
         if (user.getStatus() != UserStatus.ACTIVE) {
             throw new UserLocked("User account is not active");
         }
-        // TODO: enable email verification when https://ct5106-group-9.atlassian.net/browse/BAC-11 is implemented
-//        if (!user.isEmailVerified()) {
-//            throw new UserNotVerified("Email address not verified");
-//        }
+
+        if (!user.isEmailVerified()) {
+            throw new UserNotVerified("Email address not verified");
+        }
+
         if (user.getPasswordHash() == null || !passwordHasher.matches(password, user.getPasswordHash())) {
             bruteForceGuard.recordFailure(email, ipAddress);
             audit.record(user.getId(), AuditEvents.LOGIN_FAILED, java.util.Map.of(
@@ -119,5 +123,8 @@ public class LoginUseCase {
                 "ua", userAgent == null ? "" : userAgent
         ), now);
         return new Result(accessToken, expiresIn, refresh.token());
+    }
+
+    public record Result(String accessToken, long expiresInSeconds, String refreshToken) {
     }
 }

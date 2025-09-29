@@ -1,7 +1,6 @@
 package ie.universityofgalway.groupnine.service.session.usecase;
 
 import ie.universityofgalway.groupnine.domain.session.Session;
-import ie.universityofgalway.groupnine.domain.user.UserId;
 import ie.universityofgalway.groupnine.service.auth.port.RandomTokenPort;
 import ie.universityofgalway.groupnine.service.auth.port.SessionRepositoryPort;
 
@@ -15,14 +14,8 @@ import java.util.UUID;
  * Retrieves refresh-token session chains for diagnostics and support tools.
  */
 public class GetSessionChainUseCase {
-    /**
-     * Flat representation of a session in the rotation chain.
-     */
-    public record SessionNode(UUID id, UUID userId, Instant createdAt, Instant expiresAt, Instant revokedAt, String reason, UUID replacedBySessionId) {}
-
     private final SessionRepositoryPort sessions;
     private final RandomTokenPort randomTokenPort;
-
     public GetSessionChainUseCase(SessionRepositoryPort sessions, RandomTokenPort randomTokenPort) {
         this.sessions = sessions;
         this.randomTokenPort = randomTokenPort;
@@ -62,5 +55,12 @@ public class GetSessionChainUseCase {
                 s.getReason(),
                 s.getReplacedBySessionId()
         );
+    }
+
+    /**
+     * Flat representation of a session in the rotation chain.
+     */
+    public record SessionNode(UUID id, UUID userId, Instant createdAt, Instant expiresAt, Instant revokedAt,
+                              String reason, UUID replacedBySessionId) {
     }
 }
