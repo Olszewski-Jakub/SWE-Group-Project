@@ -14,8 +14,16 @@ dependencies {
     implementation(libs.spring.boot.starter.security)
     implementation(libs.spring.boot.starter.data.jpa)
     implementation(libs.spring.boot.starter.data.redis)
+    implementation(libs.spring.boot.starter.amqp)
     implementation(libs.spring.security.crypto)
     implementation(project(":security"))
+    implementation(project(":service"))
+    implementation(project(":domain"))
+    implementation(libs.jackson.databind)
+    implementation(libs.spring.boot.starter.thymeleaf)
+    implementation(libs.thymeleaf)
+    // Mailjet API client
+    implementation(libs.mailjet.client)
 }
 
 coverage {

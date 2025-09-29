@@ -10,6 +10,16 @@ spring:
     import:
       - optional:file:.env[.properties]
       - optional:file:../.env[.properties]
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+    listener:
+      simple:
+        acknowledge-mode: MANUAL
+        prefetch: 10
+        concurrency: 2
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/demo_db}
     username: ${DB_USERNAME:demo}
@@ -62,3 +72,14 @@ app:
   auth:
     refresh-ttl-days: 14
     refresh-cookie-name: refreshToken
+
+email:
+  worker:
+    enabled: true
+
+mailjet:
+  apiKey: ${MAILJET_API_KEY:}
+  apiSecret: ${MAILJET_API_SECRET:}
+  from:
+    email: ${MAIL_FROM_EMAIL:no-reply@example.com}
+    name: ${MAIL_FROM_NAME:GroupNine}

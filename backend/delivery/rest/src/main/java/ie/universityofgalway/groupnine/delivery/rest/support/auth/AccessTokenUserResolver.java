@@ -1,13 +1,14 @@
 package ie.universityofgalway.groupnine.delivery.rest.support.auth;
+
 import ie.universityofgalway.groupnine.domain.user.User;
 import ie.universityofgalway.groupnine.domain.user.UserId;
 import ie.universityofgalway.groupnine.security.jwt.JwtClaims;
 import ie.universityofgalway.groupnine.security.jwt.JwtService;
 import ie.universityofgalway.groupnine.service.auth.port.UserRepositoryPort;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import jakarta.servlet.http.HttpServletRequest;
 import java.util.Optional;
 import java.util.UUID;
 

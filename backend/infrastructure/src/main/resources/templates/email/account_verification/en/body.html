@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Verify Your Email</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f7f9fc;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 32px;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #0b5ed7;
+        }
+
+        p {
+            line-height: 1.6;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 20px;
+            margin-top: 20px;
+            background: #0b5ed7;
+            color: #fff !important;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+        .link {
+            word-break: break-all;
+            color: #0b5ed7;
+        }
+
+        .footer {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #888;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Email Verification</h2>
+    <p>Hi there 👋,</p>
+    <p>
+        Thank you for signing up! Please verify your email address by clicking the button below:
+    </p>
+    <p>
+        <a class="btn" th:href="${verificationLink}">Verify Email</a>
+    </p>
+    <p>
+        If the button doesn’t work, copy and paste this link into your browser:
+    </p>
+    <p>
+        <a class="link" th:href="${verificationLink}" th:text="${verificationLink}"></a>
+    </p>
+    <div class="footer">
+        <p>© 2025 Your Company. All rights reserved.</p>
+    </div>
+</div>
+</body>
+</html>

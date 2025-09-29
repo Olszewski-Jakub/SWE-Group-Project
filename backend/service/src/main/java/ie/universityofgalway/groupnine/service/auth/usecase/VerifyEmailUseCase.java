@@ -4,11 +4,14 @@ import ie.universityofgalway.groupnine.domain.auth.EmailVerificationToken;
 import ie.universityofgalway.groupnine.domain.auth.ExpiredVerificationToken;
 import ie.universityofgalway.groupnine.domain.auth.InvalidVerificationToken;
 import ie.universityofgalway.groupnine.domain.auth.TokenAlreadyUsed;
+import ie.universityofgalway.groupnine.domain.email.EmailAddress;
+import ie.universityofgalway.groupnine.domain.email.jobs.WelcomeEmailJob;
 import ie.universityofgalway.groupnine.domain.user.User;
 import ie.universityofgalway.groupnine.service.auth.port.ClockPort;
 import ie.universityofgalway.groupnine.service.auth.port.RandomTokenPort;
 import ie.universityofgalway.groupnine.service.auth.port.UserRepositoryPort;
 import ie.universityofgalway.groupnine.service.auth.port.VerificationTokenRepositoryPort;
+import ie.universityofgalway.groupnine.service.email.port.EnqueueEmailPort;
 import ie.universityofgalway.groupnine.util.logging.AppLogger;
 
 import java.time.Instant;
@@ -23,15 +26,18 @@ public class VerifyEmailUseCase {
     private final UserRepositoryPort userRepository;
     private final RandomTokenPort randomTokenPort;
     private final ClockPort clock;
+    private final EnqueueEmailPort enqueueEmail;
 
     public VerifyEmailUseCase(VerificationTokenRepositoryPort tokenRepository,
                               UserRepositoryPort userRepository,
                               RandomTokenPort randomTokenPort,
-                              ClockPort clock) {
+                              ClockPort clock,
+                              EnqueueEmailPort enqueueEmail) {
         this.tokenRepository = Objects.requireNonNull(tokenRepository);
         this.userRepository = Objects.requireNonNull(userRepository);
         this.randomTokenPort = Objects.requireNonNull(randomTokenPort);
         this.clock = Objects.requireNonNull(clock);
+        this.enqueueEmail = Objects.requireNonNull(enqueueEmail);
     }
 
     /**
@@ -73,5 +79,13 @@ public class VerifyEmailUseCase {
         userRepository.update(verified);
         tokenRepository.markUsed(token.id(), now);
         log.info("verify_email_success", "userId", user.getId().toString(), "tokenId", token.id().toString());
+
+        // Dispatch welcome email
+        var welcomeJobBuilder = WelcomeEmailJob.builder()
+                .to(new EmailAddress(user.getEmail().value()));
+        if (user.getFirstName() != null && !user.getFirstName().isBlank()) {
+            welcomeJobBuilder = welcomeJobBuilder.userName(user.getFirstName());
+        }
+        enqueueEmail.enqueue(welcomeJobBuilder.build());
     }
 }

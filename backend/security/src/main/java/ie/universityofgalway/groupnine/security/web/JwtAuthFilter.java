@@ -2,9 +2,9 @@ package ie.universityofgalway.groupnine.security.web;
 
 import ie.universityofgalway.groupnine.security.config.props.AppSecurityProps;
 import ie.universityofgalway.groupnine.security.jwt.Authorities;
+import ie.universityofgalway.groupnine.security.jwt.JwtClaims;
 import ie.universityofgalway.groupnine.security.jwt.JwtException;
 import ie.universityofgalway.groupnine.security.jwt.JwtService;
-import ie.universityofgalway.groupnine.security.jwt.JwtClaims;
 import ie.universityofgalway.groupnine.util.logging.AppLogger;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

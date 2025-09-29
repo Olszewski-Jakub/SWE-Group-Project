@@ -1,15 +1,16 @@
 package ie.universityofgalway.groupnine.service.auth.usecase;
 
 import ie.universityofgalway.groupnine.domain.auth.EmailVerificationToken;
+import ie.universityofgalway.groupnine.domain.email.jobs.AccountVerificationEmailJob;
 import ie.universityofgalway.groupnine.domain.user.Email;
 import ie.universityofgalway.groupnine.domain.user.User;
 import ie.universityofgalway.groupnine.domain.user.UserId;
 import ie.universityofgalway.groupnine.service.auth.factory.TokenFactory;
 import ie.universityofgalway.groupnine.service.auth.port.ClockPort;
-import ie.universityofgalway.groupnine.service.auth.port.EmailSenderPort;
 import ie.universityofgalway.groupnine.service.auth.port.PasswordHasherPort;
 import ie.universityofgalway.groupnine.service.auth.port.UserRepositoryPort;
 import ie.universityofgalway.groupnine.service.auth.port.VerificationTokenRepositoryPort;
+import ie.universityofgalway.groupnine.service.email.port.EnqueueEmailPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -22,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -33,14 +33,14 @@ class RegisterUserUseCaseTest {
     VerificationTokenRepositoryPort tokenRepository = mock(VerificationTokenRepositoryPort.class);
     PasswordHasherPort passwordHasher = mock(PasswordHasherPort.class);
     ClockPort clock = mock(ClockPort.class);
-    EmailSenderPort emailSender = mock(EmailSenderPort.class);
+    EnqueueEmailPort enqueueEmail = mock(EnqueueEmailPort.class);
     TokenFactory tokenFactory = mock(TokenFactory.class);
 
     RegisterUserUseCase useCase;
 
     @BeforeEach
     void setup() {
-        useCase = new RegisterUserUseCase(userRepository, tokenRepository, passwordHasher, clock, emailSender, tokenFactory, "http://localhost:8080");
+        useCase = new RegisterUserUseCase(userRepository, tokenRepository, passwordHasher, clock, enqueueEmail, tokenFactory, "http://localhost:8080");
     }
 
     @Test
@@ -59,10 +59,11 @@ class RegisterUserUseCaseTest {
 
         useCase.execute("john@example.com", "supersecurepwd", "John", "Doe");
 
-        ArgumentCaptor<String> urlCap = ArgumentCaptor.forClass(String.class);
-        verify(emailSender).sendVerificationEmail(eq(Email.of("john@example.com")), urlCap.capture());
-        String sentUrl = urlCap.getValue();
-        assertTrue(sentUrl.startsWith("http://localhost:8080/verify?token=opaqueToken"));
+        ArgumentCaptor<AccountVerificationEmailJob> jobCap = ArgumentCaptor.forClass(AccountVerificationEmailJob.class);
+        verify(enqueueEmail).enqueue(jobCap.capture());
+        AccountVerificationEmailJob job = jobCap.getValue();
+        assertEquals("john@example.com", job.to().value());
+        assertTrue(String.valueOf(job.templateModel().get("verificationLink")).startsWith("http://localhost:8080/verify?token=opaqueToken"));
     }
 
     @Test

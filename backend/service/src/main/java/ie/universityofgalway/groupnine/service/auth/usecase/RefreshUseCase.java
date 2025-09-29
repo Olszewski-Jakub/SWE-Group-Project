@@ -5,12 +5,12 @@ import ie.universityofgalway.groupnine.domain.auth.InvalidRefreshToken;
 import ie.universityofgalway.groupnine.domain.auth.RefreshReuseDetected;
 import ie.universityofgalway.groupnine.domain.session.Session;
 import ie.universityofgalway.groupnine.domain.user.UserId;
+import ie.universityofgalway.groupnine.service.audit.port.AuditEventPort;
 import ie.universityofgalway.groupnine.service.auth.factory.RefreshTokenFactory;
 import ie.universityofgalway.groupnine.service.auth.port.ClockPort;
 import ie.universityofgalway.groupnine.service.auth.port.JwtAccessTokenPort;
 import ie.universityofgalway.groupnine.service.auth.port.RandomTokenPort;
 import ie.universityofgalway.groupnine.service.auth.port.SessionRepositoryPort;
-import ie.universityofgalway.groupnine.service.audit.port.AuditEventPort;
 
 import java.net.InetAddress;
 import java.time.Duration;
@@ -23,8 +23,6 @@ import java.util.Objects;
  * Enforces rotation and detects token reuse.
  */
 public class RefreshUseCase {
-    public record Result(String accessToken, long expiresInSeconds, String refreshToken) {}
-
     private final SessionRepositoryPort sessionRepository;
     private final JwtAccessTokenPort jwtAccessTokenPort;
     private final RefreshTokenFactory refreshTokenFactory;
@@ -32,7 +30,6 @@ public class RefreshUseCase {
     private final AuditEventPort audit;
     private final ClockPort clock;
     private final Duration refreshTtl;
-
     public RefreshUseCase(SessionRepositoryPort sessionRepository,
                           JwtAccessTokenPort jwtAccessTokenPort,
                           RefreshTokenFactory refreshTokenFactory,
@@ -51,9 +48,10 @@ public class RefreshUseCase {
 
     /**
      * Rotate a refresh token and issue a new access token.
+     *
      * @param refreshToken opaque refresh token provided by the client
-     * @param userAgent caller user-agent (optional)
-     * @param ipAddress caller IP address (optional)
+     * @param userAgent    caller user-agent (optional)
+     * @param ipAddress    caller IP address (optional)
      * @return new access token and rotated refresh token
      */
     public Result execute(String refreshToken, String userAgent, InetAddress ipAddress) {
@@ -91,5 +89,8 @@ public class RefreshUseCase {
                 "newSessionId", newSession.getId().toString()
         ), now);
         return new Result(accessToken, expiresIn, pair.token());
+    }
+
+    public record Result(String accessToken, long expiresInSeconds, String refreshToken) {
     }
 }
