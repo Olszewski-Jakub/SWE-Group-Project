@@ -1,12 +1,8 @@
 package ie.universityofgalway.groupnine.delivery.rest.auth;
 
+import ie.universityofgalway.groupnine.delivery.rest.auth.dto.LoginRequest;
 import ie.universityofgalway.groupnine.security.config.props.AuthProps;
-import ie.universityofgalway.groupnine.service.auth.usecase.LoginUseCase;
-import ie.universityofgalway.groupnine.service.auth.usecase.LogoutAllUseCase;
-import ie.universityofgalway.groupnine.service.auth.usecase.LogoutUseCase;
-import ie.universityofgalway.groupnine.service.auth.usecase.RefreshUseCase;
-import ie.universityofgalway.groupnine.service.auth.usecase.RegisterUserUseCase;
-import ie.universityofgalway.groupnine.service.auth.usecase.VerifyEmailUseCase;
+import ie.universityofgalway.groupnine.service.auth.usecase.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -19,9 +15,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 public class AuthControllerTest {
     private MockMvc mockMvc;

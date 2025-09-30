@@ -62,10 +62,7 @@ public class JpaSessionRepositoryAdapter implements SessionRepositoryPort {
     private Session toDomain(SessionEntity e) {
         InetAddress ip = null;
         if (e.getIpAddress() != null && !e.getIpAddress().isBlank()) {
-            try {
-                ip = InetAddress.getByName(e.getIpAddress());
-            } catch (UnknownHostException ignored) {
-            }
+            try { ip = InetAddress.getByName(e.getIpAddress()); } catch (UnknownHostException ignored) {}
         }
         return new Session(
                 e.getId(),

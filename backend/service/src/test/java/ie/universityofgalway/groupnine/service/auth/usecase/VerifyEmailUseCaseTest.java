@@ -12,7 +12,6 @@ import ie.universityofgalway.groupnine.service.auth.port.ClockPort;
 import ie.universityofgalway.groupnine.service.auth.port.RandomTokenPort;
 import ie.universityofgalway.groupnine.service.auth.port.UserRepositoryPort;
 import ie.universityofgalway.groupnine.service.auth.port.VerificationTokenRepositoryPort;
-import ie.universityofgalway.groupnine.service.email.port.EnqueueEmailPort;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
@@ -34,9 +33,8 @@ class VerifyEmailUseCaseTest {
     UserRepositoryPort userRepo = mock(UserRepositoryPort.class);
     RandomTokenPort random = mock(RandomTokenPort.class);
     ClockPort clock = mock(ClockPort.class);
-    EnqueueEmailPort enqueue = mock(EnqueueEmailPort.class);
 
-    VerifyEmailUseCase useCase = new VerifyEmailUseCase(tokenRepo, userRepo, random, clock, enqueue);
+    VerifyEmailUseCase useCase = new VerifyEmailUseCase(tokenRepo, userRepo, random, clock);
 
     @Test
     void happy_path_marks_user_and_token_used() {
@@ -55,7 +53,6 @@ class VerifyEmailUseCaseTest {
 
         verify(userRepo).update(argThat(u -> u.isEmailVerified()));
         verify(tokenRepo).markUsed(eq(token.id()), any(Instant.class));
-        verify(enqueue).enqueue(any());
     }
 
     @Test

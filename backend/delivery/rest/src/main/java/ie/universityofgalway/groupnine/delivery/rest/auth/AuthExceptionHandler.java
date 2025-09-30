@@ -1,17 +1,7 @@
 package ie.universityofgalway.groupnine.delivery.rest.auth;
 
 import ie.universityofgalway.groupnine.delivery.rest.support.ApiError;
-import ie.universityofgalway.groupnine.domain.auth.EmailAlreadyUsed;
-import ie.universityofgalway.groupnine.domain.auth.ExpiredRefreshToken;
-import ie.universityofgalway.groupnine.domain.auth.ExpiredVerificationToken;
-import ie.universityofgalway.groupnine.domain.auth.InvalidCredentials;
-import ie.universityofgalway.groupnine.domain.auth.InvalidRefreshToken;
-import ie.universityofgalway.groupnine.domain.auth.InvalidVerificationToken;
-import ie.universityofgalway.groupnine.domain.auth.RefreshReuseDetected;
-import ie.universityofgalway.groupnine.domain.auth.TokenAlreadyUsed;
-import ie.universityofgalway.groupnine.domain.auth.TooManyAttempts;
-import ie.universityofgalway.groupnine.domain.auth.UserLocked;
-import ie.universityofgalway.groupnine.domain.auth.UserNotVerified;
+import ie.universityofgalway.groupnine.domain.auth.*;
 import ie.universityofgalway.groupnine.util.logging.AppLogger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

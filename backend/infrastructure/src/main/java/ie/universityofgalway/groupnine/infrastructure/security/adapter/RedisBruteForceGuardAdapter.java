@@ -6,7 +6,9 @@ import ie.universityofgalway.groupnine.service.audit.port.AuditEventPort;
 import ie.universityofgalway.groupnine.service.auth.port.BruteForceGuardPort;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -22,11 +24,11 @@ import java.util.UUID;
  *
  * <p>Algorithm
  * - Sliding window per principal (email) and per IP using Redis ZSETs. Each failed attempt
- * inserts a member with score=epochMillis. Before counting, entries older than
- * {@code window-seconds} are pruned (ZREMRANGEBYSCORE). If either count reaches the
- * configured threshold, the attempt is blocked and an exponential backoff lock is applied.
+ *   inserts a member with score=epochMillis. Before counting, entries older than
+ *   {@code window-seconds} are pruned (ZREMRANGEBYSCORE). If either count reaches the
+ *   configured threshold, the attempt is blocked and an exponential backoff lock is applied.
  * - Exponential backoff uses a strike counter per dimension to compute a lock TTL with
- * {@code backoff-base-seconds * backoff-factor^(strikes-1)} bounded by {@code backoff-max-seconds}.
+ *   {@code backoff-base-seconds * backoff-factor^(strikes-1)} bounded by {@code backoff-max-seconds}.
  * - Subsequent attempts are immediately blocked while a lock key exists.
  *
  * <p>Keys (with {@code key-prefix}):
@@ -41,7 +43,7 @@ import java.util.UUID;
  *
  * <p>Fallback
  * - On Redis errors, the guard returns an allow verdict and emits an audit event with
- * reason {@code bf_redis_down} so that authentication is not impacted by Redis outages.
+ *   reason {@code bf_redis_down} so that authentication is not impacted by Redis outages.
  */
 @Component
 public class RedisBruteForceGuardAdapter implements BruteForceGuardPort {
@@ -193,25 +195,17 @@ public class RedisBruteForceGuardAdapter implements BruteForceGuardPort {
         return ttl;
     }
 
-    /**
-     * Return true if the given Redis key exists.
-     */
+    /** Return true if the given Redis key exists. */
     private boolean exists(String key) {
         if (key == null) return false;
         Boolean ex = redis.hasKey(key);
         return ex != null && ex;
     }
 
-    /**
-     * Delete the given key if not null.
-     */
-    private void del(String key) {
-        if (key != null) redis.delete(key);
-    }
+    /** Delete the given key if not null. */
+    private void del(String key) { if (key != null) redis.delete(key); }
 
-    /**
-     * Read remaining TTL for a key in seconds; returns null if not applicable.
-     */
+    /** Read remaining TTL for a key in seconds; returns null if not applicable. */
     private Long ttlSeconds(String key) {
         if (key == null) return null;
         Long s = redis.getExpire(key, java.util.concurrent.TimeUnit.SECONDS);
@@ -219,27 +213,10 @@ public class RedisBruteForceGuardAdapter implements BruteForceGuardPort {
         return s < 0 ? null : s;
     }
 
-    private String emailZKey(Email email) {
-        return email == null ? null : prefix + "bfz:e:" + email.value().toLowerCase();
-    }
-
-    private String ipZKey(InetAddress ip) {
-        return ip == null ? null : prefix + "bfz:i:" + ip.getHostAddress();
-    }
-
-    private String strikeEmailKey(Email email) {
-        return email == null ? null : prefix + "bfs:e:" + email.value().toLowerCase();
-    }
-
-    private String strikeIpKey(InetAddress ip) {
-        return ip == null ? null : prefix + "bfs:i:" + ip.getHostAddress();
-    }
-
-    private String lockEmailKey(Email email) {
-        return email == null ? null : prefix + "bfl:e:" + email.value().toLowerCase();
-    }
-
-    private String lockIpKey(InetAddress ip) {
-        return ip == null ? null : prefix + "bfl:i:" + ip.getHostAddress();
-    }
+    private String emailZKey(Email email) { return email == null ? null : prefix + "bfz:e:" + email.value().toLowerCase(); }
+    private String ipZKey(InetAddress ip) { return ip == null ? null : prefix + "bfz:i:" + ip.getHostAddress(); }
+    private String strikeEmailKey(Email email) { return email == null ? null : prefix + "bfs:e:" + email.value().toLowerCase(); }
+    private String strikeIpKey(InetAddress ip) { return ip == null ? null : prefix + "bfs:i:" + ip.getHostAddress(); }
+    private String lockEmailKey(Email email) { return email == null ? null : prefix + "bfl:e:" + email.value().toLowerCase(); }
+    private String lockIpKey(InetAddress ip) { return ip == null ? null : prefix + "bfl:i:" + ip.getHostAddress(); }
 }

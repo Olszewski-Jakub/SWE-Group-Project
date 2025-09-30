@@ -9,10 +9,9 @@ import java.util.Map;
 public interface JwtAccessTokenPort {
     /**
      * Create a signed access token with the given subject and role claims.
-     *
      * @param subjectUserId canonical user identifier used as JWT {@code sub}
-     * @param roles         list of role names to place under the configured roles claim
-     * @param extraClaims   additional claims to embed (optional)
+     * @param roles list of role names to place under the configured roles claim
+     * @param extraClaims additional claims to embed (optional)
      * @return serialized access token
      */
     String createAccessToken(String subjectUserId, List<String> roles, Map<String, Object> extraClaims);

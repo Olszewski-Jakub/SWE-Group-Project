@@ -1,17 +1,14 @@
 package ie.universityofgalway.groupnine.service.auth.usecase;
 
 import ie.universityofgalway.groupnine.domain.auth.EmailAlreadyUsed;
-import ie.universityofgalway.groupnine.domain.email.EmailAddress;
-import ie.universityofgalway.groupnine.domain.email.Priority;
-import ie.universityofgalway.groupnine.domain.email.jobs.AccountVerificationEmailJob;
 import ie.universityofgalway.groupnine.domain.user.Email;
 import ie.universityofgalway.groupnine.domain.user.User;
 import ie.universityofgalway.groupnine.service.auth.factory.TokenFactory;
 import ie.universityofgalway.groupnine.service.auth.port.ClockPort;
+import ie.universityofgalway.groupnine.service.auth.port.EmailSenderPort;
 import ie.universityofgalway.groupnine.service.auth.port.PasswordHasherPort;
 import ie.universityofgalway.groupnine.service.auth.port.UserRepositoryPort;
 import ie.universityofgalway.groupnine.service.auth.port.VerificationTokenRepositoryPort;
-import ie.universityofgalway.groupnine.service.email.port.EnqueueEmailPort;
 import ie.universityofgalway.groupnine.util.logging.AppLogger;
 
 import java.time.Duration;
@@ -31,7 +28,7 @@ public class RegisterUserUseCase {
     private final VerificationTokenRepositoryPort tokenRepository;
     private final PasswordHasherPort passwordHasher;
     private final ClockPort clock;
-    private final EnqueueEmailPort enqueueEmail;
+    private final EmailSenderPort emailSender;
     private final TokenFactory tokenFactory;
     private final String appBaseUrl;
 
@@ -39,14 +36,14 @@ public class RegisterUserUseCase {
                                VerificationTokenRepositoryPort tokenRepository,
                                PasswordHasherPort passwordHasher,
                                ClockPort clock,
-                               EnqueueEmailPort enqueueEmail,
+                               EmailSenderPort emailSender,
                                TokenFactory tokenFactory,
                                String appBaseUrl) {
         this.userRepository = Objects.requireNonNull(userRepository);
         this.tokenRepository = Objects.requireNonNull(tokenRepository);
         this.passwordHasher = Objects.requireNonNull(passwordHasher);
         this.clock = Objects.requireNonNull(clock);
-        this.enqueueEmail = Objects.requireNonNull(enqueueEmail);
+        this.emailSender = Objects.requireNonNull(emailSender);
         this.tokenFactory = Objects.requireNonNull(tokenFactory);
         this.appBaseUrl = Objects.requireNonNull(appBaseUrl);
     }
@@ -91,12 +88,7 @@ public class RegisterUserUseCase {
         log.info("register_user_token_created", "userId", saved.getId().toString(), "tokenId", v.token().id().toString(), "expiresAt", v.token().expiresAt().toString());
 
         String verifyUrl = appBaseUrl.replaceAll("/$", "") + "/verify?token=" + v.opaque();
-        var job = AccountVerificationEmailJob.builder()
-                .to(new EmailAddress(saved.getEmail().value()))
-                .verificationLink(java.net.URI.create(verifyUrl))
-                .priority(Priority.HIGH)
-                .build();
-        enqueueEmail.enqueue(job);
+        emailSender.sendVerificationEmail(saved.getEmail(), verifyUrl);
         log.info("register_user_email_dispatched", "userId", saved.getId().toString());
 
         return new Result(saved.getId().toString());

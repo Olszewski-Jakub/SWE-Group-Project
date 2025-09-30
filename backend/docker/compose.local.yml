@@ -18,19 +18,6 @@ services:
       timeout: 3s
       retries: 10
 
-  rabbitmq:
-    image: rabbitmq:3.13-management
-    container_name: rabbitmq-local
-    ports: [ "5672:5672", "15672:15672" ]
-    environment:
-      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME:-guest}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest}
-    healthcheck:
-      test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   app:
     # Build from source using the dev Dockerfile (no need to prebuild the jar)
     build:
@@ -39,20 +26,8 @@ services:
     container_name: clean_arch_app
     depends_on:
       - db
-      - rabbitmq
     environment:
       SPRING_PROFILES_ACTIVE: "local"
-      RABBITMQ_HOST: rabbitmq
-      RABBITMQ_PORT: 5672
-      RABBITMQ_USERNAME: ${RABBITMQ_USERNAME:-guest}
-      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-guest}
-      SPRING_DATA_REDIS_HOST: redis
-      SPRING_DATA_REDIS_PORT: 6379
-      EMAIL_WORKER_ENABLED: "true"
-      MAILJET_API_KEY: ${MAILJET_API_KEY:-changeme}
-      MAILJET_API_SECRET: ${MAILJET_API_SECRET:-changeme}
-      MAIL_FROM_EMAIL: ${MAIL_FROM_EMAIL:-no-reply@example.com}
-      MAIL_FROM_NAME: ${MAIL_FROM_NAME:-GroupNine}
       # The app's application-local.yml already points to jdbc:postgresql://db:5432/demo_db
       # If you prefer env-only config, uncomment:
       # SPRING_DATASOURCE_URL: "jdbc:postgresql://db:5432/demo_db"
@@ -72,7 +47,7 @@ services:
     ports:
       - "6379:6379"
     healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 3s
       retries: 10

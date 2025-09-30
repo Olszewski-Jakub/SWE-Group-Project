@@ -2,10 +2,10 @@ package ie.universityofgalway.groupnine.service.auth.usecase;
 
 import ie.universityofgalway.groupnine.domain.auth.InvalidRefreshToken;
 import ie.universityofgalway.groupnine.domain.session.Session;
-import ie.universityofgalway.groupnine.service.audit.port.AuditEventPort;
 import ie.universityofgalway.groupnine.service.auth.port.ClockPort;
 import ie.universityofgalway.groupnine.service.auth.port.RandomTokenPort;
 import ie.universityofgalway.groupnine.service.auth.port.SessionRepositoryPort;
+import ie.universityofgalway.groupnine.service.audit.port.AuditEventPort;
 
 import java.time.Instant;
 

@@ -18,7 +18,6 @@ public class RefreshTokenFactory {
         return new Pair(token, hash);
     }
 
-    public record Pair(String token, String hash) {
-    }
+    public record Pair(String token, String hash) {}
 }
 
