@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Link from 'next/link';
-import { verifyEmail } from '../../../lib/auth';
+import { verifyEmail } from '@/lib/auth';
 
 export default function VerifyClient({ token }) {
   const [loading, setLoading] = useState(false);

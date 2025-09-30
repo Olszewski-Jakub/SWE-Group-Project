@@ -1,17 +1,9 @@
 package ie.universityofgalway.groupnine.delivery.rest.auth;
 
-import ie.universityofgalway.groupnine.delivery.rest.auth.dto.LoginRequest;
-import ie.universityofgalway.groupnine.delivery.rest.auth.dto.RegisterRequest;
-import ie.universityofgalway.groupnine.delivery.rest.auth.dto.TokenResponse;
-import ie.universityofgalway.groupnine.delivery.rest.auth.dto.VerifyRequest;
+import ie.universityofgalway.groupnine.delivery.rest.auth.dto.*;
 import ie.universityofgalway.groupnine.domain.auth.InvalidRefreshToken;
 import ie.universityofgalway.groupnine.security.config.props.AuthProps;
-import ie.universityofgalway.groupnine.service.auth.usecase.LoginUseCase;
-import ie.universityofgalway.groupnine.service.auth.usecase.LogoutAllUseCase;
-import ie.universityofgalway.groupnine.service.auth.usecase.LogoutUseCase;
-import ie.universityofgalway.groupnine.service.auth.usecase.RefreshUseCase;
-import ie.universityofgalway.groupnine.service.auth.usecase.RegisterUserUseCase;
-import ie.universityofgalway.groupnine.service.auth.usecase.VerifyEmailUseCase;
+import ie.universityofgalway.groupnine.service.auth.usecase.*;
 import ie.universityofgalway.groupnine.util.logging.AppLogger;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,11 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.InetAddress;
 

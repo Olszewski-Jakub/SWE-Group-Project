@@ -41,52 +41,23 @@ public class Session {
         return new Session(null, userId, refreshTokenHash, userAgent, ipAddress, now, expiresAt, null, null, null);
     }
 
+    public Session revoke(Instant at, String reason, UUID replacedBy) {
+        return new Session(id, userId, refreshTokenHash, userAgent, ipAddress, createdAt, expiresAt, at, replacedBy, reason);
+    }
+
     public static Session createNewReplacing(UserId userId, String refreshTokenHash, String userAgent, InetAddress ipAddress,
                                              Instant now, Instant expiresAt, UUID replacedSessionId) {
         return new Session(null, userId, refreshTokenHash, userAgent, ipAddress, now, expiresAt, null, replacedSessionId, null);
     }
 
-    public Session revoke(Instant at, String reason, UUID replacedBy) {
-        return new Session(id, userId, refreshTokenHash, userAgent, ipAddress, createdAt, expiresAt, at, replacedBy, reason);
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public UserId getUserId() {
-        return userId;
-    }
-
-    public String getRefreshTokenHash() {
-        return refreshTokenHash;
-    }
-
-    public String getUserAgent() {
-        return userAgent;
-    }
-
-    public InetAddress getIpAddress() {
-        return ipAddress;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public Instant getExpiresAt() {
-        return expiresAt;
-    }
-
-    public Instant getRevokedAt() {
-        return revokedAt;
-    }
-
-    public UUID getReplacedBySessionId() {
-        return replacedBySessionId;
-    }
-
-    public String getReason() {
-        return reason;
-    }
+    public UUID getId() { return id; }
+    public UserId getUserId() { return userId; }
+    public String getRefreshTokenHash() { return refreshTokenHash; }
+    public String getUserAgent() { return userAgent; }
+    public InetAddress getIpAddress() { return ipAddress; }
+    public Instant getCreatedAt() { return createdAt; }
+    public Instant getExpiresAt() { return expiresAt; }
+    public Instant getRevokedAt() { return revokedAt; }
+    public UUID getReplacedBySessionId() { return replacedBySessionId; }
+    public String getReason() { return reason; }
 }

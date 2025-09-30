@@ -2,8 +2,8 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { bootstrapToken, signIn as apiSignIn, signUp as apiSignUp, signOut as apiSignOut, refresh as apiRefresh, fetchMe } from '../../lib/auth';
-import { getAccessToken, scheduleProactiveRefresh, setLogoutHandler, setAccessToken, setDefaultRefreshScheduler, loadTokenFromStorage } from '@/lib/axiosClient';
-import { getJwtRoles, parseJwt } from '@/lib/jwt';
+import { getAccessToken, scheduleProactiveRefresh, setLogoutHandler, setAccessToken, setDefaultRefreshScheduler, loadTokenFromStorage } from '../../lib/axiosClient';
+import { getJwtRoles, parseJwt } from '../../lib/jwt';
 
 const AuthContext = createContext({
   user: null,

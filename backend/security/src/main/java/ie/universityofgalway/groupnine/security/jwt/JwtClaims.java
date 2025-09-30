@@ -25,32 +25,13 @@ public final class JwtClaims {
         this.claims = claims == null ? Map.of() : Map.copyOf(claims);
     }
 
-    public String getSubject() {
-        return subject;
-    }
+    public String getSubject() { return subject; }
+    public String getIssuer() { return issuer; }
+    public Instant getIssuedAt() { return issuedAt; }
+    public Instant getExpiresAt() { return expiresAt; }
+    public List<String> getRoles() { return roles; }
+    public Map<String, Object> getClaims() { return claims; }
 
-    public String getIssuer() {
-        return issuer;
-    }
-
-    public Instant getIssuedAt() {
-        return issuedAt;
-    }
-
-    public Instant getExpiresAt() {
-        return expiresAt;
-    }
-
-    public List<String> getRoles() {
-        return roles;
-    }
-
-    public Map<String, Object> getClaims() {
-        return claims;
-    }
-
-    public Object claim(String name) {
-        return claims.get(name);
-    }
+    public Object claim(String name) { return claims.get(name); }
 }
 

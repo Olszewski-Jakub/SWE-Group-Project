@@ -1,9 +1,0 @@
-Hi [[${userName} ?: 'there']],
-
-Thanks for verifying your email. We’re excited to have you in the Coffee Shop family!
-
-You’ll receive updates about new brews, offers, and perks.
-
-Happy sipping,
-The Coffee Shop Team
-

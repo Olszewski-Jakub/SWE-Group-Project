@@ -1,6 +1,6 @@
 "use client";
 
-import ProductsGrid from '../../features/shop/components/ProductsGrid';
+import ProductsGrid from '@/features/shop/components/ProductsGrid';
 
 export default function ProductsPage() {
   return (

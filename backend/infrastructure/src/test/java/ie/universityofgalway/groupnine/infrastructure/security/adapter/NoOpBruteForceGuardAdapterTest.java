@@ -3,7 +3,7 @@ package ie.universityofgalway.groupnine.infrastructure.security.adapter;
 import ie.universityofgalway.groupnine.domain.user.Email;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class NoOpBruteForceGuardAdapterTest {
     @Test

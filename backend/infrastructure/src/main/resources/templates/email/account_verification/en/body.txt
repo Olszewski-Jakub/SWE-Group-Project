@@ -1,5 +1,0 @@
-Please verify your email by opening the following link:
-
-[[${verificationLink}]]
-
-If you did not sign up, you can ignore this email.

@@ -4,10 +4,10 @@ Auth endpoints
   Request: { "email": "user@example.com", "password": "secret" }
   Response 200:
   {
-  "accessToken": "<jwt>",
-  "expiresIn": 900,
-  "refreshToken": "<opaque_refresh>",
-  "tokenType": "Bearer"
+    "accessToken": "<jwt>",
+    "expiresIn": 900,
+    "refreshToken": "<opaque_refresh>",
+    "tokenType": "Bearer"
   }
   Also sets cookie: `refreshToken=<opaque>; HttpOnly; Secure; SameSite=None; Path=/auth/refresh`.
 
@@ -15,10 +15,10 @@ Auth endpoints
   Reads refresh token from cookie `refreshToken` or header `X-Refresh-Token`.
   Response 200:
   {
-  "accessToken": "<jwt>",
-  "expiresIn": 900,
-  "refreshToken": "<new_opaque_refresh>",
-  "tokenType": "Bearer"
+    "accessToken": "<jwt>",
+    "expiresIn": 900,
+    "refreshToken": "<new_opaque_refresh>",
+    "tokenType": "Bearer"
   }
   Rotates the refresh token: sets new cookie and revokes previous session.
 
