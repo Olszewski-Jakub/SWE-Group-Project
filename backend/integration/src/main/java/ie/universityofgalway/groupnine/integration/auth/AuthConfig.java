@@ -18,7 +18,12 @@ import ie.universityofgalway.groupnine.service.auth.usecase.LogoutUseCase;
 import ie.universityofgalway.groupnine.service.auth.usecase.RefreshUseCase;
 import ie.universityofgalway.groupnine.service.auth.usecase.RegisterUserUseCase;
 import ie.universityofgalway.groupnine.service.auth.usecase.VerifyEmailUseCase;
+import ie.universityofgalway.groupnine.service.auth.usecase.RequestPasswordResetUseCase;
+import ie.universityofgalway.groupnine.service.auth.usecase.ResetPasswordUseCase;
+import ie.universityofgalway.groupnine.service.auth.usecase.ChangePasswordUseCase;
 import ie.universityofgalway.groupnine.service.email.port.EnqueueEmailPort;
+import ie.universityofgalway.groupnine.service.auth.port.PasswordResetTokenRepositoryPort;
+import ie.universityofgalway.groupnine.service.security.port.PasswordResetRateLimitPort;
 import ie.universityofgalway.groupnine.service.session.usecase.GetSessionChainUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -66,6 +71,63 @@ public class AuthConfig {
             @Autowired EnqueueEmailPort enqueueEmail
     ) {
         return new VerifyEmailUseCase(tokenRepository, userRepository, randomTokenPort, clock, enqueueEmail);
+    }
+
+    @Bean
+    public RequestPasswordResetUseCase requestPasswordResetUseCase(
+            @Autowired UserRepositoryPort userRepository,
+            @Autowired PasswordResetTokenRepositoryPort tokenRepository,
+            @Autowired RandomTokenPort randomTokenPort,
+            @Autowired ClockPort clock,
+            @Autowired EnqueueEmailPort enqueueEmail,
+            @Autowired PasswordResetRateLimitPort rateLimit,
+            @Autowired @Value("${app.base-url}") String appBaseUrl,
+            @Autowired @Value("${passwordReset.ttlMinutes:30}") long ttlMinutes
+    ) {
+        return new RequestPasswordResetUseCase(
+                userRepository,
+                tokenRepository,
+                randomTokenPort,
+                clock,
+                enqueueEmail,
+                rateLimit,
+                appBaseUrl,
+                java.time.Duration.ofMinutes(ttlMinutes)
+        );
+    }
+
+    @Bean
+    public ResetPasswordUseCase resetPasswordUseCase(
+            @Autowired PasswordResetTokenRepositoryPort tokenRepository,
+            @Autowired UserRepositoryPort userRepository,
+            @Autowired PasswordHasherPort passwordHasher,
+            @Autowired RandomTokenPort randomTokenPort,
+            @Autowired SessionRepositoryPort sessionRepository,
+            @Autowired ClockPort clock
+    ) {
+        return new ResetPasswordUseCase(
+                tokenRepository,
+                userRepository,
+                passwordHasher,
+                randomTokenPort,
+                sessionRepository,
+                clock
+        );
+    }
+
+    @Bean
+    public ChangePasswordUseCase changePasswordUseCase(
+            @Autowired UserRepositoryPort userRepository,
+            @Autowired PasswordHasherPort passwordHasher,
+            @Autowired SessionRepositoryPort sessionRepository,
+            @Autowired ClockPort clock
+    ) {
+        return new ChangePasswordUseCase(
+                userRepository,
+                passwordHasher,
+                sessionRepository,
+                clock
+        );
     }
 
     @Bean

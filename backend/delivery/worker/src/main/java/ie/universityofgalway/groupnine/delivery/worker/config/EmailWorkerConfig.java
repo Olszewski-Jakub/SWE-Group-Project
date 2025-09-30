@@ -9,6 +9,7 @@ import ie.universityofgalway.groupnine.service.mailer.AccountVerificationMailer;
 import ie.universityofgalway.groupnine.service.mailer.BaseMailer;
 import ie.universityofgalway.groupnine.service.mailer.EmailMailerRegistry;
 import ie.universityofgalway.groupnine.service.mailer.WelcomeMailer;
+import ie.universityofgalway.groupnine.service.mailer.PasswordResetMailer;
 import org.springframework.amqp.core.AcknowledgeMode;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Declarable;
@@ -136,6 +137,15 @@ public class EmailWorkerConfig {
                                        @Value("${mailjet.from.email:no-reply@example.com}") String fromEmail,
                                        @Value("${mailjet.from.name:GroupNine}") String fromName) {
         return new WelcomeMailer(idempotency, renderer, sender, fromEmail, fromName);
+    }
+
+    @Bean
+    public PasswordResetMailer passwordResetMailer(@Autowired RenderTemplatePort renderer,
+                                                    @Autowired SendEmailPort sender,
+                                                    @Autowired IdempotencyPort idempotency,
+                                                    @Value("${mailjet.from.email:no-reply@example.com}") String fromEmail,
+                                                    @Value("${mailjet.from.name:GroupNine}") String fromName) {
+        return new PasswordResetMailer(idempotency, renderer, sender, fromEmail, fromName);
     }
 
     @Bean

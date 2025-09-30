@@ -4,6 +4,7 @@ import ie.universityofgalway.groupnine.delivery.rest.auth.dto.LoginRequest;
 import ie.universityofgalway.groupnine.delivery.rest.auth.dto.RegisterRequest;
 import ie.universityofgalway.groupnine.delivery.rest.auth.dto.TokenResponse;
 import ie.universityofgalway.groupnine.delivery.rest.auth.dto.VerifyRequest;
+import ie.universityofgalway.groupnine.delivery.rest.support.Routes;
 import ie.universityofgalway.groupnine.domain.auth.InvalidRefreshToken;
 import ie.universityofgalway.groupnine.security.config.props.AuthProps;
 import ie.universityofgalway.groupnine.service.auth.usecase.LoginUseCase;
@@ -37,7 +38,7 @@ import java.net.InetAddress;
  * ownership of an email address via opaque verification tokens.
  */
 @RestController
-@RequestMapping(value = "/auth")
+@RequestMapping(value = Routes.AUTH)
 public class AuthController {
     private static final AppLogger log = AppLogger.get(AuthController.class);
 
@@ -171,7 +172,7 @@ public class AuthController {
                 .httpOnly(true)
                 .secure(true)
                 .sameSite("None")
-                .path("/auth/refresh")
+                .path(ie.universityofgalway.groupnine.delivery.rest.support.Routes.AUTH + "/refresh")
                 .maxAge(maxAge)
                 .build();
     }
@@ -181,7 +182,7 @@ public class AuthController {
                 .httpOnly(true)
                 .secure(true)
                 .sameSite("None")
-                .path("/auth/refresh")
+                .path(ie.universityofgalway.groupnine.delivery.rest.support.Routes.AUTH + "/refresh")
                 .maxAge(0)
                 .build();
     }

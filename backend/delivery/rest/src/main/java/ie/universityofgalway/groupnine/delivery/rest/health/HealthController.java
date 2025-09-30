@@ -7,13 +7,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ie.universityofgalway.groupnine.delivery.rest.support.ApiResponse;
 
 /**
  * REST controller exposing a DB-backed health check.
  * Clean Architecture: depends only on application use case.
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping(ie.universityofgalway.groupnine.delivery.rest.support.Routes.V1)
 public class HealthController {
 
     private final HealthCheckUseCase useCase;
@@ -24,14 +25,14 @@ public class HealthController {
     }
 
     @GetMapping("/health")
-    public ResponseEntity<HealthResponse> getHealth() {
+    public ResponseEntity<ApiResponse<HealthResponse>> getHealth() {
         HealthStatus status = useCase.checkHealth();
         HealthResponse body = new HealthResponse(status.name());
 
         if (status == HealthStatus.UP) {
-            return ResponseEntity.ok(body);
+            return ResponseEntity.ok(ApiResponse.ok(body));
         } else {
-            return ResponseEntity.status(503).body(body);
+            return ResponseEntity.status(503).body(ApiResponse.ok(body));
         }
     }
 }

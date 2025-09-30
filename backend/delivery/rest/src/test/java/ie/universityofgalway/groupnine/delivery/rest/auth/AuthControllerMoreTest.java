@@ -55,7 +55,7 @@ class AuthControllerMoreTest {
     @Test
     void refreshUsesHeaderAndSetsCookie() throws Exception {
         when(refreshUseCase.execute(eq("old"), any(), any())).thenReturn(new RefreshUseCase.Result("acc", 900, "new"));
-        mockMvc.perform(post("/auth/refresh").header("X-Refresh-Token", "old"))
+        mockMvc.perform(post("/api/v1/auth/refresh").header("X-Refresh-Token", "old"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("\"refreshToken\":\"new\"")))
                 .andExpect(header().string("Set-Cookie", containsString("refreshToken=new")))
@@ -65,7 +65,7 @@ class AuthControllerMoreTest {
     @Test
     void refreshUsesCookieWhenHeaderMissing() throws Exception {
         when(refreshUseCase.execute(eq("cookieTok"), any(), any())).thenReturn(new RefreshUseCase.Result("acc", 900, "next"));
-        MockHttpServletRequestBuilder req = post("/auth/refresh")
+        MockHttpServletRequestBuilder req = post("/api/v1/auth/refresh")
                 .cookie(new jakarta.servlet.http.Cookie("refreshToken", "cookieTok"));
         mockMvc.perform(req)
                 .andExpect(status().isOk())
@@ -75,16 +75,15 @@ class AuthControllerMoreTest {
 
     @Test
     void logoutClearsCookie() throws Exception {
-        mockMvc.perform(post("/auth/logout").header("X-Refresh-Token", "tok"))
+        mockMvc.perform(post("/api/v1/auth/logout").header("X-Refresh-Token", "tok"))
                 .andExpect(status().isOk())
                 .andExpect(header().string("Set-Cookie", containsString("Max-Age=0")));
     }
 
     @Test
     void logoutAllClearsCookie() throws Exception {
-        mockMvc.perform(post("/auth/logout-all").header("X-Refresh-Token", "tok"))
+        mockMvc.perform(post("/api/v1/auth/logout-all").header("X-Refresh-Token", "tok"))
                 .andExpect(status().isOk())
                 .andExpect(header().string("Set-Cookie", containsString("Max-Age=0")));
     }
 }
-

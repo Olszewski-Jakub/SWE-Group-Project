@@ -56,7 +56,8 @@ app:
       public-routes:
         - pattern: /api/health
         - pattern: /dev/**
-        - pattern: /auth/**
+        - pattern: /**/auth/**
+        - pattern: /api/v1/auth/**
       secure-routes:
         - pattern: /api/admin/**
           role: ADMIN

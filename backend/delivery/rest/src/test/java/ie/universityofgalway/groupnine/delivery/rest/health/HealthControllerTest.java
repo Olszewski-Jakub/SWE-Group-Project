@@ -31,19 +31,19 @@ class HealthControllerTest extends CommonWebMvcTest {
     void returns200_whenHealthUp() throws Exception {
         when(useCase.checkHealth()).thenReturn(HealthStatus.UP);
 
-        mockMvc.perform(get("/api/health").accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/api/v1/health").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.status").value("UP"));
+                .andExpect(jsonPath("$.data.status").value("UP"));
     }
 
     @Test
     void returns503_whenHealthDown() throws Exception {
         when(useCase.checkHealth()).thenReturn(HealthStatus.DOWN);
 
-        mockMvc.perform(get("/api/health").accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/api/v1/health").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isServiceUnavailable())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.status").value("DOWN"));
+                .andExpect(jsonPath("$.data.status").value("DOWN"));
     }
 }

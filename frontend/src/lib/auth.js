@@ -7,24 +7,24 @@ export function bootstrapToken({ onRefreshSchedule } = {}) {
 }
 
 export async function signIn({ email, password }, { onRefreshSchedule } = {}) {
-  const res = await axiosClient.post('/auth/login', { email, password });
+  const res = await axiosClient.post('/api/v1/auth/login', { email, password });
   const { accessToken, user } = res.data || {};
   if (accessToken) setAccessToken(accessToken, { onRefreshSchedule });
   return { user: user || null, accessToken: accessToken || null };
 }
 
 export async function signUp({ firstName, lastName, email, password }) {
-  const res = await axiosClient.post('/auth/register', { firstName, lastName, email, password });
+  const res = await axiosClient.post('/api/v1/auth/register', { firstName, lastName, email, password });
   return res.data || {};
 }
 
 export async function signOut() {
-  try { await axiosClient.post('/auth/logout'); } catch (_) {}
+  try { await axiosClient.post('/api/v1/auth/logout'); } catch (_) {}
   setAccessToken(null);
 }
 
 export async function signOutAll() {
-  try { await axiosClient.post('/auth/logout-all'); } catch (_) {}
+  try { await axiosClient.post('/api/v1/auth/logout-all'); } catch (_) {}
   setAccessToken(null);
 }
 
@@ -34,11 +34,25 @@ export async function refresh({ onRefreshSchedule } = {}) {
 }
 
 export async function fetchMe(config = {}) {
-  const res = await axiosClient.get('/auth/me', { ...config });
+  const res = await axiosClient.get('/api/v1/auth/me', { ...config });
   return res.data || null;
 }
 
 export async function verifyEmail(token) {
-  const res = await axiosClient.post('/auth/verify-email', { token });
+  const res = await axiosClient.post('/api/v1/auth/verify-email', { token });
   return res?.data ?? null;
+}
+
+// Reset password using token issued via forgot-password flow
+export async function resetPassword({ token, password }) {
+  // Endpoint served by ResetPasswordController at /api/v1/auth/reset-password
+  // Returns 204 No Content on success
+  return axiosClient.post('/api/v1/auth/reset-password', { token, password });
+}
+
+// Request a password reset email
+export async function requestPasswordReset({ email, locale }) {
+  const payload = { email, locale };
+  const res = await axiosClient.post('/api/v1/auth/forgot-password', payload);
+  return res?.data ?? null; // { message }
 }
