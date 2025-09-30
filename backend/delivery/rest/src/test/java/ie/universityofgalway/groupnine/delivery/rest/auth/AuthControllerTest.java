@@ -59,7 +59,7 @@ public class AuthControllerTest {
                 .thenReturn(new LoginUseCase.Result("acc", 900, "opaque_refresh"));
 
         String json = "{\n  \"email\": \"user@example.com\",\n  \"password\": \"pass\"\n}";
-        mockMvc.perform(post("/auth/login").contentType(MediaType.APPLICATION_JSON).content(json))
+        mockMvc.perform(post("/api/v1/auth/login").contentType(MediaType.APPLICATION_JSON).content(json))
                 .andExpect(status().isOk())
                 .andExpect(header().string("Set-Cookie", containsString("refreshToken=opaque_refresh")))
                 .andExpect(content().string(containsString("\"refreshToken\":\"opaque_refresh\"")));

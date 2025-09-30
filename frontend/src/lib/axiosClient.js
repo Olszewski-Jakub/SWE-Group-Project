@@ -105,7 +105,7 @@ axiosClient.interceptors.request.use((config) => {
 async function performRefresh() {
   if (!refreshPromise) {
     refreshPromise = axios
-      .post(`${baseURL}/auth/refresh`, {}, { withCredentials: true })
+      .post(`${baseURL}/api/v1/auth/refresh`, {}, { withCredentials: true })
       .then((res) => {
         const newToken = res?.data?.accessToken;
         if (!newToken) throw new Error('No access token from refresh');

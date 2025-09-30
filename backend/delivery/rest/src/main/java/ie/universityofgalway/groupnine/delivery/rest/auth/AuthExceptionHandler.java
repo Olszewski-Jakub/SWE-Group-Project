@@ -7,11 +7,13 @@ import ie.universityofgalway.groupnine.domain.auth.ExpiredVerificationToken;
 import ie.universityofgalway.groupnine.domain.auth.InvalidCredentials;
 import ie.universityofgalway.groupnine.domain.auth.InvalidRefreshToken;
 import ie.universityofgalway.groupnine.domain.auth.InvalidVerificationToken;
+import ie.universityofgalway.groupnine.domain.auth.InvalidPasswordResetToken;
 import ie.universityofgalway.groupnine.domain.auth.RefreshReuseDetected;
 import ie.universityofgalway.groupnine.domain.auth.TokenAlreadyUsed;
 import ie.universityofgalway.groupnine.domain.auth.TooManyAttempts;
 import ie.universityofgalway.groupnine.domain.auth.UserLocked;
 import ie.universityofgalway.groupnine.domain.auth.UserNotVerified;
+import ie.universityofgalway.groupnine.domain.auth.ExpiredPasswordResetToken;
 import ie.universityofgalway.groupnine.util.logging.AppLogger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,9 +39,21 @@ public class AuthExceptionHandler {
         return toBody(HttpStatus.BAD_REQUEST, ex.getMessage(), req);
     }
 
+    @ExceptionHandler(InvalidPasswordResetToken.class)
+    public ResponseEntity<ApiError> handleInvalidResetToken(InvalidPasswordResetToken ex, WebRequest req) {
+        log.info("auth_bad_request_invalid_reset_token", "message", ex.getMessage());
+        return toBody(HttpStatus.BAD_REQUEST, ex.getMessage(), req);
+    }
+
     @ExceptionHandler(ExpiredVerificationToken.class)
     public ResponseEntity<ApiError> handleExpired(ExpiredVerificationToken ex, WebRequest req) {
         log.info("auth_gone_expired_token", "message", ex.getMessage());
+        return toBody(HttpStatus.GONE, ex.getMessage(), req);
+    }
+
+    @ExceptionHandler(ExpiredPasswordResetToken.class)
+    public ResponseEntity<ApiError> handleExpiredReset(ExpiredPasswordResetToken ex, WebRequest req) {
+        log.info("auth_gone_expired_reset_token", "message", ex.getMessage());
         return toBody(HttpStatus.GONE, ex.getMessage(), req);
     }
 

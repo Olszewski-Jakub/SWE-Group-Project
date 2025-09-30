@@ -11,5 +11,9 @@ public enum EmailType {
     /**
      * Post-verification welcome message.
      */
-    WELCOME
+    WELCOME,
+    /**
+     * Password reset email containing a reset link.
+     */
+    PASSWORD_RESET
 }

@@ -16,7 +16,7 @@ class AuthExceptionHandlerTest {
     void mapsTooManyAttemptsTo429WithRetryAfter() {
         AuthExceptionHandler handler = new AuthExceptionHandler();
         WebRequest req = mock(WebRequest.class);
-        when(req.getDescription(false)).thenReturn("uri=/auth/login");
+        when(req.getDescription(false)).thenReturn("uri=/api/v1/auth/login");
         TooManyAttempts ex = new TooManyAttempts("Too many attempts. Retry after 120 seconds.", 120);
         ResponseEntity<ApiError> resp = handler.handleTooMany(ex, req);
         assertEquals(429, resp.getStatusCode().value());
@@ -25,4 +25,3 @@ class AuthExceptionHandlerTest {
         assertTrue(resp.getBody().getMessage().contains("Retry after 120"));
     }
 }
-
