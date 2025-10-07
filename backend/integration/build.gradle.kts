@@ -15,6 +15,8 @@ dependencies {
     implementation(project(":delivery:worker"))
     implementation(libs.spring.boot.starter.amqp)
 
+    testImplementation(libs.spring.boot.starter.test)
+
 }
 
 coverage {

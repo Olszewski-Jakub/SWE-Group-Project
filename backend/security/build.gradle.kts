@@ -11,6 +11,9 @@ repositories {
 
 dependencies {
     implementation(libs.spring.security.oauth2.jose)
+    implementation(libs.spring.boot.starter.security)
+    implementation(libs.spring.boot.starter.web)
+    implementation(project(":domain"))
 }
 
 coverage {

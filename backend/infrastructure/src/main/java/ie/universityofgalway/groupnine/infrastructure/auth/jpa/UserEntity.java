@@ -1,9 +1,6 @@
 package ie.universityofgalway.groupnine.infrastructure.auth.jpa;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -39,6 +36,14 @@ public class UserEntity {
 
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private java.util.Set<RoleEntity> roles = new java.util.HashSet<>();
 
     public UserEntity() {
     }
@@ -114,5 +119,13 @@ public class UserEntity {
 
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public java.util.Set<RoleEntity> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(java.util.Set<RoleEntity> roles) {
+        this.roles = roles;
     }
 }

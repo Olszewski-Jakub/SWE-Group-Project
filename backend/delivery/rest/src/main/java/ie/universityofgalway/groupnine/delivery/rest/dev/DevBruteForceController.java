@@ -7,12 +7,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
-
+import ie.universityofgalway.groupnine.domain.security.PublicEndpoint;
 /**
  * Development endpoint to expose which {@link BruteForceGuardPort} implementation is active.
  */
 @RestController
 @RequestMapping("/dev/bruteforce")
+@PublicEndpoint
 public class DevBruteForceController {
     private final BruteForceGuardPort guard;
 
@@ -26,5 +27,5 @@ public class DevBruteForceController {
                 "implementation", guard.getClass().getName()
         ));
     }
-}
 
+}

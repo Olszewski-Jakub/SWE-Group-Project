@@ -13,9 +13,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ie.universityofgalway.groupnine.delivery.rest.support.ApiResponse;
-
+import ie.universityofgalway.groupnine.domain.security.PublicEndpoint;
 @RestController
 @RequestMapping(Routes.AUTH)
+@PublicEndpoint
 public class ResetPasswordController {
     private final ResetPasswordUseCase useCase;
 
@@ -29,4 +30,5 @@ public class ResetPasswordController {
         useCase.execute(req.token, req.password);
         return ResponseEntity.ok(ApiResponse.ok(null));
     }
+
 }
