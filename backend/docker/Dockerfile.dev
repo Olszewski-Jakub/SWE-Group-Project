@@ -12,15 +12,15 @@ COPY gradle gradle
 COPY settings.gradle.kts settings.gradle.kts
 COPY build.gradle.kts build.gradle.kts
 COPY build-logic build-logic
+COPY . .
+
+RUN sed -i 's/\r$//' ./gradlew
 
 # Make wrapper executable
 RUN chmod +x ./gradlew
 
 # Verify Gradle
 RUN ./gradlew --version
-
-# Bring in the rest of the project
-COPY . .
 
 # Build the Spring Boot fat jar for :integration
 RUN ./gradlew :integration:bootJar -x test --no-daemon
