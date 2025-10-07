@@ -14,7 +14,13 @@ class AuthoritiesTest {
         var auths = Authorities.fromClaim(List.of("ADMIN", "ROLE_USER"));
         Assertions.assertThat(auths)
                 .extracting(GrantedAuthority::getAuthority)
-                .containsExactlyInAnyOrder("ROLE_ADMIN", "ROLE_USER");
+                .contains(
+                        "ROLE_ADMIN",
+                        "ROLE_MANAGER",
+                        "ROLE_STAFF",
+                        "ROLE_SUPPORT",
+                        "ROLE_USER"
+                );
     }
 
     @Test

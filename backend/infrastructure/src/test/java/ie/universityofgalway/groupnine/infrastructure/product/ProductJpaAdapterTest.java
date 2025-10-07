@@ -36,7 +36,7 @@ class ProductJpaAdapterTest {
     private ProductJpaRepository productJpaRepository;
 
     @InjectMocks
-    private ProductJpaAdapter productJpaAdapter;
+    private ProductPersistenceAdapter productJpaAdapter;
 
     /**
      * Given a product and one available variant in the persistence layer,

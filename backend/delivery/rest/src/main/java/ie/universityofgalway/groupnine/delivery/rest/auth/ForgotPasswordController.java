@@ -16,9 +16,10 @@ import ie.universityofgalway.groupnine.delivery.rest.support.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.net.InetAddress;
-
+import ie.universityofgalway.groupnine.domain.security.PublicEndpoint;
 @RestController
 @RequestMapping(Routes.AUTH)
+@PublicEndpoint
 public class ForgotPasswordController {
 
     private final RequestPasswordResetUseCase useCase;

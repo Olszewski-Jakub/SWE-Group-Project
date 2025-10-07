@@ -1,10 +1,10 @@
 package ie.universityofgalway.groupnine.security.config;
 
-import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
+import ie.universityofgalway.groupnine.security.web.RequireRolesInterceptor;
+import ie.universityofgalway.groupnine.security.web.AuthGuardInterceptor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -13,23 +13,31 @@ import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * Central security configuration.
+ * <p>
+ * Strategy:
+ * - HTTP layer permits all requests through the filter chain while remaining stateless
+ *   (JWT is still parsed by {@code JwtAuthFilter}).
+ * - Authorization is enforced in the MVC layer via two interceptors:
+ *   {@code AuthGuardInterceptor} requires authentication unless an endpoint is annotated
+ *   with {@code @PublicEndpoint}; {@code RequireRolesInterceptor} enforces domain roles
+ *   declared with {@code @RequireRoles}.
+ * - CORS is open to all origins for development; CSRF disabled; sessions are stateless.
+ */
 @Configuration
 @EnableConfigurationProperties({
-        ie.universityofgalway.groupnine.security.config.props.RouteProperties.class,
         ie.universityofgalway.groupnine.security.config.props.AppSecurityProps.class,
         ie.universityofgalway.groupnine.security.config.props.AuthProps.class
 })
 public class SecurityConfig {
 
-    private static AntPathRequestMatcher ant(String pattern) {
-        return new AntPathRequestMatcher(pattern);
-    }
+    // Use requestMatchers(String...) directly; avoid AntPathRequestMatcher (deprecated)
 
     @Bean
     SecurityFilterChain securityFilterChain(
@@ -49,33 +57,8 @@ public class SecurityConfig {
         }));
         http.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        http.authorizeHttpRequests(registry -> {
-            // 1) static & actuator
-            registry.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll();
-            registry.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
-            registry.requestMatchers(ant("/actuator/info")).permitAll();
-            // 2) public routes
-            // Always allow health endpoint by default
-            if (props.getRoutes() != null && props.getRoutes().getPublicRoutes() != null) {
-                for (ie.universityofgalway.groupnine.security.config.props.AppSecurityProps.PublicRoute r : props.getRoutes().getPublicRoutes()) {
-                    registry.requestMatchers(ant(r.getPattern())).permitAll();
-                }
-            }
-
-            // 3) secure routes
-            if (props.getRoutes() != null && props.getRoutes().getSecureRoutes() != null) {
-                props.getRoutes().getSecureRoutes().forEach(r -> {
-                    if (r.getRole() != null && !r.getRole().isBlank()) {
-                        registry.requestMatchers(ant(r.getPattern())).hasRole(r.getRole());
-                    } else {
-                        registry.requestMatchers(ant(r.getPattern())).authenticated();
-                    }
-                });
-            }
-
-            // 4) terminal rule
-            registry.anyRequest().denyAll();
-        });
+        // Path-level: allow all through; MVC interceptors enforce auth/roles
+        http.authorizeHttpRequests(registry -> registry.anyRequest().permitAll());
 
         // Add JWT filter
         http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
@@ -94,15 +77,41 @@ public class SecurityConfig {
         return java.time.Clock.systemUTC();
     }
 
+    // Register MVC interceptor to enforce @RequireRoles on controllers without requiring AOP proxies
+    @Bean
+    public org.springframework.web.servlet.config.annotation.WebMvcConfigurer interceptorsConfigurer(
+            AuthGuardInterceptor authGuard,
+            RequireRolesInterceptor rolesInterceptor
+    ) {
+        return new org.springframework.web.servlet.config.annotation.WebMvcConfigurer() {
+            @Override
+            public void addInterceptors(org.springframework.web.servlet.config.annotation.InterceptorRegistry registry) {
+                registry.addInterceptor(authGuard).order(-10);
+                registry.addInterceptor(rolesInterceptor).order(0);
+            }
+        };
+    }
+
     // Keep JwtDecoder bean for tests and potential future use
     @Bean
-    public JwtDecoder jwtDecoder(ie.universityofgalway.groupnine.security.config.props.RouteProperties props) {
+    public JwtDecoder jwtDecoder(ie.universityofgalway.groupnine.security.config.props.AppSecurityProps props) {
         byte[] secret = props.getJwt().getHmacSecret().getBytes(StandardCharsets.UTF_8);
         NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(new SecretKeySpec(secret, "HmacSHA256")).build();
         if (props.getJwt().getIssuer() != null && !props.getJwt().getIssuer().isBlank()) {
             decoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(props.getJwt().getIssuer()));
         }
         return decoder;
+    }
+
+    // Compatibility overload for tests that still pass RouteProperties
+    public JwtDecoder jwtDecoder(ie.universityofgalway.groupnine.security.config.props.RouteProperties routeProps) {
+        ie.universityofgalway.groupnine.security.config.props.AppSecurityProps app = new ie.universityofgalway.groupnine.security.config.props.AppSecurityProps();
+        var jwt = new ie.universityofgalway.groupnine.security.config.props.AppSecurityProps.Jwt();
+        jwt.setHmacSecret(routeProps.getJwt().getHmacSecret());
+        jwt.setIssuer(routeProps.getJwt().getIssuer());
+        jwt.setAuthoritiesClaim(routeProps.getJwt().getAuthoritiesClaim());
+        app.setJwt(jwt);
+        return jwtDecoder(app);
     }
 
 }

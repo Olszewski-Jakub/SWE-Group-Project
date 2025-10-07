@@ -11,13 +11,14 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
+import ie.universityofgalway.groupnine.domain.security.PublicEndpoint;
 /**
  * Development-only endpoints for visualizing refresh-token session chains.
  */
 @RestController
 @Profile({"dev", "local"})
 @RequestMapping("/dev/sessions")
+@PublicEndpoint
 public class DevSessionController {
 
     private final GetSessionChainUseCase getSessionChainUseCase;
@@ -44,4 +45,5 @@ public class DevSessionController {
                         : getSessionChainUseCase.byRefreshToken(refreshToken);
         return ResponseEntity.ok(Map.of("nodes", nodes));
     }
+
 }

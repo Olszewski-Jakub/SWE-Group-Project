@@ -168,7 +168,8 @@ public class AuthConfig {
             @Autowired RandomTokenPort randomTokenPort,
             @Autowired AuditEventPort auditEventPort,
             @Autowired ClockPort clock,
-            @Autowired AuthProps authProps
+            @Autowired AuthProps authProps,
+            @Autowired UserRepositoryPort userRepository
     ) {
         return new RefreshUseCase(
                 sessionRepository,
@@ -177,7 +178,8 @@ public class AuthConfig {
                 randomTokenPort,
                 auditEventPort,
                 clock,
-                java.time.Duration.ofDays(authProps.getRefreshTtlDays())
+                java.time.Duration.ofDays(authProps.getRefreshTtlDays()),
+                userRepository
         );
     }
 
@@ -207,5 +209,28 @@ public class AuthConfig {
             @Autowired RandomTokenPort randomTokenPort
     ) {
         return new GetSessionChainUseCase(sessionRepository, randomTokenPort);
+    }
+
+    @Bean
+    public ie.universityofgalway.groupnine.service.auth.usecase.AssignRoleToUserUseCase assignRoleToUserUseCase(
+            @Autowired UserRepositoryPort userRepository,
+            @Autowired ClockPort clock
+    ) {
+        return new ie.universityofgalway.groupnine.service.auth.usecase.AssignRoleToUserUseCase(userRepository, clock);
+    }
+
+    @Bean
+    public ie.universityofgalway.groupnine.service.auth.usecase.RevokeRoleFromUserUseCase revokeRoleFromUserUseCase(
+            @Autowired UserRepositoryPort userRepository,
+            @Autowired ClockPort clock
+    ) {
+        return new ie.universityofgalway.groupnine.service.auth.usecase.RevokeRoleFromUserUseCase(userRepository, clock);
+    }
+
+    @Bean
+    public ie.universityofgalway.groupnine.service.auth.usecase.GetUserRolesUseCase getUserRolesUseCase(
+            @Autowired UserRepositoryPort userRepository
+    ) {
+        return new ie.universityofgalway.groupnine.service.auth.usecase.GetUserRolesUseCase(userRepository);
     }
 }

@@ -10,6 +10,7 @@ dependencies {
     implementation(project(":service"))
     implementation(project(":domain"))
     implementation(project(":security"))
+    implementation(libs.spring.boot.starter.security)
     implementation(project(":util"))
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
 

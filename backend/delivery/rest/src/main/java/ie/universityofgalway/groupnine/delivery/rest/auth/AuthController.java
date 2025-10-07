@@ -14,6 +14,7 @@ import ie.universityofgalway.groupnine.service.auth.usecase.RefreshUseCase;
 import ie.universityofgalway.groupnine.service.auth.usecase.RegisterUserUseCase;
 import ie.universityofgalway.groupnine.service.auth.usecase.VerifyEmailUseCase;
 import ie.universityofgalway.groupnine.util.logging.AppLogger;
+import ie.universityofgalway.groupnine.domain.security.PublicEndpoint;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -39,6 +40,7 @@ import java.net.InetAddress;
  */
 @RestController
 @RequestMapping(value = Routes.AUTH)
+@PublicEndpoint
 public class AuthController {
     private static final AppLogger log = AppLogger.get(AuthController.class);
 

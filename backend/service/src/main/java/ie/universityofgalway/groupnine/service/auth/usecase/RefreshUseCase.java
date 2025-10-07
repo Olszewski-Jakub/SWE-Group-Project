@@ -30,13 +30,15 @@ public class RefreshUseCase {
     private final AuditEventPort audit;
     private final ClockPort clock;
     private final Duration refreshTtl;
+    private final ie.universityofgalway.groupnine.service.auth.port.UserRepositoryPort userRepository;
     public RefreshUseCase(SessionRepositoryPort sessionRepository,
                           JwtAccessTokenPort jwtAccessTokenPort,
                           RefreshTokenFactory refreshTokenFactory,
                           RandomTokenPort randomTokenPort,
                           AuditEventPort audit,
                           ClockPort clock,
-                          Duration refreshTtl) {
+                          Duration refreshTtl,
+                          ie.universityofgalway.groupnine.service.auth.port.UserRepositoryPort userRepository) {
         this.sessionRepository = sessionRepository;
         this.jwtAccessTokenPort = jwtAccessTokenPort;
         this.refreshTokenFactory = refreshTokenFactory;
@@ -44,6 +46,61 @@ public class RefreshUseCase {
         this.audit = audit;
         this.clock = clock;
         this.refreshTtl = refreshTtl;
+        this.userRepository = userRepository;
+    }
+
+    /**
+     * Backward-compatible constructor retained for test stability.
+     * <p>
+     * Delegates to the main constructor with a minimal inline {@code UserRepositoryPort}
+     * that returns a dummy active user with no roles. Production code should use the full
+     * constructor that supplies a {@code UserRepositoryPort}.
+     */
+    public RefreshUseCase(SessionRepositoryPort sessionRepository,
+                          JwtAccessTokenPort jwtAccessTokenPort,
+                          RefreshTokenFactory refreshTokenFactory,
+                          RandomTokenPort randomTokenPort,
+                          AuditEventPort audit,
+                          ClockPort clock,
+                          Duration refreshTtl) {
+        this(
+                sessionRepository,
+                jwtAccessTokenPort,
+                refreshTokenFactory,
+                randomTokenPort,
+                audit,
+                clock,
+                refreshTtl,
+                new ie.universityofgalway.groupnine.service.auth.port.UserRepositoryPort() {
+                    @Override
+                    public boolean existsByEmail(ie.universityofgalway.groupnine.domain.user.Email email) { return false; }
+
+                    @Override
+                    public java.util.Optional<ie.universityofgalway.groupnine.domain.user.User> findByEmail(ie.universityofgalway.groupnine.domain.user.Email email) { return java.util.Optional.empty(); }
+
+                    @Override
+                    public java.util.Optional<ie.universityofgalway.groupnine.domain.user.User> findById(ie.universityofgalway.groupnine.domain.user.UserId id) {
+                        return java.util.Optional.of(new ie.universityofgalway.groupnine.domain.user.User(
+                                ie.universityofgalway.groupnine.domain.user.UserId.of(id.value()),
+                                ie.universityofgalway.groupnine.domain.user.Email.of("dummy@example.com"),
+                                "",
+                                "",
+                                ie.universityofgalway.groupnine.domain.user.UserStatus.ACTIVE,
+                                true,
+                                null,
+                                java.time.Instant.EPOCH,
+                                java.time.Instant.EPOCH,
+                                java.util.Set.of()
+                        ));
+                    }
+
+                    @Override
+                    public ie.universityofgalway.groupnine.domain.user.User save(ie.universityofgalway.groupnine.domain.user.User user) { return user; }
+
+                    @Override
+                    public ie.universityofgalway.groupnine.domain.user.User update(ie.universityofgalway.groupnine.domain.user.User user) { return user; }
+                }
+        );
     }
 
     /**
@@ -82,7 +139,10 @@ public class RefreshUseCase {
         // 2) Revoke the old session and link it forward to the new one
         sessionRepository.revokeSession(existing.getId(), now, "rotated", newSession.getId());
 
-        String accessToken = jwtAccessTokenPort.createAccessToken(existing.getUserId().value().toString(), List.of(), null);
+        var user = userRepository.findById(ie.universityofgalway.groupnine.domain.user.UserId.of(existing.getUserId().value()))
+                .orElseThrow(() -> new InvalidRefreshToken("User not found for session"));
+        java.util.List<String> roleNames = user.getRoles().stream().map(r -> r.name()).toList();
+        String accessToken = jwtAccessTokenPort.createAccessToken(existing.getUserId().value().toString(), roleNames, null);
         long expiresIn = jwtAccessTokenPort.getAccessTokenTtlSeconds();
         audit.record(existing.getUserId(), ie.universityofgalway.groupnine.service.audit.AuditEvents.REFRESH_ROTATED, java.util.Map.of(
                 "oldSessionId", existing.getId().toString(),

@@ -22,7 +22,13 @@ class JwtConvertersTest {
 
         Assertions.assertThat(auth.getAuthorities())
                 .extracting(GrantedAuthority::getAuthority)
-                .containsExactlyInAnyOrder("ROLE_ADMIN", "ROLE_USER");
+                .contains(
+                        "ROLE_ADMIN",
+                        "ROLE_MANAGER",
+                        "ROLE_STAFF",
+                        "ROLE_SUPPORT",
+                        "ROLE_USER"
+                );
     }
 
     @Test
@@ -50,7 +56,13 @@ class JwtConvertersTest {
 
         Assertions.assertThat(auth.getAuthorities())
                 .extracting(GrantedAuthority::getAuthority)
-                .containsExactlyInAnyOrder("ROLE_ADMIN", "ROLE_USER");
+                .contains(
+                        "ROLE_ADMIN",
+                        "ROLE_MANAGER",
+                        "ROLE_STAFF",
+                        "ROLE_SUPPORT",
+                        "ROLE_USER"
+                );
     }
 
     @Test

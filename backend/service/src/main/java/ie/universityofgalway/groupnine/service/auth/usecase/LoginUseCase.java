@@ -115,7 +115,8 @@ public class LoginUseCase {
         Session session = Session.createNew(UserId.of(user.getId().value()), refresh.hash(), userAgent, ipAddress, now, expiresAt);
         session = sessionRepository.save(session);
 
-        String accessToken = jwtAccessTokenPort.createAccessToken(user.getId().value().toString(), List.of(), null);
+        java.util.List<String> roleNames = user.getRoles().stream().map(r -> r.name()).toList();
+        String accessToken = jwtAccessTokenPort.createAccessToken(user.getId().value().toString(), roleNames, null);
         long expiresIn = jwtAccessTokenPort.getAccessTokenTtlSeconds();
         audit.record(user.getId(), AuditEvents.LOGIN_SUCCESS, java.util.Map.of(
                 "sessionId", session.getId() == null ? "" : session.getId().toString(),

@@ -6,6 +6,8 @@ import ie.universityofgalway.groupnine.domain.user.User;
 import ie.universityofgalway.groupnine.domain.user.UserId;
 import ie.universityofgalway.groupnine.domain.user.UserStatus;
 import ie.universityofgalway.groupnine.infrastructure.auth.jpa.UserEntity;
+import ie.universityofgalway.groupnine.infrastructure.auth.jpa.RoleEntity;
+import ie.universityofgalway.groupnine.infrastructure.auth.jpa.RoleJpaRepository;
 import ie.universityofgalway.groupnine.infrastructure.auth.jpa.UserJpaRepository;
 import ie.universityofgalway.groupnine.service.auth.port.UserRepositoryPort;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,10 +27,12 @@ import java.util.Optional;
 public class JpaUserRepositoryAdapter implements UserRepositoryPort {
 
     private final UserJpaRepository repo;
+    private final RoleJpaRepository rolesRepo;
 
     @Autowired
-    public JpaUserRepositoryAdapter(UserJpaRepository repo) {
+    public JpaUserRepositoryAdapter(UserJpaRepository repo, RoleJpaRepository rolesRepo) {
         this.repo = repo;
+        this.rolesRepo = rolesRepo;
     }
 
     @Override
@@ -38,12 +42,12 @@ public class JpaUserRepositoryAdapter implements UserRepositoryPort {
 
     @Override
     public Optional<User> findByEmail(Email email) {
-        return repo.findByEmail(email.value()).map(this::toDomain);
+        return repo.findByEmailWithRoles(email.value()).map(this::toDomain);
     }
 
     @Override
     public Optional<User> findById(UserId id) {
-        return repo.findById(id.value()).map(this::toDomain);
+        return repo.findByIdWithRoles(id.value()).map(this::toDomain);
     }
 
     @Override
@@ -74,10 +78,22 @@ public class JpaUserRepositoryAdapter implements UserRepositoryPort {
         e.setPasswordHash(user.getPasswordHash());
         e.setCreatedAt(user.getCreatedAt());
         e.setUpdatedAt(user.getUpdatedAt());
+        // map roles by looking up existing role entities
+        java.util.Set<String> roleNames = user.getRoles().stream().map(Enum::name).collect(java.util.stream.Collectors.toSet());
+        java.util.List<RoleEntity> found = rolesRepo.findByNameIn(roleNames);
+        e.setRoles(new java.util.HashSet<>(found));
         return e;
     }
 
     private User toDomain(UserEntity e) {
+        java.util.Set<ie.universityofgalway.groupnine.domain.user.Role> roles = e.getRoles() == null ? java.util.Set.of() : e.getRoles().stream()
+                .map(RoleEntity::getName)
+                .map(name -> {
+                    try { return ie.universityofgalway.groupnine.domain.user.Role.valueOf(name); }
+                    catch (IllegalArgumentException ex) { return null; }
+                })
+                .filter(java.util.Objects::nonNull)
+                .collect(java.util.stream.Collectors.toUnmodifiableSet());
         return new User(
                 UserId.of(e.getId()),
                 Email.of(e.getEmail()),
@@ -87,7 +103,8 @@ public class JpaUserRepositoryAdapter implements UserRepositoryPort {
                 e.isEmailVerified(),
                 e.getPasswordHash(),
                 e.getCreatedAt(),
-                e.getUpdatedAt()
+                e.getUpdatedAt(),
+                roles
         );
     }
 }

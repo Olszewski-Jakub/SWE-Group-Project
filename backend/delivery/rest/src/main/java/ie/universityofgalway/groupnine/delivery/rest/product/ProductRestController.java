@@ -40,7 +40,6 @@ public class ProductRestController {
   /**
    * Lists available products, optionally filtered by category.
    */
-  @Operation(summary = "List products with optional category filter")
   @GetMapping
   public ResponseEntity<PageResponse<ProductResponse>> list(
       @RequestParam(defaultValue = "0") @Min(value = 0, message = "page must be >= 0") int page,
