@@ -21,4 +21,18 @@ public record Money(BigDecimal amount, Currency currency) {
             throw new IllegalArgumentException("amount cannot be negative");
         }
     }
+
+    /** Multiply this Money by an integer factor. */
+    public Money multiply(int factor) {
+        if (factor < 0) throw new IllegalArgumentException("factor cannot be negative");
+        return new Money(amount.multiply(BigDecimal.valueOf(factor)), currency);
+    }
+
+    /** Add another Money of the same currency. */
+    public Money add(Money other) {
+        if (!currency.equals(other.currency)) {
+            throw new IllegalArgumentException("currencies must match");
+        }
+        return new Money(amount.add(other.amount), currency);
+    }
 }
