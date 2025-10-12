@@ -48,6 +48,32 @@ public class ProductPersistenceAdapter implements ProductPort {
         return repository.findByCategoryIgnoreCaseAndAvailableTrue(category, pageable).map(this::toDomain);
     }
 
+
+    // TO DO: attributes filtering
+    /**
+     * Executes a product search using nullable price bounds derived from the incoming query.
+     * Normalization:
+     *  Treats 0 as an unset minimum (converted to null) for this query pathway.
+     *  Treats Integer.MAX_VALUE as an unset maximum (converted to null) for this query pathway.
+     * Delegation:
+     *  Passes normalized values to the repository method, which applies null-safe guards in JPQL.
+     * Parameters:
+     * @param searchQuery aggregate of user-provided filters (category, key, price bounds)
+     * @param pageable    pagination and sorting information
+     * @return a page of domain Product objects mapped from matching ProductEntity rows
+     */
+    @Override
+    public Page<Product> search(SearchQuery searchQuery, Pageable pageable) {
+        Integer minPriceCents = (searchQuery.minPriceCents() == 0) ? null : searchQuery.minPriceCents();
+        Integer maxPriceCents = (searchQuery.maxPriceCents() == Integer.MAX_VALUE) ? null : searchQuery.maxPriceCents();
+        return repository.search(
+                searchQuery.category(),
+                searchQuery.key(),
+                minPriceCents,
+                maxPriceCents,
+                pageable).map(this::toDomain);
+    }
+
     @Override
     public Optional<Product> findById(ProductId id) {
         return repository.findByUuid(id.getId()).map(this::toDomain);

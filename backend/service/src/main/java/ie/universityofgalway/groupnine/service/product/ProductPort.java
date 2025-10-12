@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 
 import ie.universityofgalway.groupnine.domain.product.Product;
 import ie.universityofgalway.groupnine.domain.product.ProductId;
+import ie.universityofgalway.groupnine.domain.product.SearchQuery;
 
 /**
  * This port exposes read-only access patterns needed by the application
@@ -25,6 +26,11 @@ public interface ProductPort {
      * one available variant.
      */
     Page<Product> findAvailableByCategory(String category, Pageable pageable);
+
+    /**
+     * Searches products using the given criteria and pagination.
+     */
+    Page<Product> search(SearchQuery query, Pageable pageable);
 
     /**
      * Finds a product by its public identifier.

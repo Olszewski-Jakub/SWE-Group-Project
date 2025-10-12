@@ -3,6 +3,10 @@ package ie.universityofgalway.groupnine.delivery.rest.product;
 import ie.universityofgalway.groupnine.delivery.rest.product.dto.PageResponse;
 import ie.universityofgalway.groupnine.delivery.rest.product.dto.ProductResponse;
 import ie.universityofgalway.groupnine.domain.product.Product;
+import ie.universityofgalway.groupnine.delivery.rest.product.dto.SearchRequestDTO;
+import ie.universityofgalway.groupnine.domain.product.SearchQuery;
+import ie.universityofgalway.groupnine.domain.security.PublicEndpoint;
+import ie.universityofgalway.groupnine.service.product.ProductSearchService;
 import ie.universityofgalway.groupnine.service.product.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.ConstraintViolationException;
@@ -30,11 +34,13 @@ import java.util.NoSuchElementException;
 public class ProductRestController {
 
   private final ProductService svc;
+  private final ProductSearchService productSearchService;
   /**
    * Creates the controller.
    */
-  public ProductRestController(ProductService svc) {
+  public ProductRestController(ProductService svc,ProductSearchService productSearchService) {
     this.svc = svc;
+    this.productSearchService = productSearchService;
   }
 
   /**
@@ -42,14 +48,37 @@ public class ProductRestController {
    */
   @GetMapping
   public ResponseEntity<PageResponse<ProductResponse>> list(
-      @RequestParam(defaultValue = "0") @Min(value = 0, message = "page must be >= 0") int page,
-      @RequestParam(defaultValue = "10") @Positive(message = "size must be > 0") int size,
-      @RequestParam(required = false) String category
+      @RequestParam(name="page", defaultValue = "0") @Min(value = 0, message = "page must be >= 0") int page,
+      @RequestParam(name="size", defaultValue = "10") @Positive(message = "size must be > 0") int size,
+      @RequestParam(name="category", required = false) String category
   ) {
     Page<Product> rs = svc.list(page, size, category);
     var dto = rs.map(ProductDtoMapper::toDto);
     return ResponseEntity.ok(new PageResponse<>(
         dto.getContent(), dto.getNumber(), dto.getSize(), dto.getTotalElements(), dto.getTotalPages()
+    ));
+  }
+
+  /**
+   * Searches products using filters and sort from the request.
+   */
+  @Operation(summary = "Search & filter products")
+  @PostMapping("/search")
+  @PublicEndpoint
+  public ResponseEntity<PageResponse<ProductResponse>> search(
+          @RequestBody @Validated SearchRequestDTO req,
+          @RequestParam(name="page", defaultValue = "0") @Min(value = 0, message = "page must be >= 0") int page,
+          @RequestParam(name="size", defaultValue = "10") @Positive(message = "size must be > 0") int size
+  ) {
+    SearchQuery sq = ProductDtoMapper.toDomain(req);
+    var rs = productSearchService.search(sq, page, size);
+    var dto = rs.map(ProductDtoMapper::toDto);
+    return ResponseEntity.ok(new PageResponse<>(
+            dto.getContent(),
+            dto.getNumber(),
+            dto.getSize(),
+            dto.getTotalElements(),
+            dto.getTotalPages()
     ));
   }
 
