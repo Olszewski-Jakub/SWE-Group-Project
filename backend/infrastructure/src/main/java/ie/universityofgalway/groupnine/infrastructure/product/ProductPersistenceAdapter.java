@@ -8,6 +8,7 @@ import ie.universityofgalway.groupnine.domain.product.Sku;
 import ie.universityofgalway.groupnine.domain.product.Stock;
 import ie.universityofgalway.groupnine.domain.product.Variant;
 import ie.universityofgalway.groupnine.domain.product.VariantId;
+import ie.universityofgalway.groupnine.domain.product.SearchQuery;
 import ie.universityofgalway.groupnine.service.product.ProductPort;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
