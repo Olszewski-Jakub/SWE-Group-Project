@@ -29,7 +29,8 @@ public class ProductSearchServiceImpl implements ProductSearchService {
     /** {@inheritDoc} */
     @Override
     public Page<Product> search(SearchQuery query, int page, int size) {
-        var pageable = org.springframework.data.domain.PageRequest.of(page, size);
+        validate(query);
+        var pageable = org.springframework.data.domain.PageRequest.of(page, size, toSort(query.sortRule()));
         return productPort.search(query,pageable);
     }
 
@@ -44,8 +45,7 @@ public class ProductSearchServiceImpl implements ProductSearchService {
     private Sort toSort(SortRule rule) {
         if (rule == null|| rule == SortRule.DEFAULT) return Sort.unsorted();
         return switch (rule) {
-            case PRICE_LOW_TO_HIGH -> Sort.by(Sort.Order.asc("price.cents"));
-            case PRICE_HIGH_TO_LOW -> Sort.by(Sort.Order.desc("price.cents"));
+            case PRICE_LOW_TO_HIGH, PRICE_HIGH_TO_LOW -> Sort.unsorted(); // Handled inside query (since only variants has price while product doesn't)
             case NEWEST_FIRST -> Sort.by(Sort.Order.desc("createdAt"));
             default -> throw new IllegalStateException("Unexpected value: " + rule);
         };

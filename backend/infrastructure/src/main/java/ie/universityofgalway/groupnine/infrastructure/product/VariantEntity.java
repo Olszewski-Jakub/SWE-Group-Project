@@ -3,6 +3,9 @@ package ie.universityofgalway.groupnine.infrastructure.product;
 import jakarta.persistence.*;
 import java.time.Instant;
 import java.util.UUID;
+import com.fasterxml.jackson.databind.JsonNode;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 /**
  * Represents a specific variant of a product (e.g., a certain size or color).
@@ -59,6 +62,10 @@ public class VariantEntity {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt = Instant.now();
 
+    @Column(name = "attributes", columnDefinition = "jsonb", nullable = true)
+    @JdbcTypeCode(SqlTypes.JSON)
+    private JsonNode attributes;
+
     /**
      * Updates the updatedAt timestamp before a database update.
      */
@@ -88,4 +95,6 @@ public class VariantEntity {
     public Instant getCreatedAt() { return createdAt; }
     public Instant getUpdatedAt() { return updatedAt; }
     public UUID getUuid() { return uuid; }
+    public JsonNode getAttributes() { return attributes; }
+    public void setAttributes(JsonNode attributes) { this.attributes = attributes; }
 }
