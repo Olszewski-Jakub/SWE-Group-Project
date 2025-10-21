@@ -1,0 +1,48 @@
+version: "3.9"
+
+name: swe-backend
+
+services:
+  backend-green:
+    image: ${IMAGE_URI:-ghcr.io/OWNER/REPO-backend:main}
+    container_name: backend-green
+    environment:
+      # Spring profile for deploy
+      SPRING_PROFILES_ACTIVE: "deploy"
+
+      # Database (matches backend/integration application.yml expectations)
+      DB_URL: ${DB_URL}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_POOL_SIZE: ${DB_POOL_SIZE:-10}
+
+      # Optional JWT/other envs add here as needed
+
+    ports:
+      - "8090:8080"
+    networks:
+      - app_net
+    restart: unless-stopped
+
+  backend-blue:
+    image: ${IMAGE_URI:-ghcr.io/OWNER/REPO-backend:main}
+    container_name: backend-blue
+    environment:
+      SPRING_PROFILES_ACTIVE: "deploy"
+
+      DB_URL: ${DB_URL}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_POOL_SIZE: ${DB_POOL_SIZE:-10}
+
+    ports:
+      - "8091:8080"
+    networks:
+      - app_net
+    restart: unless-stopped
+
+networks:
+  app_net:
+    external: true
+    name: ${COMPOSE_NETWORK:-backend_network}
+

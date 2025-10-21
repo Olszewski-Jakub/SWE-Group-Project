@@ -1,0 +1,28 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+  flyway:
+    enabled: false
+
+# Avoid starting Rabbit worker listeners during smoke tests
+email:
+  worker:
+    enabled: false
+
+# Keep logging quiet in tests
+logging:
+  level:
+    root: WARN
+
+mailjet:
+  apiKey: test-key
+  apiSecret: test-secret
