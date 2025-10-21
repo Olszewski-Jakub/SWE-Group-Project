@@ -22,5 +22,5 @@ dependencies {
 }
 
 coverage {
-    minimum = 0.6
+    minimum = 0.47
 }

@@ -1,10 +1,10 @@
 spring:
   datasource:
-    url: jdbc:postgresql://db:5432/demo_db
-    username: demo
-    password: demo
+    url: ${DB_URL:jdbc:postgresql://db:5432/demo_db}
+    username: ${DB_USERNAME:demo}
+    password: ${DB_PASSWORD:demo}
     hikari:
-      maximum-pool-size: 5
+      maximum-pool-size: ${DB_MAX_POOL_SIZE:10}
   jpa:
     hibernate:
       ddl-auto: validate
@@ -21,11 +21,12 @@ spring:
     baseline-on-migrate: true
   data:
     redis:
-      host: ${SPRING_DATA_REDIS_HOST:localhost}
-      port: ${SPRING_DATA_REDIS_PORT:6379}
-      database: 0
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      database: ${REDIS_DB:0}
   rabbitmq:
-    host: ${RABBITMQ_HOST:localhost}
+    host: ${RABBITMQ_HOST:rabbitmq}
     port: ${RABBITMQ_PORT:5672}
     username: ${RABBITMQ_USERNAME:guest}
     password: ${RABBITMQ_PASSWORD:guest}
@@ -48,26 +49,26 @@ logging:
 app:
   security:
     jwt:
-      issuer: "https://example-issuer"
+      issuer: ${JWT_ISSUER:GroupNine}
       hmac-secret: "${JWT_SECRET:change-me}"
-      authorities-claim: "roles"
+      authorities-claim: ${JWT_AUTHORITIES_CLAIM:roles}
     bruteforce:
-      email-max: 10
-      ip-max: 50
-      window-seconds: 900
-      key-prefix: "app:"
-      backoff-base-seconds: 60
-      backoff-factor: 2.0
-      backoff-max-seconds: 3600
+      email-max: ${BRUTEFORCE_EMAIL_MAX:10}
+      ip-max: ${BRUTEFORCE_IP_MAX:50}
+      window-seconds: ${BRUTEFORCE_WINDOW_SECONDS:900}
+      key-prefix: "${BRUTEFORCE_KEY_PREFIX:app:}"
+      backoff-base-seconds: ${BRUTEFORCE_BACKOFF_BASE_SECONDS:60}
+      backoff-factor: ${BRUTEFORCE_BACKOFF_FACTOR:2.0}
+      backoff-max-seconds: ${BRUTEFORCE_BACKOFF_MAX_SECONDS:3600}
   auth:
-    refresh-ttl-days: 14
-    refresh-cookie-name: refreshToken
+    refresh-ttl-days: ${REFRESH_TOKEN_TTL_DAYS:14}
+    refresh-cookie-name: ${REFRESH_TOKEN_COOKIE_NAME:refreshToken}
   flyway:
     repair-on-start: true
 
 email:
   worker:
-    enabled: true
+    enabled: ${EMAIL_WORKER_ENABLED:true}
 
 mailjet:
   apiKey: ${MAILJET_API_KEY:}

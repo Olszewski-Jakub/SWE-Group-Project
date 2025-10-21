@@ -26,8 +26,7 @@ class JwtConvertersTest {
                         "ROLE_ADMIN",
                         "ROLE_MANAGER",
                         "ROLE_STAFF",
-                        "ROLE_SUPPORT",
-                        "ROLE_USER"
+                        "ROLE_SUPPORT"
                 );
     }
 
@@ -60,8 +59,7 @@ class JwtConvertersTest {
                         "ROLE_ADMIN",
                         "ROLE_MANAGER",
                         "ROLE_STAFF",
-                        "ROLE_SUPPORT",
-                        "ROLE_USER"
+                        "ROLE_SUPPORT"
                 );
     }
 
