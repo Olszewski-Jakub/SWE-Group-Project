@@ -1,0 +1,61 @@
+name: Deploy Umbrella
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+  checks: write
+  pull-requests: write
+  packages: read
+  security-events: write
+
+
+jobs:
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Paths filter
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+              - '.github/workflows/deploy-backend.yml'
+            frontend:
+              - 'frontend/**'
+              - '.github/workflows/deploy-frontend.yml'
+
+  backend:
+    name: Backend Pipeline
+    needs: [ changes ]
+    if: needs.changes.outputs.backend == 'true'
+    uses: ./.github/workflows/deploy-backend.yml
+    permissions:
+      contents: read
+      actions: read
+      checks: write
+      pull-requests: write
+      packages: write
+      id-token: write
+    secrets: inherit
+
+  frontend:
+    name: Frontend Pipeline
+    needs: [ changes ]
+    if: needs.changes.outputs.frontend == 'true'
+    uses: ./.github/workflows/deploy-frontend.yml
+    secrets: inherit
