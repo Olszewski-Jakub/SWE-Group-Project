@@ -1,16 +1,11 @@
-name: Deploy Umbrella
+name: Monorepo CI Umbrella
 
 on:
   push:
-    branches: [ backend-deploy-test ]
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
   workflow_dispatch:
-
-permissions:
-  contents: read
-  actions: read
-  checks: write
-  pull-requests: write
-  packages: read
 
 jobs:
   changes:
@@ -32,28 +27,22 @@ jobs:
           filters: |
             backend:
               - 'backend/**'
-              - '.github/workflows/deploy-backend.yml'
+              - '.github/workflows/backend.yml'
             frontend:
               - 'frontend/**'
-              - '.github/workflows/deploy-frontend.yml'
+              - '.github/workflows/frontend.yml'
 
   backend:
     name: Backend Pipeline
     needs: [ changes ]
     if: needs.changes.outputs.backend == 'true'
-    uses: ./.github/workflows/deploy-backend.yml
-    permissions:
-      contents: read
-      actions: read
-      checks: write
-      pull-requests: write
-      packages: write
-      id-token: write
+    uses: ./.github/workflows/backend.yml
     secrets: inherit
 
   frontend:
     name: Frontend Pipeline
     needs: [ changes ]
     if: needs.changes.outputs.frontend == 'true'
-    uses: ./.github/workflows/deploy-frontend.yml
+    uses: ./.github/workflows/frontend.yml
     secrets: inherit
+
