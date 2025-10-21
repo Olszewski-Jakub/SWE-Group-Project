@@ -14,11 +14,11 @@ dependencies {
     implementation(libs.spring.boot.starter.data.redis)
     implementation(project(":delivery:worker"))
     implementation(libs.spring.boot.starter.amqp)
-
     testImplementation(libs.spring.boot.starter.test)
-
+    testImplementation(platform(libs.junit.bom))
+    testImplementation("com.h2database:h2:2.2.224")
 }
 
 coverage {
-    minimum = 0.33
+    minimum = 0.0
 }

@@ -1,18 +1,33 @@
 import org.gradle.api.tasks.testing.logging.TestLogEvent
+import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 plugins {
     // Dependency & plugin management
     alias(libs.plugins.spring.boot) apply false
     alias(libs.plugins.spring.boot.dependencies) apply false
+    alias(libs.plugins.versions) apply false
     jacoco
 }
 
 allprojects {
-    group = "com.example"
+    group = "ie.universityofgalway.groupnine"
     version = project.findProperty("version")!!
 
     repositories {
         mavenCentral()
+    }
+
+    apply(plugin = "com.github.ben-manes.versions")
+    tasks.withType<DependencyUpdatesTask>().configureEach {
+        rejectVersionIf {
+            val current = currentVersion
+            val candidate = candidate.version
+            isNonStable(candidate) && !isNonStable(current)
+        }
+        checkForGradleUpdate = true
+        outputFormatter = "plain,html,json"
+        outputDir = "${project.buildDir}/reports/dependencyUpdates"
+        reportfileName = "report"
     }
 }
 
@@ -39,11 +54,25 @@ subprojects {
 
 // Aggregate JaCoCo report across all modules
 tasks.register<JacocoReport>("jacocoRootReport") {
-    dependsOn(subprojects.map { it.tasks.named("test") })
+    val projectsWithTest = subprojects.filter { sub -> sub.tasks.findByName("test") != null }
 
-    executionData.setFrom(subprojects.map { file("${it.layout.buildDirectory}/jacoco/test.exec") })
-    sourceDirectories.setFrom(subprojects.map { it.fileTree("src/main/java") })
-    classDirectories.setFrom(subprojects.map { it.fileTree("build/classes/java/main") })
+    dependsOn(projectsWithTest.map { it.tasks.named("test") })
+
+    executionData.setFrom(projectsWithTest.map { file("${it.buildDir}/jacoco/test.exec") })
+
+    sourceDirectories.setFrom(projectsWithTest.flatMap {
+        listOf(
+            fileTree("${it.projectDir}/src/main/java"),
+            fileTree("${it.projectDir}/src/main/kotlin")
+        )
+    })
+
+    classDirectories.setFrom(projectsWithTest.flatMap {
+        listOf(
+            fileTree("${it.buildDir}/classes/java/main"),
+            fileTree("${it.buildDir}/classes/kotlin/main")
+        )
+    })
 
     reports {
         xml.required.set(true)
@@ -51,11 +80,36 @@ tasks.register<JacocoReport>("jacocoRootReport") {
     }
 }
 
+// Aggregate dependency updates across all modules
+tasks.register("dependencyUpdatesAll") {
+    group = "verification"
+    description = "Run Gradle Versions Plugin across all modules."
+    dependsOn(
+        allprojects.mapNotNull { it.tasks.findByName("dependencyUpdates") }
+    )
+}
+
+// One-stop verification task: run checks and dependency updates for all modules
+tasks.register("verifyAll") {
+    group = "verification"
+    description = "Run tests, checks and dependency update reports for all modules."
+    dependsOn(
+        subprojects.mapNotNull { sub -> sub.tasks.findByName("check") }
+    )
+    dependsOn(tasks.named("dependencyUpdatesAll"))
+}
+
+// Helper used in dependency update filtering
+fun isNonStable(version: String): Boolean {
+    val stableKeyword = listOf("RELEASE", "FINAL", "GA").any { version.uppercase().contains(it) }
+    val regex = "^[0-9,.v-]+(-r)?$".toRegex()
+    return !stableKeyword && !regex.matches(version)
+}
+
 tasks.register("verifyCoverageAll") {
     group = "verification"
     description = "Run all tests and verify JaCoCo coverage thresholds across all modules."
 
-    // depends on every subproject's `check` (which itself runs tests + jacoco verification)
     dependsOn(
         subprojects.mapNotNull { sub ->
             sub.tasks.findByName("check")
