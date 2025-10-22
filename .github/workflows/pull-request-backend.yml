@@ -101,7 +101,6 @@ jobs:
       - name: Jacoco Report
         uses: madrapps/jacoco-report@v1.7.2
         with:
-          # point to the file you just downloaded
           paths: ${{ github.workspace }}/coverage/jacocoRootReport.xml
           token: ${{ secrets.GITHUB_TOKEN }}
           update-comment: true
