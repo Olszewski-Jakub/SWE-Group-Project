@@ -41,7 +41,7 @@ jobs:
     name: Backend PR Pipeline
     needs: [ changes ]
     if: needs.changes.outputs.backend == 'true'
-    uses: ./.github/workflows/pr/backend-pr.yml
+    uses: ./.github/workflows/backend-pr.yml
     secrets: inherit
 
   frontend:
