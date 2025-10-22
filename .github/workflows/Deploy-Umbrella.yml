@@ -36,13 +36,13 @@ jobs:
     name: Backend Pipeline
     needs: [ changes ]
     if: needs.changes.outputs.backend == 'true'
-    uses: ./.github/workflows/backend.yml
+    uses: .github/workflows/deploy-backend.yml
     secrets: inherit
 
   frontend:
     name: Frontend Pipeline
     needs: [ changes ]
     if: needs.changes.outputs.frontend == 'true'
-    uses: ./.github/workflows/frontend.yml
+    uses: .github/workflows/deploy-frontend.yml
     secrets: inherit
 
