@@ -95,8 +95,7 @@ jobs:
       - name: Jacoco Report
         uses: madrapps/jacoco-report@v1.7.2
         with:
-          paths: |
-            backend/build/reports/jacoco/jacocoRootReport/jacocoRootReport.xml
+          paths: jacocoRootReport.xml
           token: ${{ secrets.GITHUB_TOKEN }}
           update-comment: true
           title: 'Code Coverage (JaCoCo)'
