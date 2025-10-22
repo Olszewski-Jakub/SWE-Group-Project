@@ -34,7 +34,7 @@ public final class Authorities {
                 .filter(Objects::nonNull)
                 .toList();
 
-        // Expand with domain hierarchy
+            // Expand with domain hierarchy
         Set<Role> expanded = Role.expandHierarchy(roles);
 
         return expanded.stream()
