@@ -1,12 +1,16 @@
-name: Monorepo CI Umbrella
-
+name: Pull Request Umbrella
 
 on:
-  push:
-    branches: [ main ]
   pull_request:
-    branches: [ main ]
-  workflow_dispatch:
+    types: [opened, reopened, synchronize, ready_for_review]
+
+permissions:
+  contents: read
+  actions: read
+  checks: write
+  pull-requests: write
+  security-events: write
+  packages: read
 
 jobs:
   changes:
@@ -28,20 +32,20 @@ jobs:
           filters: |
             backend:
               - 'backend/**'
-              - '.github/workflows/backend.yml'
+              - '.github/workflows/backend-pr.yml'
             frontend:
               - 'frontend/**'
               - '.github/workflows/frontend.yml'
 
   backend:
-    name: Backend Pipeline
+    name: Backend PR Pipeline
     needs: [ changes ]
     if: needs.changes.outputs.backend == 'true'
-    uses: ./.github/workflows/backend.yml
+    uses: ./.github/workflows/backend-pr.yml
     secrets: inherit
 
   frontend:
-    name: Frontend Pipeline
+    name: Frontend PR Pipeline
     needs: [ changes ]
     if: needs.changes.outputs.frontend == 'true'
     uses: ./.github/workflows/frontend.yml
