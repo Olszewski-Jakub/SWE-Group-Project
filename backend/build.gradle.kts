@@ -8,7 +8,7 @@ plugins {
 }
 
 allprojects {
-    group = "com.example"
+    group = "ie.universityofgalway.groupnine"
     version = project.findProperty("version")!!
 
     repositories {
