@@ -1,22 +1,50 @@
 package ie.universityofgalway.groupnine.domain.cart;
 
+import java.util.Objects;
 import java.util.UUID;
 
 /**
- * Value object representing the unique public identifier of a {@link ShoppingCart}.
- * <p>
- * This is used externally (e.g., in APIs) instead of internal database IDs.
- * It ensures strong typing and prevents ID mix-ups.
+ * Value object representing the unique public identifier of a ShoppingCart.
  */
-public record CartId(UUID id) {
+public class CartId {
 
-    /**
-     * Creates a new {@code CartId} from its string representation.
-     *
-     * @param id string-form UUID
-     * @throws IllegalArgumentException if the string cannot be parsed as a UUID
-     */
+    private final UUID id;
+
+    public CartId(UUID id) {
+        this.id = Objects.requireNonNull(id, "id cannot be null");
+    }
+
     public CartId(String id) {
         this(UUID.fromString(id));
     }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public static CartId of(UUID id) {
+        return new CartId(id);
+    }
+
+    public static CartId of(String id) {
+        return new CartId(UUID.fromString(id));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof CartId that)) return false;
+        return id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    @Override
+    public String toString() {
+        return id.toString();
+    }
 }
+

@@ -1,18 +1,17 @@
 package ie.universityofgalway.groupnine.delivery.rest.auth;
 
 import ie.universityofgalway.groupnine.delivery.rest.auth.dto.ResetPasswordRequest;
-import ie.universityofgalway.groupnine.delivery.rest.support.Routes;
+import ie.universityofgalway.groupnine.delivery.rest.util.Routes;
 import ie.universityofgalway.groupnine.service.auth.usecase.ResetPasswordUseCase;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ie.universityofgalway.groupnine.delivery.rest.support.ApiResponse;
+import ie.universityofgalway.groupnine.delivery.rest.util.ApiResponse;
 import ie.universityofgalway.groupnine.domain.security.PublicEndpoint;
 @RestController
 @RequestMapping(Routes.AUTH)
