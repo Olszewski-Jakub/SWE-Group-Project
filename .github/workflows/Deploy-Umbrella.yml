@@ -1,5 +1,4 @@
-name: Monorepo CI Umbrella
-
+name: Deploy Umbrella
 
 on:
   push:
