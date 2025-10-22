@@ -5,8 +5,9 @@
 
 FROM eclipse-temurin:21 AS runtime
 
-# Create non-root user
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+# Create non-root user (Debian/Ubuntu base)
+RUN addgroup --system appgroup \
+    && adduser --system --ingroup appgroup --disabled-login --disabled-password --no-create-home appuser
 
 WORKDIR /app
 
@@ -18,7 +19,7 @@ COPY ${JAR_FILE} app.jar
 EXPOSE 8080
 
 # Run as non-root
-USER appuser
+USER appuser:appgroup
 
 # Use 'deploy' profile by default; DB creds are provided via env (DB_URL/DB_USER/DB_PASS)
 ENTRYPOINT ["java","-jar","/app/app.jar","--spring.profiles.active=deploy"]
