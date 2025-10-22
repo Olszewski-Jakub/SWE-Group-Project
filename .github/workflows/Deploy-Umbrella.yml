@@ -45,6 +45,9 @@ jobs:
     uses: ./.github/workflows/deploy-backend.yml
     permissions:
       contents: read
+      actions: read
+      checks: write
+      pull-requests: write
       packages: write
       id-token: write
     secrets: inherit
