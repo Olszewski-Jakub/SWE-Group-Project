@@ -18,5 +18,8 @@ public interface CartJpaRepository extends JpaRepository<ShoppingCartEntity, UUI
      * @return an {@link Optional} containing the entity if found
      */
     Optional<ShoppingCartEntity> findByUuid(UUID uuid);
+
+    //find a cart belonging to a specific user
+    Optional<ShoppingCartEntity> findByUserId(UUID userId);
 }
 

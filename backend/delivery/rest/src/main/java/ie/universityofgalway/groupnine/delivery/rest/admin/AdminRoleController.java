@@ -1,6 +1,6 @@
 package ie.universityofgalway.groupnine.delivery.rest.admin;
 
-import ie.universityofgalway.groupnine.delivery.rest.support.Routes;
+import ie.universityofgalway.groupnine.delivery.rest.util.Routes;
 import ie.universityofgalway.groupnine.domain.user.Role;
 import ie.universityofgalway.groupnine.domain.security.RequireRoles;
 import ie.universityofgalway.groupnine.service.auth.usecase.AssignRoleToUserUseCase;
