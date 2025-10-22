@@ -85,7 +85,13 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+
     steps:
+      - name: Checkout repository (needed to diff changed files)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Download Coverage Artifact
         uses: actions/download-artifact@v4
         with:
@@ -95,10 +101,12 @@ jobs:
       - name: Jacoco Report
         uses: madrapps/jacoco-report@v1.7.2
         with:
-          paths: jacocoRootReport.xml
+          # point to the file you just downloaded
+          paths: ${{ github.workspace }}/coverage/jacocoRootReport.xml
           token: ${{ secrets.GITHUB_TOKEN }}
           update-comment: true
           title: 'Code Coverage (JaCoCo)'
           min-coverage-overall: 50
           min-coverage-changed-files: 70
+          debug-mode: true
 
