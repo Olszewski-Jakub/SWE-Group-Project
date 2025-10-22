@@ -3,7 +3,12 @@ name: Backend CI/CD
 on:
   workflow_call:
   workflow_dispatch:
-
+  permissions:
+    contents: read
+    actions: read
+    checks: write
+    pull-requests: write
+    packages: read
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: StackOverFlowedCup-API
