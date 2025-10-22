@@ -13,11 +13,9 @@ env:
   VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
 
 jobs:
-  build_app:
-    name: Build App
+  # 1) Build the app locally to fail fast if the project doesn't compile
+  Build-App:
     runs-on: ubuntu-latest
-    outputs:
-      build_success: ${{ steps.build_status.outputs.success }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -29,87 +27,36 @@ jobs:
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Install dependencies
+      - name: Install deps
         working-directory: frontend
         run: npm ci
 
+      # Optional: add lint/test here
+      # - name: Lint
+      #   working-directory: frontend
+      #   run: npm run lint --if-present
+      # - name: Test
+      #   working-directory: frontend
+      #   run: npm test --if-present -- --ci
+
       - name: Build app
-        id: build_status
         working-directory: frontend
-        run: |
-          set -e
-          npm run build
-          echo "success=true" >> "$GITHUB_OUTPUT"
+        run: npm run build
 
-      - name: Upload build artifacts (optional)
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-build
-          path: frontend/build
-          retention-days: 1
-
-  prepare_vercel_artifacts:
-    name: Prepare Vercel Artifacts
+  Deploy-Preview:
+    needs: [Build-App]
     runs-on: ubuntu-latest
-    needs: build_app
-    if: needs.build_app.outputs.build_success == 'true'
-    outputs:
-      prebuilt_path: ${{ steps.save.outputs.path }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v2
 
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
-      - name: Pull Environment Info (preview)
-        working-directory: frontend
-        run: vercel pull --yes --environment=preview --token="$VERCEL_TOKEN"
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
 
-      - name: Build Prebuilt Bundle
-        working-directory: frontend
-        run: vercel build --token="$VERCEL_TOKEN"
+      - name: Build Project Artifacts
+        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
 
-      - name: Upload Prebuilt Bundle
-        id: save
-        uses: actions/upload-artifact@v4
-        with:
-          name: vercel-prebuilt
-          path: frontend/.vercel/output
-          retention-days: 1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  deploy_preview:
-    name: Deploy to Vercel (Preview)
-    runs-on: ubuntu-latest
-    needs: prepare_vercel_artifacts
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install Vercel CLI
-        run: npm install --global vercel@latest
-
-      - name: Download Prebuilt Bundle
-        uses: actions/download-artifact@v4
-        with:
-          name: vercel-prebuilt
-          path: frontend/.vercel/output
-
-      - name: Deploy to Vercel
-        id: deploy
-        working-directory: frontend
-        shell: bash
-        run: |
-          url="$(vercel deploy --prebuilt --token="$VERCEL_TOKEN" | tail -n1)"
-          echo "preview_url=$url" >> "$GITHUB_OUTPUT"
-
-      - name: Comment Preview URL on PR
-        if: ${{ github.event_name == 'pull_request' }}
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh pr comment ${{ github.event.pull_request.number }} \
-            --body "✅ Vercel Preview ready: ${{ steps.deploy.outputs.preview_url }}"
+      - name: Deploy Project Artifacts to Vercel
+        run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}

@@ -99,4 +99,6 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           update-comment: true
           title: 'Code Coverage (JaCoCo)'
+          min-coverage-overall: 50
+          min-coverage-changed-files: 70
 
