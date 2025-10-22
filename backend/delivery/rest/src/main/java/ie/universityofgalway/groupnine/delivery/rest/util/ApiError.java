@@ -1,4 +1,4 @@
-package ie.universityofgalway.groupnine.delivery.rest.support;
+package ie.universityofgalway.groupnine.delivery.rest.util;
 
 import java.time.Instant;
 import java.util.List;

@@ -1,7 +1,6 @@
 package ie.universityofgalway.groupnine.delivery.rest.auth;
 
-import ie.universityofgalway.groupnine.delivery.rest.auth.dto.ChangePasswordRequest;
-import ie.universityofgalway.groupnine.delivery.rest.support.auth.AccessTokenUserResolver;
+import ie.universityofgalway.groupnine.delivery.rest.util.auth.AccessTokenUserResolver;
 import ie.universityofgalway.groupnine.domain.user.Email;
 import ie.universityofgalway.groupnine.domain.user.User;
 import ie.universityofgalway.groupnine.domain.user.UserId;

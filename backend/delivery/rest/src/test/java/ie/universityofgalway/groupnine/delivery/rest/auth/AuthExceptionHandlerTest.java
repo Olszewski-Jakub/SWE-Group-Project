@@ -1,6 +1,6 @@
 package ie.universityofgalway.groupnine.delivery.rest.auth;
 
-import ie.universityofgalway.groupnine.delivery.rest.support.ApiError;
+import ie.universityofgalway.groupnine.delivery.rest.util.ApiError;
 import ie.universityofgalway.groupnine.domain.auth.TooManyAttempts;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
