@@ -3,6 +3,12 @@ name: Frontend CI
 on:
   workflow_call:
   workflow_dispatch:
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+  VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
     
 jobs:
   Build-App:
@@ -34,7 +40,7 @@ jobs:
         working-directory: frontend
         run: npm run build
 
-  Deploy-Preview:
+  deploy:
     needs: [Build-App]
     runs-on: ubuntu-latest
     steps:
