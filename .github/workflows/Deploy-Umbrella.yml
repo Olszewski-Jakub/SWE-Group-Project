@@ -4,8 +4,6 @@ name: Monorepo CI Umbrella
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -28,10 +26,10 @@ jobs:
           filters: |
             backend:
               - 'backend/**'
-              - '.github/workflows/backend.yml'
+              - '.github/workflows/deploy-backend.yml'
             frontend:
               - 'frontend/**'
-              - '.github/workflows/frontend.yml'
+              - '.github/workflows/deploy-frontend.yml'
 
   backend:
     name: Backend Pipeline

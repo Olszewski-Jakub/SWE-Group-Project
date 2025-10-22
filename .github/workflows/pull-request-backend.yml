@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   build_and_test:
-    name: Build and Test 
+    name: Build and Test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -96,7 +96,7 @@ jobs:
         uses: madrapps/jacoco-report@v1.7.2
         with:
           paths: |
-            coverage/backend/build/reports/jacoco/jacocoRootReport/jacocoRootReport.xml
+            backend/build/reports/jacoco/jacocoRootReport/jacocoRootReport.xml
           token: ${{ secrets.GITHUB_TOKEN }}
           update-comment: true
           title: 'Code Coverage (JaCoCo)'
