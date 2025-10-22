@@ -2,20 +2,11 @@ name: Backend CI/CD
 
 on:
   workflow_call:
-    inputs:
-      ref:
-        required: false
-        type: string
-        description: Git ref to checkout
   workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: StackOverFlowedCup-API
-
-concurrency:
-  group: backend-${{ github.ref_name }}
-  cancel-in-progress: false
 
 jobs:
   build_and_test:
@@ -29,7 +20,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ inputs.ref || github.ref }}
 
       - name: Setup Temurin JDK 17
         uses: actions/setup-java@v4
@@ -100,10 +90,6 @@ jobs:
         uses: docker/metadata-action@v5.8.0
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=ref,event=branch
-            type=sha
-            type=raw,value=main,enable=${{ github.ref == 'refs/heads/main' }}
 
       - name: Build and push Docker image
         id: build-and-push
