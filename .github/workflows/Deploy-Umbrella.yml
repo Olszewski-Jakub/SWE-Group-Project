@@ -43,6 +43,10 @@ jobs:
     needs: [ changes ]
     if: needs.changes.outputs.backend == 'true'
     uses: ./.github/workflows/deploy-backend.yml
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
     secrets: inherit
 
   frontend:
@@ -51,4 +55,3 @@ jobs:
     if: needs.changes.outputs.frontend == 'true'
     uses: ./.github/workflows/deploy-frontend.yml
     secrets: inherit
-
