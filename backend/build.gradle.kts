@@ -39,11 +39,25 @@ subprojects {
 
 // Aggregate JaCoCo report across all modules
 tasks.register<JacocoReport>("jacocoRootReport") {
-    dependsOn(subprojects.map { it.tasks.named("test") })
+    val projectsWithTest = subprojects.filter { sub -> sub.tasks.findByName("test") != null }
 
-    executionData.setFrom(subprojects.map { file("${it.layout.buildDirectory}/jacoco/test.exec") })
-    sourceDirectories.setFrom(subprojects.map { it.fileTree("src/main/java") })
-    classDirectories.setFrom(subprojects.map { it.fileTree("build/classes/java/main") })
+    dependsOn(projectsWithTest.map { it.tasks.named("test") })
+
+    executionData.setFrom(projectsWithTest.map { file("${it.buildDir}/jacoco/test.exec") })
+
+    sourceDirectories.setFrom(projectsWithTest.flatMap {
+        listOf(
+            fileTree("${it.projectDir}/src/main/java"),
+            fileTree("${it.projectDir}/src/main/kotlin")
+        )
+    })
+
+    classDirectories.setFrom(projectsWithTest.flatMap {
+        listOf(
+            fileTree("${it.buildDir}/classes/java/main"),
+            fileTree("${it.buildDir}/classes/kotlin/main")
+        )
+    })
 
     reports {
         xml.required.set(true)
