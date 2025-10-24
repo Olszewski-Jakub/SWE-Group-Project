@@ -78,5 +78,6 @@ mailjet:
   from:
     email: ${MAIL_FROM_EMAIL:no-reply@jakubolszewski.dev}
     name: ${MAIL_FROM_NAME:GroupNine}
+
 server:
   port: ${PORT:8080}
