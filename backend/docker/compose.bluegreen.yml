@@ -2,11 +2,12 @@ services:
   swe-backend-green:
     image: ghcr.io/olszewski-jakub/stackoverflowedcup-api:backend-deploy-test
     container_name: swe-backend-green
+    entrypoint: ["java","-jar","/app/app.jar","--spring.profiles.active=deploy"]
     # load variables from repo root .env
     env_file:
       - ../.env
     environment:
-      SPRING_PROFILES_ACTIVE: "application-deploy"
+      SPRING_PROFILES_ACTIVE: "deploy"
 
       PORT: 8888
 
@@ -64,11 +65,12 @@ services:
   swe-backend-blue:
     image: ghcr.io/olszewski-jakub/stackoverflowedcup-api:backend-deploy-test
     container_name: swe-backend-blue
+    entrypoint: ["java","-jar","/app/app.jar","--spring.profiles.active=deploy"]
     # load variables from repo root .env
     env_file:
       - ../.env
     environment:
-      SPRING_PROFILES_ACTIVE: "application-deploy"
+      SPRING_PROFILES_ACTIVE: "deploy"
 
       PORT: 8889
 
