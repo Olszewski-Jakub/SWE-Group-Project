@@ -47,4 +47,4 @@ EXPOSE 8888 8889
 USER appuser:appgroup
 
 # Use 'deploy' profile by default; DB creds are provided via env (DB_URL/DB_USER/DB_PASS)
-ENTRYPOINT ["java","-jar","/app/app.jar","--spring.profiles.active=application-deploy"]
+ENTRYPOINT ["java","-jar","/app/app.jar","--spring.profiles.active=deploy"]
