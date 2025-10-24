@@ -2,9 +2,8 @@ name: Deploy Umbrella
 
 on:
   push:
-    branches: [ main ]
+    branches: [ backend-deploy-test ]
   workflow_dispatch:
-  pull_request:
 
 permissions:
   contents: read
