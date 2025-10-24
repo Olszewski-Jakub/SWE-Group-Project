@@ -1,12 +1,14 @@
 services:
   swe-backend-green:
     image: ghcr.io/olszewski-jakub/stackoverflowedcup-api:backend-deploy-test
-    container_name: backend-green
+    container_name: swe-backend-green
     # load variables from repo root .env
     env_file:
       - ../.env
     environment:
       SPRING_PROFILES_ACTIVE: "application-deploy"
+
+      PORT: 8888
 
       # JWT
       JWT_SECRET: ${JWT_SECRET}
@@ -54,19 +56,21 @@ services:
       BRUTEFORCE_BACKOFF_MAX_SECONDS: ${BRUTEFORCE_BACKOFF_MAX_SECONDS}
 
     ports:
-      - "8888:8080"
+      - "8888:8888"
     networks:
       - bushive_network
     restart: unless-stopped
 
   swe-backend-blue:
     image: ghcr.io/olszewski-jakub/stackoverflowedcup-api:backend-deploy-test
-    container_name: backend-blue
+    container_name: swe-backend-blue
     # load variables from repo root .env
     env_file:
       - ../.env
     environment:
       SPRING_PROFILES_ACTIVE: "application-deploy"
+
+      PORT: 8889
 
       JWT_SECRET: ${JWT_SECRET}
       JWT_ISSUER: ${JWT_ISSUER}
@@ -106,7 +110,7 @@ services:
       BRUTEFORCE_BACKOFF_MAX_SECONDS: ${BRUTEFORCE_BACKOFF_MAX_SECONDS}
 
     ports:
-      - "8889:8080"
+      - "8889:8889"
     networks:
       - bushive_network
     restart: unless-stopped
