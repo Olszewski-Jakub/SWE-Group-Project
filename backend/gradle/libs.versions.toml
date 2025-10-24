@@ -85,5 +85,6 @@ convention-service = { id = "ie.universityofgalway.groupnine.library.service" }
 convention-jacoco = { id = "ie.universityofgalway.groupnine.library.jacoco" }
 convention-testing = { id = "ie.universityofgalway.groupnine.library.testing" }
 convention-security = { id = "ie.universityofgalway.groupnine.library.security" }
+versions = { id = "com.github.ben-manes.versions", version = "0.51.0" }
 
 [bundles]
