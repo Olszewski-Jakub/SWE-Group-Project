@@ -1,9 +1,12 @@
 import org.gradle.api.tasks.testing.logging.TestLogEvent
+import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 plugins {
     // Dependency & plugin management
     alias(libs.plugins.spring.boot) apply false
     alias(libs.plugins.spring.boot.dependencies) apply false
+    // Gradle Versions Plugin declared; applied per-project below
+    alias(libs.plugins.versions) apply false
     jacoco
 }
 
@@ -13,6 +16,21 @@ allprojects {
 
     repositories {
         mavenCentral()
+    }
+
+    // Apply Versions Plugin and configure the dependencyUpdates task
+    apply(plugin = "com.github.ben-manes.versions")
+
+    tasks.withType<DependencyUpdatesTask>().configureEach {
+        rejectVersionIf {
+            val current = currentVersion
+            val candidate = candidate.version
+            isNonStable(candidate) && !isNonStable(current)
+        }
+        checkForGradleUpdate = true
+        outputFormatter = "plain,html,json"
+        outputDir = "${project.buildDir}/reports/dependencyUpdates"
+        reportfileName = "report"
     }
 }
 
@@ -63,6 +81,32 @@ tasks.register<JacocoReport>("jacocoRootReport") {
         xml.required.set(true)
         html.required.set(true)
     }
+}
+
+// Aggregate dependency updates across all modules
+tasks.register("dependencyUpdatesAll") {
+    group = "verification"
+    description = "Run Gradle Versions Plugin across all modules."
+    dependsOn(
+        allprojects.mapNotNull { it.tasks.findByName("dependencyUpdates") }
+    )
+}
+
+// One-stop verification task: run checks and dependency updates for all modules
+tasks.register("verifyAll") {
+    group = "verification"
+    description = "Run tests, checks and dependency update reports for all modules."
+    dependsOn(
+        subprojects.mapNotNull { sub -> sub.tasks.findByName("check") }
+    )
+    dependsOn(tasks.named("dependencyUpdatesAll"))
+}
+
+// Helper used in dependency update filtering
+fun isNonStable(version: String): Boolean {
+    val stableKeyword = listOf("RELEASE", "FINAL", "GA").any { version.uppercase().contains(it) }
+    val regex = "^[0-9,.v-]+(-r)?$".toRegex()
+    return !stableKeyword && !regex.matches(version)
 }
 
 tasks.register("verifyCoverageAll") {
