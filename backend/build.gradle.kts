@@ -5,7 +5,6 @@ plugins {
     // Dependency & plugin management
     alias(libs.plugins.spring.boot) apply false
     alias(libs.plugins.spring.boot.dependencies) apply false
-    // Gradle Versions Plugin declared; applied per-project below
     alias(libs.plugins.versions) apply false
     jacoco
 }
@@ -18,9 +17,7 @@ allprojects {
         mavenCentral()
     }
 
-    // Apply Versions Plugin and configure the dependencyUpdates task
     apply(plugin = "com.github.ben-manes.versions")
-
     tasks.withType<DependencyUpdatesTask>().configureEach {
         rejectVersionIf {
             val current = currentVersion
@@ -113,7 +110,6 @@ tasks.register("verifyCoverageAll") {
     group = "verification"
     description = "Run all tests and verify JaCoCo coverage thresholds across all modules."
 
-    // depends on every subproject's `check` (which itself runs tests + jacoco verification)
     dependsOn(
         subprojects.mapNotNull { sub ->
             sub.tasks.findByName("check")
