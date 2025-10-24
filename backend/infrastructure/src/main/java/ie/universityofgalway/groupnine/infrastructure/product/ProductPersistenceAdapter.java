@@ -1,14 +1,7 @@
 package ie.universityofgalway.groupnine.infrastructure.product;
 
-import ie.universityofgalway.groupnine.domain.product.Money;
-import ie.universityofgalway.groupnine.domain.product.Product;
-import ie.universityofgalway.groupnine.domain.product.ProductId;
-import ie.universityofgalway.groupnine.domain.product.ProductStatus;
-import ie.universityofgalway.groupnine.domain.product.Sku;
-import ie.universityofgalway.groupnine.domain.product.Stock;
-import ie.universityofgalway.groupnine.domain.product.Variant;
-import ie.universityofgalway.groupnine.domain.product.VariantId;
-import ie.universityofgalway.groupnine.domain.product.SearchQuery;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import ie.universityofgalway.groupnine.domain.product.*;
 import ie.universityofgalway.groupnine.service.product.ProductPort;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,6 +23,9 @@ public class ProductPersistenceAdapter implements ProductPort {
 
     private final ProductJpaRepository repository;
 
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final double FUZZY_MATCH_SIMILARITY_THRESHOLD = 0.14;
+
     /**
      * Constructs the adapter with a product repository.
      *
@@ -49,8 +45,6 @@ public class ProductPersistenceAdapter implements ProductPort {
         return repository.findByCategoryIgnoreCaseAndAvailableTrue(category, pageable).map(this::toDomain);
     }
 
-
-    // TO DO: attributes filtering
     /**
      * Executes a product search using nullable price bounds derived from the incoming query.
      * Normalization:
@@ -58,6 +52,7 @@ public class ProductPersistenceAdapter implements ProductPort {
      *  Treats Integer.MAX_VALUE as an unset maximum (converted to null) for this query pathway.
      * Delegation:
      *  Passes normalized values to the repository method, which applies null-safe guards in JPQL.
+     *  Builds a compact JSON object string for attributeFilters, shaped as: {"color":["Red","blue"],"size":["M","L"]}
      * Parameters:
      * @param searchQuery aggregate of user-provided filters (category, key, price bounds)
      * @param pageable    pagination and sorting information
@@ -67,11 +62,27 @@ public class ProductPersistenceAdapter implements ProductPort {
     public Page<Product> search(SearchQuery searchQuery, Pageable pageable) {
         Integer minPriceCents = (searchQuery.minPriceCents() == 0) ? null : searchQuery.minPriceCents();
         Integer maxPriceCents = (searchQuery.maxPriceCents() == Integer.MAX_VALUE) ? null : searchQuery.maxPriceCents();
+        String sort = String.valueOf(searchQuery.sortRule());
+
+        // Build JSON for attribute filters only when provided; otherwise pass null to skip JSONB predicate.
+        String attrJson = null;
+        if (searchQuery.attributeFilters() != null && !searchQuery.attributeFilters().isEmpty()) {
+            var map = searchQuery.attributeFilters().stream()
+                    .collect(Collectors.toMap(AttributeFilter::name, AttributeFilter::values));
+            try {
+                attrJson = MAPPER.writeValueAsString(map);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Invalid attribute filters", e);
+            }
+        }
         return repository.search(
                 searchQuery.category(),
                 searchQuery.key(),
                 minPriceCents,
                 maxPriceCents,
+                sort,
+                FUZZY_MATCH_SIMILARITY_THRESHOLD, // similarity cutoff for fuzzy name/description match (pg_trgm)
+                attrJson, // JSONB attribute filter blob; null disables attribute filtering
                 pageable).map(this::toDomain);
     }
 

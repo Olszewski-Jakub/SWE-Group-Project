@@ -44,8 +44,8 @@ public final class ProductDtoMapper {
    */
   public static SearchQuery toDomain(SearchRequestDTO dto) {
     return SearchQuery.builder(
-            dto.key(),
-            dto.category(),
+            dto.key() == null ? null : dto.key().trim(),
+            dto.category() == null ? null : dto.category().trim(),
             dto.minPriceCents() == null ? 0 : dto.minPriceCents(),
             dto.maxPriceCents() == null ? Integer.MAX_VALUE : dto.maxPriceCents(),
             SortRule.parse(dto.sortRule()),
