@@ -41,7 +41,7 @@ WORKDIR /app
 COPY --from=build /workspace/integration/build/libs/*.jar /app/app.jar
 
 # Expose HTTP port
-EXPOSE 8080
+EXPOSE 8888 8889
 
 # Run as non-root
 USER appuser:appgroup
