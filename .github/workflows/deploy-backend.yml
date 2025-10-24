@@ -167,10 +167,10 @@ jobs:
             echo "Deploying new version to $NEW_VERSION..."
             sudo docker compose -f ${{ vars.DOCKER_COMPOSE_FILE }} up -d swe-backend-$NEW_VERSION --remove-orphans
 
-            # Health check with retry logic and incremental backoff
+            # Health check with retry logic and incremental
             max_retries=15
             retry_count=0
-            sleep_time=10
+            sleep_time=20
 
             echo "Waiting for $NEW_VERSION to be healthy..."
 
