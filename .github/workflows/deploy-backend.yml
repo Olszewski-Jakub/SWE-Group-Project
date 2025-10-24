@@ -152,7 +152,7 @@ jobs:
             # Get current active instance from Kong Admin API
             ACTIVE_TARGET=$(curl -s ${{ vars.KONG_ADMIN_URL }} | jq -r '.data[] | select(.weight == 100) | .target' | awk -F: '{print $1}')
 
-            if [ "$ACTIVE_TARGET" = "the-bouncer-blue" ]; then
+            if [ "$ACTIVE_TARGET" = "swe-backend-blue" ]; then
               NEW_VERSION="green"
               NEW_PORT=${{ vars.GREEN_PORT }}
               OLD_VERSION="blue"
@@ -165,7 +165,7 @@ jobs:
             fi
 
             echo "Deploying new version to $NEW_VERSION..."
-            sudo docker compose -f ${{ vars.DOCKER_COMPOSE_FILE }} up -d the-bouncer-$NEW_VERSION --remove-orphans
+            sudo docker compose -f ${{ vars.DOCKER_COMPOSE_FILE }} up -d swe-backend-$NEW_VERSION --remove-orphans
 
             # Health check with retry logic
             max_retries=10
@@ -184,8 +184,8 @@ jobs:
 
             if [ $retry_count -eq $max_retries ]; then
               echo "Health check failed after $max_retries attempts. Rolling back..."
-              sudo docker compose -f ${{ vars.DOCKER_COMPOSE_FILE }} stop the-bouncer-$NEW_VERSION
-              sudo docker compose -f ${{ vars.DOCKER_COMPOSE_FILE }} rm -f the-bouncer-$NEW_VERSION
+              sudo docker compose -f ${{ vars.DOCKER_COMPOSE_FILE }} stop swe-backend-$NEW_VERSION
+              sudo docker compose -f ${{ vars.DOCKER_COMPOSE_FILE }} rm -f swe-backend-$NEW_VERSION
               sudo docker system prune -af
               echo "Removed failed $NEW_VERSION container"
               exit 1
@@ -195,15 +195,15 @@ jobs:
 
             # Gradually shift traffic to new version
             for i in $(seq 10 10 100); do
-              curl -X PATCH ${{ vars.KONG_ADMIN_URL }}/the-bouncer-$NEW_VERSION:$NEW_PORT -d "weight=$i"
-              curl -X PATCH ${{ vars.KONG_ADMIN_URL }}/the-bouncer-$OLD_VERSION:$OLD_PORT -d "weight=$((100-i))"
+              curl -X PATCH ${{ vars.KONG_ADMIN_URL }}/swe-backend-$NEW_VERSION:$NEW_PORT -d "weight=$i"
+              curl -X PATCH ${{ vars.KONG_ADMIN_URL }}/swe-backend-$OLD_VERSION:$OLD_PORT -d "weight=$((100-i))"
               echo "Traffic shifted: $i% to $NEW_VERSION"
               sleep 5
             done
 
             echo "100% traffic now on $NEW_VERSION. Removing old version..."
-            sudo docker compose -f ${{ vars.DOCKER_COMPOSE_FILE }} stop the-bouncer-$OLD_VERSION
-            sudo docker compose -f ${{ vars.DOCKER_COMPOSE_FILE }} rm -f the-bouncer-$OLD_VERSION
+            sudo docker compose -f ${{ vars.DOCKER_COMPOSE_FILE }} stop swe-backend-$OLD_VERSION
+            sudo docker compose -f ${{ vars.DOCKER_COMPOSE_FILE }} rm -f swe-backend-$OLD_VERSION
 
             sudo docker system prune -af
 
