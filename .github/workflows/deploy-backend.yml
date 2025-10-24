@@ -147,7 +147,7 @@ jobs:
           ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} -p 10201 << 'EOF'
             set -e
             cd ${{ vars.APP_DIR }}
-            git pull origin develop
+            git pull origin backend-deploy-test
 
             # Get current active instance from Kong Admin API
             ACTIVE_TARGET=$(curl -s ${{ vars.KONG_ADMIN_URL }} | jq -r '.data[] | select(.weight == 100) | .target' | awk -F: '{print $1}')
