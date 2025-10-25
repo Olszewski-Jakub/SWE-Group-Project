@@ -88,7 +88,7 @@ export function setAccessToken(token, { persist = true, onRefreshSchedule } = {}
 const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || '';
 
 const axiosClient = axios.create({
-  baseURL: "http://localhost:8080",
+  baseURL: baseURL,
   withCredentials: true,
 });
 
@@ -105,7 +105,7 @@ axiosClient.interceptors.request.use((config) => {
 async function performRefresh() {
   if (!refreshPromise) {
     refreshPromise = axios
-      .post(`${baseURL}/api/v1/auth/refresh`, {}, { withCredentials: true })
+      .post(`${baseURL}/auth/refresh`, {}, { withCredentials: true })
       .then((res) => {
         const newToken = res?.data?.accessToken;
         if (!newToken) throw new Error('No access token from refresh');
@@ -160,5 +160,7 @@ export async function refreshAccessTokenAndStore({ onRefreshSchedule } = {}) {
   setAccessToken(newToken, { onRefreshSchedule });
   return newToken;
 }
+
+
 
 export default axiosClient;
