@@ -4,7 +4,7 @@ import ie.universityofgalway.groupnine.delivery.rest.auth.dto.LoginRequest;
 import ie.universityofgalway.groupnine.delivery.rest.auth.dto.RegisterRequest;
 import ie.universityofgalway.groupnine.delivery.rest.auth.dto.TokenResponse;
 import ie.universityofgalway.groupnine.delivery.rest.auth.dto.VerifyRequest;
-import ie.universityofgalway.groupnine.delivery.rest.support.Routes;
+import ie.universityofgalway.groupnine.delivery.rest.util.Routes;
 import ie.universityofgalway.groupnine.domain.auth.InvalidRefreshToken;
 import ie.universityofgalway.groupnine.security.config.props.AuthProps;
 import ie.universityofgalway.groupnine.service.auth.usecase.LoginUseCase;
@@ -174,7 +174,7 @@ public class AuthController {
                 .httpOnly(true)
                 .secure(true)
                 .sameSite("None")
-                .path(ie.universityofgalway.groupnine.delivery.rest.support.Routes.AUTH + "/refresh")
+                .path(Routes.AUTH + "/refresh")
                 .maxAge(maxAge)
                 .build();
     }
@@ -184,7 +184,7 @@ public class AuthController {
                 .httpOnly(true)
                 .secure(true)
                 .sameSite("None")
-                .path(ie.universityofgalway.groupnine.delivery.rest.support.Routes.AUTH + "/refresh")
+                .path(Routes.AUTH + "/refresh")
                 .maxAge(0)
                 .build();
     }

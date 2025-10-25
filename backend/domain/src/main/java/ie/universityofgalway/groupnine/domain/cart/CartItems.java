@@ -80,6 +80,15 @@ public class CartItems {
         }
     }
 
+    public int getQuantity(Variant variant) {
+        int idx = indexOfVariant(variant);
+        if (idx >= 0) {
+            return items.get(idx).quantity();
+        }
+        return 0; // variant not in cart
+    }
+
+
     /**
      * Updates the quantity of a variant, adding or removing as needed.
      * If {@code newQuantity == 0}, the item is removed.

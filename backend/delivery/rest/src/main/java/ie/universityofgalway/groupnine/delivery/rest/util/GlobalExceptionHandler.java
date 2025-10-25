@@ -1,4 +1,4 @@
-package ie.universityofgalway.groupnine.delivery.rest.support;
+package ie.universityofgalway.groupnine.delivery.rest.util;
 
 import ie.universityofgalway.groupnine.util.logging.AppLogger;
 import org.springframework.http.HttpStatus;

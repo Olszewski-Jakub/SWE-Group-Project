@@ -1,4 +1,4 @@
-package ie.universityofgalway.groupnine.delivery.rest.support;
+package ie.universityofgalway.groupnine.delivery.rest.util;
 
 /**
  * Centralized API route constants to ensure a single source of truth
@@ -16,4 +16,5 @@ public final class Routes {
     public static final String MANAGER = API + "/manager";
     public static final String SUPPORT = API + "/support";
     public static final String CUSTOMER = API + "/customer";
+    public static final String CART = V1 + "/cart";
 }

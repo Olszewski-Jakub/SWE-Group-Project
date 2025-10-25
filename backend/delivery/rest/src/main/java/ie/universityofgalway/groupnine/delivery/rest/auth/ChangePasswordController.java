@@ -1,15 +1,14 @@
 package ie.universityofgalway.groupnine.delivery.rest.auth;
 
 import ie.universityofgalway.groupnine.delivery.rest.auth.dto.ChangePasswordRequest;
-import ie.universityofgalway.groupnine.delivery.rest.support.Routes;
-import ie.universityofgalway.groupnine.delivery.rest.support.auth.AccessTokenUserResolver;
+import ie.universityofgalway.groupnine.delivery.rest.util.Routes;
+import ie.universityofgalway.groupnine.delivery.rest.util.auth.AccessTokenUserResolver;
 import ie.universityofgalway.groupnine.domain.user.UserId;
 import ie.universityofgalway.groupnine.service.auth.usecase.ChangePasswordUseCase;
-import ie.universityofgalway.groupnine.delivery.rest.support.ApiResponse;
+import ie.universityofgalway.groupnine.delivery.rest.util.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

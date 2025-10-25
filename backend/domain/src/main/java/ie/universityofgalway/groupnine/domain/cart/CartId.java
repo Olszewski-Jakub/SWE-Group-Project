@@ -19,4 +19,18 @@ public record CartId(UUID id) {
     public CartId(String id) {
         this(UUID.fromString(id));
     }
+
+    /**
+     * Convenience factory method to create a {@code CartId} from a UUID.
+     */
+    public static CartId of(UUID id) {
+        return new CartId(id);
+    }
+
+    /**
+     * Convenience factory method to create a {@code CartId} from a String.
+     */
+    public static CartId of(String id) {
+        return new CartId(UUID.fromString(id));
+    }
 }

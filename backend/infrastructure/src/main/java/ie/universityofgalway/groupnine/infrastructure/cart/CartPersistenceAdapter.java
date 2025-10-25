@@ -38,6 +38,12 @@ public class CartPersistenceAdapter implements ShoppingCartPort {
         this.variantPort = variantPort;
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<ShoppingCart> findByUserId(UserId userId) {
+        return repository.findByUserId(userId.value()).map(this::toDomain);
+    }
+
     /**
      * Finds a shopping cart by its domain {@link CartId}.
      *

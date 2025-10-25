@@ -1,4 +1,4 @@
-package ie.universityofgalway.groupnine.delivery.rest.support.auth;
+package ie.universityofgalway.groupnine.delivery.rest.util.auth;
 
 import ie.universityofgalway.groupnine.domain.user.User;
 import ie.universityofgalway.groupnine.domain.user.UserId;
