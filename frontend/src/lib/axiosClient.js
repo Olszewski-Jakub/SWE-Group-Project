@@ -88,7 +88,7 @@ export function setAccessToken(token, { persist = true, onRefreshSchedule } = {}
 const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || '';
 
 const axiosClient = axios.create({
-  baseURL: "http://localhost:8080",
+  baseURL: baseURL,
   withCredentials: true,
 });
 
@@ -160,5 +160,7 @@ export async function refreshAccessTokenAndStore({ onRefreshSchedule } = {}) {
   setAccessToken(newToken, { onRefreshSchedule });
   return newToken;
 }
+
+
 
 export default axiosClient;
