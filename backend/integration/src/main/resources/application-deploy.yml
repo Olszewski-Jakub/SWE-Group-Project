@@ -62,11 +62,13 @@ app:
       backoff-base-seconds: ${BRUTEFORCE_BACKOFF_BASE_SECONDS:60}
       backoff-factor: ${BRUTEFORCE_BACKOFF_FACTOR:2.0}
       backoff-max-seconds: ${BRUTEFORCE_BACKOFF_MAX_SECONDS:3600}
+  base-url: "https://stack-over-flowed-cup.jakubolszewski.dev"
   auth:
     refresh-ttl-days: ${REFRESH_TOKEN_TTL_DAYS:14}
     refresh-cookie-name: ${REFRESH_TOKEN_COOKIE_NAME:refreshToken}
   flyway:
     repair-on-start: true
+
 
 email:
   worker:

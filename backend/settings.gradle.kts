@@ -16,14 +16,13 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "backend"
-include("integration")
-
-include("domain")
-include("service")
-include("infrastructure")
-include("delivery:rest")
-include("delivery:worker")
-include("test-support")
-include("security")
-include("archrules")
-include("util")
+include(":integration")
+include(":domain")
+include(":service")
+include(":infrastructure")
+include(":delivery:rest")
+include(":delivery:worker")
+include(":test-support")
+include(":security")
+include(":archrules")
+include(":util")

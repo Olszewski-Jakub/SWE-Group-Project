@@ -31,6 +31,7 @@ import java.util.NoSuchElementException;
 @Validated
 @RestController
 @RequestMapping("/api/v1/products")
+@PublicEndpoint
 public class ProductRestController {
 
   private final ProductService svc;

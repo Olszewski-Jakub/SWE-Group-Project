@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import ProductsGrid from '../components/ProductsGrid';
-import { getProducts } from '../ProductService';
+import { getProducts } from '../../../lib/ProductService';
 
 /**
  * ProductsPage is the main component for the product catalog.
