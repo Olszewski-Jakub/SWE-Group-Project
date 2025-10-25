@@ -25,7 +25,7 @@ public final class ProductDtoMapper {
    */
   public static ProductResponse toDto(Product p) {
     return new ProductResponse(
-        p.id() == null ? null : p.id().toString(),
+        p.id() == null ? null : p.id().id().toString(),
         p.name(),
         p.description(),
         p.category(),

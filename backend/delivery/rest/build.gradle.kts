@@ -7,6 +7,8 @@ plugins {
 }
 
 dependencies {
+    
+    implementation(project(":infrastructure"))// TODO: Remove this line once Ella completes her story.
     implementation(project(":service"))
     implementation(project(":domain"))
     implementation(project(":security"))

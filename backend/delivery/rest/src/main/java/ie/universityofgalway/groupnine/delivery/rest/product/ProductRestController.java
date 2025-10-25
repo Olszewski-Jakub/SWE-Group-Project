@@ -30,7 +30,7 @@ import java.util.NoSuchElementException;
  */
 @Validated
 @RestController
-@RequestMapping("/api/products")
+@RequestMapping("/api/v1/products")
 public class ProductRestController {
 
   private final ProductService svc;
@@ -47,6 +47,7 @@ public class ProductRestController {
    * Lists available products, optionally filtered by category.
    */
   @GetMapping
+  @PublicEndpoint
   public ResponseEntity<PageResponse<ProductResponse>> list(
       @RequestParam(name="page", defaultValue = "0") @Min(value = 0, message = "page must be >= 0") int page,
       @RequestParam(name="size", defaultValue = "10") @Positive(message = "size must be > 0") int size,
@@ -87,6 +88,7 @@ public class ProductRestController {
    */
   @Operation(summary = "Get a product by id")
   @GetMapping("/{id}")
+  @PublicEndpoint
   public ProductResponse byId(@PathVariable String id) {
     return ProductDtoMapper.toDto(svc.getById(id));
   }
