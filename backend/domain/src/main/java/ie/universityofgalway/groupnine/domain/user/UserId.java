@@ -49,4 +49,12 @@ public final class UserId {
     public String toString() {
         return value.toString();
     }
+
+    /**
+     * Returns the underlying UUID value.
+     * This is the corrected method.
+     */
+    public UUID getId() {
+        return value;
+    }
 }

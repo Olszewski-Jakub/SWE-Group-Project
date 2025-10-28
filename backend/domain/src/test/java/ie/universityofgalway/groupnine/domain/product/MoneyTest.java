@@ -18,8 +18,11 @@ class MoneyTest {
         assertThrows(IllegalArgumentException.class, () -> new Money(new BigDecimal("-1.00"), EUR));
 
         Money m = new Money(new BigDecimal("0.00"), EUR);
-        assertEquals(new BigDecimal("0.00"), m.amount());
-        assertEquals(EUR, m.currency());
+        
+        // FIX: Changed m.amount() to m.getAmount()
+        assertEquals(new BigDecimal("0.00"), m.getAmount());
+        // FIX: Changed m.currency() to m.getCurrency()
+        assertEquals(EUR, m.getCurrency());
     }
 
     @Test
@@ -34,4 +37,3 @@ class MoneyTest {
         assertThrows(IllegalArgumentException.class, () -> ten.add(new Money(BigDecimal.ONE, USD)));
     }
 }
-

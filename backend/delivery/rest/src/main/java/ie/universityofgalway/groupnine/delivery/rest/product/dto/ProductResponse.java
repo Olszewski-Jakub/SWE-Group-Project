@@ -1,10 +1,11 @@
 package ie.universityofgalway.groupnine.delivery.rest.product.dto;
 
 import java.time.Instant;
+import java.util.List; // Import the List interface
+
 /**
  * Response DTO for exposing product details over the REST API.
- * 
- * This is a presentation-layer shape (not the domain model). It is purposely
+ * Updated to include a list of variants instead of just the count.
  */
 public record ProductResponse(
     String id,
@@ -12,7 +13,8 @@ public record ProductResponse(
     String description,
     String category,
     String status,
-    int variantCount,
+    // FIX: Changed from int variantCount to a list of VariantResponse DTOs
+    List<VariantResponse> variants,
     Instant createdAt,
     Instant updatedAt
 ) {}
