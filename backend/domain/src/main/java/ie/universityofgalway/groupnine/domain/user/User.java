@@ -130,4 +130,35 @@ public class User {
         newRoles.remove(role);
         return new User(id, email, firstName, lastName, status, emailVerified, passwordHash, createdAt, now, newRoles);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return emailVerified == user.emailVerified &&
+               Objects.equals(id, user.id) &&
+               Objects.equals(email, user.email) &&
+               Objects.equals(firstName, user.firstName) &&
+               Objects.equals(lastName, user.lastName) &&
+               status == user.status &&
+               Objects.equals(passwordHash, user.passwordHash) &&
+               Objects.equals(createdAt, user.createdAt) &&
+               Objects.equals(updatedAt, user.updatedAt) &&
+               Objects.equals(roles, user.roles);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, email, firstName, lastName, status, emailVerified, passwordHash, createdAt, updatedAt, roles);
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+               "id=" + id +
+               ", email=" + email +
+               ", status=" + status +
+               '}';
+    }
 }

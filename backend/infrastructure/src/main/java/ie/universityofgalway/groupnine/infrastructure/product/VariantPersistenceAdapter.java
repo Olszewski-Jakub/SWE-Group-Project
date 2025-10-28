@@ -24,24 +24,26 @@ public class VariantPersistenceAdapter implements VariantPort {
 
     @Override
     public Optional<Variant> findById(VariantId id) {
-        return repository.findByUuid(id.id())
+        // FIX: Changed id.id() to id.getId()
+        return repository.findByUuid(id.getId())
                 .map(this::toDomain);
     }
 
     /**
      * Converts a VariantEntity to a domain Variant object.
+     * Assumes getters exist on VariantEntity.
      */
     private Variant toDomain(VariantEntity entity) {
         Currency currency = entity.getCurrency() != null
                 ? Currency.getInstance(entity.getCurrency())
-                : Currency.getInstance("EUR");
+                : Currency.getInstance("EUR"); // Default currency
 
         return new Variant(
-                new VariantId(entity.getUuid()),         // 1. VariantId
-                new Sku(entity.getSku()),                // 2. SKU
-                new Money(BigDecimal.valueOf(entity.getPriceCents() / 100.0), currency), // 3. Price
-                new Stock(entity.getStockQuantity(), entity.getReservedQuantity()),      // 4. Stock
-                Collections.emptyList()                  // 5. Attributes (use empty list if none)
+                new VariantId(entity.getUuid()),
+                new Sku(entity.getSku()),
+                new Money(BigDecimal.valueOf(entity.getPriceCents() / 100.0), currency),
+                new Stock(entity.getStockQuantity(), entity.getReservedQuantity()),
+                Collections.emptyList() // Assuming attributes are not mapped here
         );
-    }}
-
+    }
+}

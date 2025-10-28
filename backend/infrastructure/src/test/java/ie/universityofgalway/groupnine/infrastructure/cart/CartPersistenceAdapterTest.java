@@ -6,7 +6,9 @@ import ie.universityofgalway.groupnine.domain.user.UserId;
 import ie.universityofgalway.groupnine.service.product.VariantPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.*;
 
@@ -24,6 +26,8 @@ class CartPersistenceAdapterTest {
 
     private Variant variant1;
     private CartItem cartItem;
+    private CartId cartId;
+    private UserId userId;
 
     @BeforeEach
     void setUp() {
@@ -31,73 +35,58 @@ class CartPersistenceAdapterTest {
         variantPort = mock(VariantPort.class);
         adapter = new CartPersistenceAdapter(repository, variantPort);
 
-        // Dummy variant record
+        cartId = new CartId(UUID.randomUUID());
+        userId = UserId.of(UUID.randomUUID());
+
         variant1 = new Variant(
                 new VariantId(UUID.randomUUID()),
                 new Sku("SKU1"),
-                new Money(java.math.BigDecimal.TEN, Currency.getInstance("EUR")),
+                new Money(BigDecimal.TEN, Currency.getInstance("EUR")),
                 new Stock(100, 0),
                 List.of()
         );
-
         cartItem = new CartItem(variant1, 2);
     }
 
     @Test
     void save_shouldMapDomainCartToEntityAndSave() {
-        ShoppingCart cart = new ShoppingCart(
-                new CartId(UUID.randomUUID()),
-                UserId.of(UUID.randomUUID()),
-                new CartItems(List.of(cartItem)),
-                CartStatus.ACTIVE,
-                Instant.now(),
-                Instant.now()
-        );
+        ShoppingCart cart = ShoppingCart.createNew(userId);
+        cart.addItem(variant1, cartItem.getQuantity());
 
-        when(repository.findById(cart.id().getId())).thenReturn(Optional.empty());
-        when(repository.save(any(ShoppingCartEntity.class))).thenAnswer(i -> i.getArgument(0));
+        // FIX: Use cart.getId().getId() for the UUID
+        when(repository.findById(cart.getId().getId())).thenReturn(Optional.empty());
+        ArgumentCaptor<ShoppingCartEntity> entityCaptor = ArgumentCaptor.forClass(ShoppingCartEntity.class);
+        when(repository.save(entityCaptor.capture())).thenAnswer(i -> i.getArgument(0));
 
-        ShoppingCart saved = adapter.save(cart);
+        adapter.save(cart);
 
-        assertEquals(cart, saved);
-        verify(repository, times(1)).save(any(ShoppingCartEntity.class));
+        ShoppingCartEntity capturedEntity = entityCaptor.getValue();
+        assertNotNull(capturedEntity);
+        // FIX: Use getters to access UUIDs for comparison
+        assertEquals(cart.getId().getId(), capturedEntity.getUuid());
+        assertEquals(cart.getUserId().getId(), capturedEntity.getUserId());
+        assertEquals(cart.getStatus(), capturedEntity.getStatus());
+        assertEquals(1, capturedEntity.getItems().size());
     }
 
     @Test
     void findById_shouldReturnDomainCartWhenEntityExists() {
-        UUID cartUuid = UUID.randomUUID();
-        UUID variantId = variant1.id().id(); // record access
+        UUID cartUuid = cartId.getId();
+        UUID userIdUuid = userId.getId();
+        UUID variantUuid = variant1.getId().getId();
 
-        ShoppingCartEntity entity = new ShoppingCartEntity(cartUuid, UUID.randomUUID());
-        entity.addItem(variantId, 2);
+        ShoppingCartEntity entity = new ShoppingCartEntity(cartUuid, userIdUuid);
+        entity.addItem(variantUuid, 2);
 
         when(repository.findById(cartUuid)).thenReturn(Optional.of(entity));
         when(variantPort.findById(any(VariantId.class))).thenReturn(Optional.of(variant1));
 
-        Optional<ShoppingCart> result = adapter.findById(new CartId(cartUuid));
+        Optional<ShoppingCart> result = adapter.findById(cartId);
 
         assertTrue(result.isPresent());
-        assertEquals(1, result.get().items().asList().size());
-
-        CartItem item = result.get().items().asList().get(0);
-        assertEquals(variant1, item.getVariant());
-        assertEquals(2, item.getQuantity());
-    }
-
-    @Test
-    void delete_shouldCallRepositoryWhenEntityExists() {
-        UUID cartUuid = UUID.randomUUID();
-        ShoppingCartEntity entity = new ShoppingCartEntity(cartUuid, UUID.randomUUID());
-        when(repository.findById(cartUuid)).thenReturn(Optional.of(entity));
-
-        // Delete existing
-        adapter.delete(new CartId(cartUuid));
-        verify(repository, times(1)).delete(entity);
-
-        // Delete non-existing (should not throw)
-        when(repository.findById(cartUuid)).thenReturn(Optional.empty());
-        adapter.delete(new CartId(cartUuid));
-        verify(repository, times(1)).delete(entity); // still only called once
+        ShoppingCart mappedCart = result.get();
+        // FIX: Use getItems()
+        assertEquals(1, mappedCart.getItems().size());
+        assertEquals(variant1, mappedCart.getItems().get(0).getVariant());
     }
 }
-

@@ -14,17 +14,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Unit tests for the cart domain model, including:
- * <ul>
- *     <li>{@link CartId} — cart identifier behavior and validation</li>
- *     <li>{@link CartItem} — quantity, validation, and subtotal logic</li>
- *     <li>{@link CartItems} — collection-level add, update, remove, and clear behavior</li>
- *     <li>{@link ShoppingCart} — aggregate operations, state transitions, and totals</li>
- *     <li>{@link CartStatus} — valid enum values</li>
- * </ul>
- *
- * <p>These tests verify the correctness of business rules in the shopping cart domain,
- * ensuring consistent behavior for cart manipulation and validation.</p>
+ * Unit tests for the cart domain model, updated for class-based domain objects.
  */
 class CartItemTest {
 
@@ -39,6 +29,7 @@ class CartItemTest {
     void setUp() {
         eur = Currency.getInstance("EUR");
 
+        // Use class constructors now
         VariantId variantId1 = new VariantId(UUID.randomUUID());
         VariantId variantId2 = new VariantId(UUID.randomUUID());
         Sku sku1 = new Sku("SKU1");
@@ -51,8 +42,7 @@ class CartItemTest {
     }
 
     /**
-     * Verifies that {@link CartId} instances created from the same UUID string and object are equal,
-     * and that invalid UUID strings throw an exception.
+     * Verifies CartId equality and validation.
      */
     @Test
     void cartId_fromStringAndUUID_shouldBeEqual() {
@@ -64,21 +54,23 @@ class CartItemTest {
     }
 
     /**
-     * Tests {@link CartItem} validation rules and subtotal calculation.
+     * Tests CartItem validation and subtotal calculation using getters.
      */
     @Test
     void cartItem_validation_andSubtotal() {
         CartItem item = new CartItem(variant1, 2);
         assertEquals(variant1, item.getVariant());
         assertEquals(2, item.getQuantity());
+        // Use Money's equals method for comparison
         assertEquals(new Money(new BigDecimal("20.00"), eur), item.subtotal());
 
         assertThrows(NullPointerException.class, () -> new CartItem(null, 1));
         assertThrows(IllegalArgumentException.class, () -> new CartItem(variant1, 0));
+        assertThrows(IllegalArgumentException.class, () -> new CartItem(variant1, -1)); // Added test for negative quantity
     }
 
     /**
-     * Verifies {@link CartItem} quantity increase and decrease operations with validation.
+     * Verifies CartItem quantity increase/decrease using getters.
      */
     @Test
     void cartItem_increaseDecreaseQuantity() {
@@ -86,16 +78,18 @@ class CartItemTest {
         CartItem increased = item.increaseQuantity(3);
         assertEquals(5, increased.getQuantity());
         assertThrows(IllegalArgumentException.class, () -> item.increaseQuantity(0));
+        assertThrows(IllegalArgumentException.class, () -> item.increaseQuantity(-1)); // Added test for negative increase
 
         CartItem decreased = increased.decreaseQuantity(2);
         assertEquals(3, decreased.getQuantity());
         assertThrows(IllegalArgumentException.class, () -> decreased.decreaseQuantity(0));
+        assertThrows(IllegalArgumentException.class, () -> decreased.decreaseQuantity(-1)); // Added test for negative decrease
+        assertThrows(IllegalArgumentException.class, () -> decreased.decreaseQuantity(4)); // Test decreasing more than available
         assertThrows(IllegalArgumentException.class, () -> decreased.decreaseQuantity(10));
     }
 
     /**
-     * Tests adding, removing, and clearing items in {@link CartItems},
-     * including merging quantities and currency validation.
+     * Tests CartItems add, remove, clear, using getters.
      */
     @Test
     void cartItems_addAndRemove() {
@@ -103,12 +97,15 @@ class CartItemTest {
         cartItems.add(variant1, 2);
         assertTrue(cartItems.hasItem(variant1));
         assertEquals(1, cartItems.asList().size());
+        assertEquals(2, cartItems.getQuantity(variant1)); // Check quantity
 
         cartItems.add(variant1, 3);
-        assertEquals(5, cartItems.asList().get(0).getQuantity());
+        assertEquals(5, cartItems.getQuantity(variant1)); // Check merged quantity
+        assertEquals(1, cartItems.asList().size()); // Size should still be 1
 
         cartItems.add(variant2, 1);
         assertEquals(2, cartItems.asList().size());
+        assertEquals(1, cartItems.getQuantity(variant2));
 
         // Mixing currencies should throw
         Variant usdVariant = new Variant(
@@ -122,27 +119,55 @@ class CartItemTest {
 
         cartItems.remove(variant1);
         assertFalse(cartItems.hasItem(variant1));
+        assertEquals(0, cartItems.getQuantity(variant1)); // Quantity should be 0
+        assertEquals(1, cartItems.asList().size()); // Only variant2 left
+
         cartItems.clear();
         assertTrue(cartItems.isEmpty());
+        assertEquals(0, cartItems.asList().size());
+        assertNull(cartItems.getCartCurrency()); // Currency should reset
     }
 
     /**
-     * Tests updating item quantities in {@link CartItems}, including removal when quantity becomes zero.
+     * Tests CartItems updateQuantity using getters.
      */
     @Test
     void cartItems_updateQuantity() {
         CartItems cartItems = new CartItems();
         cartItems.add(variant1, 2);
+        assertEquals(eur, cartItems.getCartCurrency()); // Check currency is set
 
         cartItems.updateQuantity(variant1, 5);
-        assertEquals(5, cartItems.asList().get(0).getQuantity());
+        assertEquals(5, cartItems.getQuantity(variant1));
+        assertEquals(eur, cartItems.getCartCurrency()); // Currency should remain
 
+        // Update non-existent item should add it
+        cartItems.updateQuantity(variant2, 3);
+        assertTrue(cartItems.hasItem(variant2));
+        assertEquals(3, cartItems.getQuantity(variant2));
+        assertEquals(2, cartItems.asList().size());
+
+        // Update quantity to zero should remove item
         cartItems.updateQuantity(variant1, 0);
         assertFalse(cartItems.hasItem(variant1));
+        assertEquals(1, cartItems.asList().size());
+
+        // Update last item to zero should remove it and clear currency
+        cartItems.updateQuantity(variant2, 0);
+        assertTrue(cartItems.isEmpty());
+        assertNull(cartItems.getCartCurrency());
+
+        // Test adding back after clear
+        cartItems.updateQuantity(variant1, 1);
+        assertEquals(1, cartItems.getQuantity(variant1));
+        assertEquals(eur, cartItems.getCartCurrency());
+
+        // Test invalid quantity
+        assertThrows(IllegalArgumentException.class, () -> cartItems.updateQuantity(variant1, -1));
     }
 
     /**
-     * Verifies {@link ShoppingCart} operations such as add, update, remove, and clear.
+     * Verifies ShoppingCart operations using getters.
      */
     @Test
     void shoppingCart_addRemoveUpdateClear() {
@@ -155,18 +180,20 @@ class CartItemTest {
         assertEquals(new Money(new BigDecimal("40.00"), Currency.getInstance("EUR")), cart.total());
 
         cart.updateItemQuantity(variant1, 5);
-        assertEquals(6, cart.getTotalItems());
+        assertEquals(6, cart.getTotalItems()); // 5 + 1
+        assertEquals(5, cart.getItems().stream().filter(i -> i.getVariant().equals(variant1)).findFirst().get().getQuantity());
 
         cart.removeItem(variant2);
-        assertFalse(cart.items().hasItem(variant2));
+        // FIX: Access items via getItems() and check the contained variants
+        assertFalse(cart.getItems().stream().anyMatch(item -> item.getVariant().equals(variant2)));
+        assertEquals(1, cart.getItems().size()); // Only variant1 left
 
         cart.clear();
-        assertTrue(cart.items().isEmpty());
+        assertTrue(cart.getItems().isEmpty());
     }
 
     /**
-     * Tests {@link ShoppingCart} state transitions to CHECKED_OUT and ABANDONED,
-     * verifying that further modifications are disallowed after transition.
+     * Tests ShoppingCart state transitions using getters.
      */
     @Test
     void shoppingCart_checkoutAndAbandon() {
@@ -174,17 +201,19 @@ class CartItemTest {
         ShoppingCart cart = ShoppingCart.createNew(userId);
 
         cart.checkout();
-        assertEquals(CartStatus.CHECKED_OUT, cart.status());
+        // FIX: Changed cart.status() to cart.getStatus()
+        assertEquals(CartStatus.CHECKED_OUT, cart.getStatus());
         assertThrows(IllegalStateException.class, () -> cart.addItem(variant1, 1));
 
         ShoppingCart abandonedCart = ShoppingCart.createNew(userId);
         abandonedCart.abandon();
-        assertEquals(CartStatus.ABANDONED, abandonedCart.status());
+        // FIX: Changed abandonedCart.status() to abandonedCart.getStatus()
+        assertEquals(CartStatus.ABANDONED, abandonedCart.getStatus());
         assertThrows(IllegalStateException.class, () -> abandonedCart.removeItem(variant1));
     }
 
     /**
-     * Ensures {@link CartStatus} enum defines all expected values.
+     * Ensures CartStatus enum defines all expected values.
      */
     @Test
     void cartStatus_enumValues() {
