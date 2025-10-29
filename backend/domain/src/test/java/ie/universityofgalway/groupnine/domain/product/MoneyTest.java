@@ -1,16 +1,21 @@
 package ie.universityofgalway.groupnine.domain.product;
 
 import org.junit.jupiter.api.Test;
-
 import java.math.BigDecimal;
 import java.util.Currency;
-
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Unit tests for the {@link Money} value object.
+ */
 class MoneyTest {
     private final Currency EUR = Currency.getInstance("EUR");
     private final Currency USD = Currency.getInstance("USD");
 
+    /**
+     * Verifies that the {@link Money} constructor correctly validates its inputs,
+     * rejecting null or negative amounts and null currencies.
+     */
     @Test
     void constructor_validatesInputs() {
         assertThrows(NullPointerException.class, () -> new Money(null, EUR));
@@ -18,13 +23,14 @@ class MoneyTest {
         assertThrows(IllegalArgumentException.class, () -> new Money(new BigDecimal("-1.00"), EUR));
 
         Money m = new Money(new BigDecimal("0.00"), EUR);
-        
-        // FIX: Changed m.amount() to m.getAmount()
         assertEquals(new BigDecimal("0.00"), m.getAmount());
-        // FIX: Changed m.currency() to m.getCurrency()
         assertEquals(EUR, m.getCurrency());
     }
 
+    /**
+     * Tests the mathematical operations of the {@link Money} class, including
+     * multiplication and addition, and ensures currency consistency is enforced.
+     */
     @Test
     void multiply_and_add_behaviour() {
         Money ten = new Money(new BigDecimal("10.00"), EUR);

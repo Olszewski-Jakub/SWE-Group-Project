@@ -1,99 +1,95 @@
 package ie.universityofgalway.groupnine.domain.cart;
 
 import ie.universityofgalway.groupnine.domain.product.Variant;
-import ie.universityofgalway.groupnine.domain.product.VariantId; // Import VariantId
-
+import ie.universityofgalway.groupnine.domain.product.VariantId;
 import java.util.*;
 
 /**
- * Represents a collection of CartItems inside a shopping cart.
- * Manages item aggregation and ensures currency consistency.
+ * A value object representing a collection of {@link CartItem}s within a shopping cart.
+ * It manages item aggregation, enforces currency consistency, and provides methods
+ * for manipulating the collection.
  */
 public class CartItems {
 
-    // Use a Map for efficient lookup by VariantId
-    private final Map<VariantId, CartItem> items = new LinkedHashMap<>(); // Keep insertion order
+    private final Map<VariantId, CartItem> items = new LinkedHashMap<>();
     private Currency cartCurrency = null;
 
     /**
-     * Default constructor for an empty item collection.
+     * Constructs an empty collection of cart items.
      */
     public CartItems() {}
 
     /**
-     * Constructor to initialize with a list of items.
-     * Ensures all items have the same currency.
-     * @param initialItems List of items to start with.
-     * @throws IllegalArgumentException if items have mixed currencies.
+     * Constructs a collection of cart items from an initial list.
+     * It enforces that all items in the list share the same currency.
+     *
+     * @param initialItems A list of items to initialize the collection with.
+     * @throws IllegalArgumentException if the provided items have mixed currencies.
      */
     public CartItems(List<CartItem> initialItems) {
         if (initialItems != null && !initialItems.isEmpty()) {
-            // Set currency from the first item
             cartCurrency = initialItems.get(0).getVariant().getPrice().getCurrency();
             for (CartItem item : initialItems) {
-                // Validate currency consistency
                 if (!cartCurrency.equals(item.getVariant().getPrice().getCurrency())) {
                     throw new IllegalArgumentException("Cannot initialize CartItems with mixed currencies");
                 }
-                // FIX: Use variant.getId() for the key
                 items.put(item.getVariant().getId(), item);
             }
         }
     }
 
     /**
-     * @return An unmodifiable view of the cart items as a list.
+     * Returns the items in the collection as an unmodifiable list.
+     *
+     * @return An unmodifiable {@link List} of {@link CartItem}s.
      */
     public List<CartItem> asList() {
         return Collections.unmodifiableList(new ArrayList<>(items.values()));
     }
 
     /**
-     * Adds a specified quantity of a variant to the cart.
-     * If the variant already exists, increases its quantity.
-     * Sets the cart currency on the first add.
+     * Adds a specified quantity of a variant to the collection. If the variant
+     * already exists, its quantity is increased. The currency of the first item
+     * added sets the currency for the entire collection.
      *
-     * @param variant  The variant to add.
+     * @param variant The {@link Variant} to add.
      * @param quantity The positive quantity to add.
-     * @throws IllegalArgumentException if quantity <= 0, variant is null, or currency mixes.
+     * @throws NullPointerException if the variant is null.
+     * @throws IllegalArgumentException if quantity is not positive or if the variant's
+     * currency conflicts with the established cart currency.
      */
     public void add(Variant variant, int quantity) {
         Objects.requireNonNull(variant, "variant cannot be null");
-        if (quantity <= 0) throw new IllegalArgumentException("quantity must be > 0");
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("quantity must be > 0");
+        }
 
-        // FIX: Changed variant.price().currency() to variant.getPrice().getCurrency()
         Currency variantCurrency = variant.getPrice().getCurrency();
         if (cartCurrency == null) {
-            cartCurrency = variantCurrency; // Set currency on first add
+            cartCurrency = variantCurrency;
         } else if (!cartCurrency.equals(variantCurrency)) {
-            // Enforce single currency per cart
             throw new IllegalArgumentException("Cannot mix currencies in cart. Expected " + cartCurrency + ", got " + variantCurrency);
         }
 
-        // FIX: Use variant.getId()
         VariantId variantId = variant.getId();
         CartItem existingItem = items.get(variantId);
 
         if (existingItem != null) {
-            // Item exists, increase quantity
             items.put(variantId, existingItem.increaseQuantity(quantity));
         } else {
-            // New item
             items.put(variantId, new CartItem(variant, quantity));
         }
     }
 
     /**
-     * Removes a variant entirely from the cart.
-     * Resets cart currency if the cart becomes empty.
+     * Removes a variant entirely from the collection. If this operation results
+     * in an empty collection, the cart's currency is reset to null.
      *
-     * @param variant The variant to remove.
+     * @param variant The {@link Variant} to remove.
      */
     public void remove(Variant variant) {
         Objects.requireNonNull(variant, "variant cannot be null");
-        // FIX: Use variant.getId()
         if (items.remove(variant.getId()) != null) {
-            // Reset currency only if the remove was successful and cart is now empty
             if (items.isEmpty()) {
                 cartCurrency = null;
             }
@@ -101,48 +97,47 @@ public class CartItems {
     }
 
     /**
-     * Updates the quantity of a variant in the cart.
-     * Adds the item if it doesn't exist and newQuantity > 0.
-     * Removes the item if newQuantity is 0.
-     * Resets cart currency if the cart becomes empty.
+     * Updates the quantity of a variant in the collection. If the new quantity
+     * is zero, the item is removed. If the item does not exist and the quantity
+     * is positive, it is added.
      *
-     * @param variant     The variant to update.
-     * @param newQuantity The non-negative target quantity.
-     * @throws IllegalArgumentException if newQuantity < 0 or variant is null.
+     * @param variant The {@link Variant} to update.
+     * @param newQuantity The non-negative target quantity for the variant.
+     * @throws NullPointerException if the variant is null.
+     * @throws IllegalArgumentException if newQuantity is negative.
      */
     public void updateQuantity(Variant variant, int newQuantity) {
         Objects.requireNonNull(variant, "variant cannot be null");
-        if (newQuantity < 0) throw new IllegalArgumentException("newQuantity must be >= 0");
+        if (newQuantity < 0) {
+            throw new IllegalArgumentException("newQuantity must be >= 0");
+        }
 
-        // FIX: Use variant.getId()
         VariantId variantId = variant.getId();
 
         if (newQuantity == 0) {
-            // Remove item if quantity is zero
             if (items.remove(variantId) != null && items.isEmpty()) {
-                cartCurrency = null; // Reset currency if cart becomes empty
+                cartCurrency = null;
             }
         } else {
-            // Add or update item
             if (items.containsKey(variantId)) {
-                // Update existing item
                 items.put(variantId, new CartItem(variant, newQuantity));
             } else {
-                // Add new item (delegates currency check to add method)
                 add(variant, newQuantity);
             }
         }
     }
 
     /**
-     * @return true if the cart contains no items.
+     * Checks if the collection contains any items.
+     *
+     * @return {@code true} if the collection is empty, {@code false} otherwise.
      */
     public boolean isEmpty() {
         return items.isEmpty();
     }
 
     /**
-     * Removes all items from the cart and resets the currency.
+     * Removes all items from the collection and resets the cart currency.
      */
     public void clear() {
         items.clear();
@@ -150,28 +145,30 @@ public class CartItems {
     }
 
     /**
-     * Checks if a specific variant is present in the cart.
-     * @param variant The variant to check for.
-     * @return true if the variant is in the cart.
+     * Checks if a specific variant is present in the collection.
+     *
+     * @param variant The {@link Variant} to check for.
+     * @return {@code true} if the variant exists in the collection.
      */
     public boolean hasItem(Variant variant) {
-        // FIX: Use variant.getId()
         return variant != null && items.containsKey(variant.getId());
     }
 
     /**
-     * Gets the current quantity of a specific variant in the cart.
-     * @param variant The variant to query.
-     * @return The quantity, or 0 if the variant is not in the cart.
+     * Retrieves the current quantity of a specific variant.
+     *
+     * @param variant The {@link Variant} to query.
+     * @return The quantity of the variant, or 0 if it is not in the collection.
      */
     public int getQuantity(Variant variant) {
-        // FIX: Use variant.getId()
         CartItem item = variant != null ? items.get(variant.getId()) : null;
         return item != null ? item.getQuantity() : 0;
     }
 
     /**
-     * @return The currency associated with this cart, or null if empty.
+     * Returns the currency associated with this collection of items.
+     *
+     * @return The {@link Currency}, or null if the collection is empty.
      */
     public Currency getCartCurrency() {
         return cartCurrency;

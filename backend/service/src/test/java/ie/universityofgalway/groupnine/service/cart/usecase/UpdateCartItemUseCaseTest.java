@@ -7,7 +7,12 @@ import ie.universityofgalway.groupnine.service.cart.CartNotFoundException;
 import ie.universityofgalway.groupnine.service.cart.ShoppingCartPort;
 import ie.universityofgalway.groupnine.service.product.VariantNotFoundException;
 import ie.universityofgalway.groupnine.service.product.VariantPort;
-import ie.universityofgalway.groupnine.domain.cart.InsufficientStockException;
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.Currency;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -15,17 +20,13 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.Currency;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+/**
+ * Unit tests for the {@link UpdateCartItemUseCase}.
+ */
 class UpdateCartItemUseCaseTest {
 
     @Mock
@@ -46,6 +47,10 @@ class UpdateCartItemUseCaseTest {
     private Variant variant;
     private UserId userId;
 
+    /**
+     * Sets up the test environment before each test case, initializing mocks and
+     * preparing a test cart pre-populated with an item.
+     */
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -54,36 +59,31 @@ class UpdateCartItemUseCaseTest {
         variantId = new VariantId(UUID.randomUUID());
         userId = UserId.of(UUID.randomUUID());
 
-        // Mock the variant with specific stock
         variant = new Variant(
                 variantId,
                 new Sku("TEST-SKU"),
                 new Money(BigDecimal.TEN, Currency.getInstance("EUR")),
-                new Stock(10, 0), // Total 10, Reserved 0 -> Available 10
+                new Stock(10, 0),
                 List.of()
         );
 
-        // Use a real ShoppingCart object to test its internal logic
-        // We use @Spy to partially mock it if needed, but here we just need a real instance.
-        cart = spy(ShoppingCart.createNew(userId));
-        // Manually set the cart ID to our test ID
-        // This requires a bit of reflection or a protected setter if you want to avoid it
-        // For this example, we assume we can construct it with the ID.
         CartItem initialItem = new CartItem(variant, 2);
         cart = new ShoppingCart(cartId, userId, new CartItems(List.of(initialItem)), CartStatus.ACTIVE, Instant.now(), Instant.now());
-
 
         when(cartPort.findById(cartId)).thenReturn(Optional.of(cart));
         when(variantPort.findById(variantId)).thenReturn(Optional.of(variant));
         when(cartPort.save(any(ShoppingCart.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        // Mock the remove use case behavior
         when(removeCartItemUseCase.execute(cartId, variantId)).thenAnswer(invocation -> {
-            cart.updateItemQuantity(variant, 0); // Simulate removal
+            cart.updateItemQuantity(variant, 0);
             return cartPort.save(cart);
         });
     }
 
+    /**
+     * Verifies that the use case correctly updates an item's quantity
+     * when provided with a valid positive number.
+     */
     @Test
     void execute_shouldUpdateQuantity_whenQuantityIsPositive() {
         int newQuantity = 5;
@@ -99,22 +99,27 @@ class UpdateCartItemUseCaseTest {
         verify(removeCartItemUseCase, never()).execute(any(), any());
     }
 
+    /**
+     * Verifies that the use case delegates to the {@link RemoveCartItemUseCase}
+     * when the new quantity is zero.
+     */
     @Test
     void execute_shouldRemoveItem_whenQuantityIsZero() {
         int newQuantity = 0;
-
         ShoppingCart updatedCart = updateCartItemUseCase.execute(cartId, variantId, newQuantity);
 
         assertNotNull(updatedCart);
         assertTrue(updatedCart.getItems().isEmpty());
 
-        // Verify the correct flow for quantity 0
         verify(removeCartItemUseCase).execute(cartId, variantId);
-        verify(cartPort, never()).findById(cartId); // <<< FIX: This is never called in the quantity=0 path
+        verify(cartPort, never()).findById(cartId);
         verify(variantPort, never()).findById(variantId);
     }
 
-
+    /**
+     * Verifies that the use case throws an {@link IllegalArgumentException}
+     * when the new quantity is negative.
+     */
     @Test
     void execute_shouldThrowException_whenQuantityIsNegative() {
         assertThrows(IllegalArgumentException.class, () -> {
@@ -122,7 +127,11 @@ class UpdateCartItemUseCaseTest {
         });
     }
 
-     @Test
+    /**
+     * Verifies that the use case throws a {@link CartNotFoundException}
+     * when the specified cart does not exist.
+     */
+    @Test
     void execute_shouldThrowException_whenCartNotFound() {
         when(cartPort.findById(cartId)).thenReturn(Optional.empty());
         assertThrows(CartNotFoundException.class, () -> {
@@ -130,6 +139,10 @@ class UpdateCartItemUseCaseTest {
         });
     }
 
+    /**
+     * Verifies that the use case throws a {@link VariantNotFoundException}
+     * when the specified product variant does not exist.
+     */
     @Test
     void execute_shouldThrowException_whenVariantNotFound() {
         when(variantPort.findById(variantId)).thenReturn(Optional.empty());
@@ -139,23 +152,26 @@ class UpdateCartItemUseCaseTest {
         verify(removeCartItemUseCase, never()).execute(any(), any());
     }
 
+    /**
+     * Verifies that the use case throws an {@link InsufficientStockException}
+     * when attempting to increase an item's quantity beyond the available stock.
+     */
     @Test
     void execute_shouldThrowException_whenInsufficientStockForIncrease() {
-        // Current quantity is 2, available stock is 10.
-        // New quantity of 13 requires 11 more items (13 - 2), but only 10 are available.
-        int newQuantity = 13; // <<< FIX: This value now correctly causes a stock failure
-
+        int newQuantity = 13;
         assertThrows(InsufficientStockException.class, () -> {
             updateCartItemUseCase.execute(cartId, variantId, newQuantity);
         });
-
-        // Verify save was NOT called because the transaction should fail
         verify(cartPort, never()).save(any(ShoppingCart.class));
     }
 
+    /**
+     * Verifies that the use case allows a decrease in quantity even if the total
+     * stock is technically insufficient, as no new stock is being reserved.
+     */
     @Test
     void execute_shouldAllowDecreaseQuantity_evenWithInsufficientStock() {
-         int newQuantity = 1; // Decrease from 2 to 1, no stock check needed
+         int newQuantity = 1;
          ShoppingCart updatedCart = updateCartItemUseCase.execute(cartId, variantId, newQuantity);
 
          assertNotNull(updatedCart);
