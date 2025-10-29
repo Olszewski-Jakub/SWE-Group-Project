@@ -2,7 +2,7 @@ package ie.universityofgalway.groupnine.service.cart.usecase;
 
 import ie.universityofgalway.groupnine.domain.cart.ShoppingCart;
 import ie.universityofgalway.groupnine.domain.user.UserId;
-import ie.universityofgalway.groupnine.service.cart.ShoppingCartPort;
+import ie.universityofgalway.groupnine.service.cart.port.ShoppingCartPort;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;

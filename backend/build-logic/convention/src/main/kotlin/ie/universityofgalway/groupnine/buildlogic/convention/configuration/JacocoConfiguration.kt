@@ -3,10 +3,13 @@ package ie.universityofgalway.groupnine.buildlogic.convention.configuration
 import ie.universityofgalway.groupnine.buildlogic.convention.extensions.libs
 import ie.universityofgalway.groupnine.buildlogic.convention.extensions.version
 import ie.universityofgalway.groupnine.buildlogic.convention.library.CoverageExtension
+import org.codehaus.groovy.ast.tools.GeneralUtils.args
 import org.gradle.api.Project
+import org.gradle.api.tasks.GradleBuild
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.named
+import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
 import org.gradle.testing.jacoco.plugins.JacocoPluginExtension
 import org.gradle.testing.jacoco.tasks.JacocoCoverageVerification
@@ -28,7 +31,7 @@ internal fun Project.configureJacoco() {
 
     val report = tasks.named("jacocoTestReport", JacocoReport::class)
 
-    val verify = tasks.named("jacocoTestCoverageVerification", JacocoCoverageVerification::class)
+    val verify = tasks.named("jacocoTestCoverageVerification", JacocoCoverageVerification::class){}
 
     tasks.withType(JacocoCoverageVerification::class).configureEach {
         doFirst {
@@ -53,5 +56,18 @@ internal fun Project.configureJacoco() {
     tasks.findByName("test")?.let { test ->
         report.configure { dependsOn(test) }
         verify.configure { dependsOn(test) }
+    }
+
+    if (this == rootProject) {
+        val allVerifyTasks = provider {
+            subprojects.map { it.path + ":jacocoTestCoverageVerification" }
+        }
+
+        tasks.register<GradleBuild>("verifyCoverageAll") {
+            group = "verification"
+            description = "Run all JaCoCo coverage verifications across all modules and continue on failure."
+            tasks = allVerifyTasks.get()
+            args("--continue", "--no-build-cache", "--rerun-tasks")
+        }
     }
 }

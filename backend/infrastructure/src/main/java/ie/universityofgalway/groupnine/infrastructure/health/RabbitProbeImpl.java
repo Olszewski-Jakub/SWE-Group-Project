@@ -1,7 +1,7 @@
 package ie.universityofgalway.groupnine.infrastructure.health;
 
 import com.rabbitmq.client.Connection;
-import ie.universityofgalway.groupnine.service.health.RabbitProbe;
+import ie.universityofgalway.groupnine.service.health.probe.RabbitProbe;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.stereotype.Component;

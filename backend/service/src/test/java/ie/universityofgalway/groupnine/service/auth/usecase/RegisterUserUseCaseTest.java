@@ -1,6 +1,7 @@
 package ie.universityofgalway.groupnine.service.auth.usecase;
 
 import ie.universityofgalway.groupnine.domain.auth.EmailVerificationToken;
+import ie.universityofgalway.groupnine.domain.auth.exception.EmailAlreadyUsed;
 import ie.universityofgalway.groupnine.domain.email.jobs.AccountVerificationEmailJob;
 import ie.universityofgalway.groupnine.domain.user.Email;
 import ie.universityofgalway.groupnine.domain.user.User;
@@ -129,7 +130,7 @@ class RegisterUserUseCaseTest {
     @Test
     void duplicate_email_throws_conflict() {
         when(userRepository.existsByEmail(Email.of("dup@example.com"))).thenReturn(true);
-        assertThrows(ie.universityofgalway.groupnine.domain.auth.EmailAlreadyUsed.class, () ->
+        assertThrows(EmailAlreadyUsed.class, () ->
                 useCase.execute("dup@example.com", "supersecurepwd", "A", "B")
         );
     }

@@ -1,9 +1,9 @@
 package ie.universityofgalway.groupnine.service.auth.usecase;
 
-import ie.universityofgalway.groupnine.domain.auth.ExpiredPasswordResetToken;
-import ie.universityofgalway.groupnine.domain.auth.InvalidPasswordResetToken;
+import ie.universityofgalway.groupnine.domain.auth.exception.ExpiredPasswordResetToken;
+import ie.universityofgalway.groupnine.domain.auth.exception.InvalidPasswordResetToken;
 import ie.universityofgalway.groupnine.domain.auth.PasswordResetToken;
-import ie.universityofgalway.groupnine.domain.auth.TokenAlreadyUsed;
+import ie.universityofgalway.groupnine.domain.auth.exception.TokenAlreadyUsed;
 import ie.universityofgalway.groupnine.domain.user.User;
 import ie.universityofgalway.groupnine.service.auth.port.ClockPort;
 import ie.universityofgalway.groupnine.service.auth.port.PasswordHasherPort;

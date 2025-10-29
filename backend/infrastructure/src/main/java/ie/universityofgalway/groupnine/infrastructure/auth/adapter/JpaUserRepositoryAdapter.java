@@ -1,6 +1,6 @@
 package ie.universityofgalway.groupnine.infrastructure.auth.adapter;
 
-import ie.universityofgalway.groupnine.domain.auth.EmailAlreadyUsed;
+import ie.universityofgalway.groupnine.domain.auth.exception.EmailAlreadyUsed;
 import ie.universityofgalway.groupnine.domain.user.Email;
 import ie.universityofgalway.groupnine.domain.user.User;
 import ie.universityofgalway.groupnine.domain.user.UserId;
@@ -20,7 +20,7 @@ import java.util.Optional;
  * JPA-backed implementation of the user repository port.
  * <p>
  * Translates unique email constraint violations into a domain-level
- * {@link ie.universityofgalway.groupnine.domain.auth.EmailAlreadyUsed}
+ * {@link EmailAlreadyUsed}
  * to provide consistent error handling at the service layer.
  */
 @Component

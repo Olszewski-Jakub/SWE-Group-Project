@@ -3,6 +3,8 @@ package ie.universityofgalway.groupnine.service.product;
 import ie.universityofgalway.groupnine.domain.product.Product;
 import ie.universityofgalway.groupnine.domain.product.SearchQuery;
 import ie.universityofgalway.groupnine.domain.product.SortRule;
+import ie.universityofgalway.groupnine.service.product.port.ProductPort;
+import ie.universityofgalway.groupnine.service.product.usecase.ProductSearchServiceImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;

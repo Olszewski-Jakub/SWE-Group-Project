@@ -3,6 +3,9 @@ package ie.universityofgalway.groupnine.infrastructure.product;
 import ie.universityofgalway.groupnine.domain.product.AttributeFilter;
 import ie.universityofgalway.groupnine.domain.product.SearchQuery;
 import ie.universityofgalway.groupnine.domain.product.SortRule;
+import ie.universityofgalway.groupnine.infrastructure.product.adapter.ProductPersistenceAdapter;
+import ie.universityofgalway.groupnine.infrastructure.product.jpa.ProductJpaRepository;
+import ie.universityofgalway.groupnine.infrastructure.product.jpa.VariantJpaRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -31,6 +34,11 @@ import static org.mockito.Mockito.*;
 public class ProductPersistenceAdapterSearchTest {
 
     /** Helper to construct the system under test with a mocked repository. */
+    private ProductPersistenceAdapter adapterWith(ProductJpaRepository repo, VariantJpaRepository variantRepo) {
+        return new ProductPersistenceAdapter(repo, variantRepo);
+    }
+
+    /** Convenience overload for tests that do not need variant repository. */
     private ProductPersistenceAdapter adapterWith(ProductJpaRepository repo) {
         return new ProductPersistenceAdapter(repo);
     }

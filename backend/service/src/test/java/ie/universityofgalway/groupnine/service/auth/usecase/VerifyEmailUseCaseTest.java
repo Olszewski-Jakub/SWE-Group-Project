@@ -1,9 +1,9 @@
 package ie.universityofgalway.groupnine.service.auth.usecase;
 
 import ie.universityofgalway.groupnine.domain.auth.EmailVerificationToken;
-import ie.universityofgalway.groupnine.domain.auth.ExpiredVerificationToken;
-import ie.universityofgalway.groupnine.domain.auth.InvalidVerificationToken;
-import ie.universityofgalway.groupnine.domain.auth.TokenAlreadyUsed;
+import ie.universityofgalway.groupnine.domain.auth.exception.ExpiredVerificationToken;
+import ie.universityofgalway.groupnine.domain.auth.exception.InvalidVerificationToken;
+import ie.universityofgalway.groupnine.domain.auth.exception.TokenAlreadyUsed;
 import ie.universityofgalway.groupnine.domain.user.Email;
 import ie.universityofgalway.groupnine.domain.user.User;
 import ie.universityofgalway.groupnine.domain.user.UserId;

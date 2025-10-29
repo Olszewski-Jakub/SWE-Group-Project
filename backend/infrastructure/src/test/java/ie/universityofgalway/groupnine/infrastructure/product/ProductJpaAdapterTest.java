@@ -10,6 +10,11 @@ import java.util.Currency;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import ie.universityofgalway.groupnine.infrastructure.product.adapter.ProductPersistenceAdapter;
+import ie.universityofgalway.groupnine.infrastructure.product.jpa.ProductEntity;
+import ie.universityofgalway.groupnine.infrastructure.product.jpa.ProductJpaRepository;
+import ie.universityofgalway.groupnine.infrastructure.product.jpa.VariantEntity;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

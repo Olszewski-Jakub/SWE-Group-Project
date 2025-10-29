@@ -1,9 +1,9 @@
 package ie.universityofgalway.groupnine.service.auth.usecase;
 
-import ie.universityofgalway.groupnine.domain.auth.InvalidCredentials;
-import ie.universityofgalway.groupnine.domain.auth.TooManyAttempts;
-import ie.universityofgalway.groupnine.domain.auth.UserLocked;
-import ie.universityofgalway.groupnine.domain.auth.UserNotVerified;
+import ie.universityofgalway.groupnine.domain.auth.exception.InvalidCredentials;
+import ie.universityofgalway.groupnine.domain.auth.exception.TooManyAttempts;
+import ie.universityofgalway.groupnine.domain.auth.exception.UserLocked;
+import ie.universityofgalway.groupnine.domain.auth.exception.UserNotVerified;
 import ie.universityofgalway.groupnine.domain.session.Session;
 import ie.universityofgalway.groupnine.domain.user.Email;
 import ie.universityofgalway.groupnine.domain.user.User;

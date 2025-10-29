@@ -1,6 +1,6 @@
 package ie.universityofgalway.groupnine.delivery.rest.rbac;
 
-import ie.universityofgalway.groupnine.delivery.rest.customer.CustomerController;
+import ie.universityofgalway.groupnine.delivery.rest.dev.customer.CustomerController;
 import ie.universityofgalway.groupnine.testsupport.web.CommonWebMvcTest;
 import ie.universityofgalway.groupnine.testsupport.web.DeliveryWebMvcTest;
 import org.junit.jupiter.api.Test;
