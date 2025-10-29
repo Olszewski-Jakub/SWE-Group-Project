@@ -6,7 +6,6 @@ import static org.mockito.Mockito.*;
 import ie.universityofgalway.groupnine.domain.product.*;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Collections;
 import java.util.Currency;
 import java.util.List;
 import java.util.Optional;
@@ -18,7 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 /**
- * Unit tests for {@link ProductPersistenceAdapter}.
+ * Unit tests for the {@link ProductPersistenceAdapter}.
  */
 @ExtendWith(MockitoExtension.class)
 class ProductJpaAdapterTest {
@@ -29,6 +28,11 @@ class ProductJpaAdapterTest {
     @InjectMocks
     private ProductPersistenceAdapter productPersistenceAdapter;
 
+    /**
+     * Verifies that when a product entity exists in the repository, it is correctly
+     * mapped to a {@link Product} domain object with all its fields, variants,
+     * and a status of ACTIVE.
+     */
     @Test
     void findById_whenProductExists_shouldMapEntityToDomainCorrectly() {
         UUID productUuid = UUID.randomUUID();
@@ -69,18 +73,19 @@ class ProductJpaAdapterTest {
         assertEquals(eur, variant.getPrice().getCurrency());
         assertEquals(100, variant.getStock().getQuantity());
         assertEquals(10, variant.getStock().getReserved());
-        // FIX: Test the available() method on the Stock object
         assertEquals(90, variant.getStock().available());
     }
     
+    /**
+     * Verifies that if a product's variants are all marked as unavailable,
+     * the resulting domain object's status is correctly set to DRAFT.
+     */
     @Test
     void findById_shouldSetStatusToDraft_whenNoVariantsAreAvailable() {
         UUID productUuid = UUID.randomUUID();
         VariantEntity variantEntity = mock(VariantEntity.class);
         when(variantEntity.isAvailable()).thenReturn(false);
-        // FIX: Add missing mock for getCurrency() to prevent NullPointerException
         when(variantEntity.getCurrency()).thenReturn("EUR");
-        // Mock other necessary fields
         when(variantEntity.getUuid()).thenReturn(UUID.randomUUID());
         when(variantEntity.getSku()).thenReturn("SKU-DRAFT");
         when(variantEntity.getPriceCents()).thenReturn(1000);

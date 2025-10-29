@@ -6,8 +6,15 @@ import java.util.List;
 import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Unit tests for the {@link Product} domain model.
+ */
 class ProductTest {
 
+    /**
+     * Verifies that the constructor correctly initializes all fields and that
+     * the getter methods return the expected values.
+     */
     @Test
     void constructor_and_getters_work_correctly() {
         ProductId id = new ProductId(UUID.randomUUID());
@@ -36,6 +43,10 @@ class ProductTest {
         assertEquals(now, product.getUpdatedAt());
     }
 
+    /**
+     * Tests the implementation of {@code equals()}, {@code hashCode()}, and
+     * {@code toString()} to ensure they behave according to their contracts.
+     */
     @Test
     void equals_and_hashCode_and_toString_behave_correctly() {
         ProductId id1 = new ProductId(UUID.randomUUID());
@@ -45,13 +56,11 @@ class ProductTest {
         Product product2 = new Product(id1, "A", "B", "C", ProductStatus.ACTIVE, List.of(), now, now);
         Product product3 = new Product(new ProductId(UUID.randomUUID()), "D", "E", "F", ProductStatus.DRAFT, List.of(), now, now);
 
-        // Test equals and hashCode
         assertEquals(product1, product2);
         assertNotEquals(product1, product3);
         assertEquals(product1.hashCode(), product2.hashCode());
         assertNotEquals(product1.hashCode(), product3.hashCode());
 
-        // Test toString
         assertTrue(product1.toString().contains(id1.toString()));
         assertTrue(product1.toString().contains("name='A'"));
     }

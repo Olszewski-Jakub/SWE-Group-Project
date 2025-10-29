@@ -2,48 +2,60 @@ package ie.universityofgalway.groupnine.infrastructure.product;
 
 import ie.universityofgalway.groupnine.domain.product.*;
 import ie.universityofgalway.groupnine.service.product.VariantPort;
-import org.springframework.stereotype.Component;
-
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Currency;
 import java.util.Optional;
+import org.springframework.stereotype.Component;
 
 /**
- * Persistence adapter implementing {@link VariantPort} using JPA.
- * Maps between domain {@link Variant} and persistence {@link VariantEntity}.
+ * Implements the {@link VariantPort} to provide a persistence mechanism for
+ * {@link Variant} domain objects using JPA. It handles the mapping between
+ * the domain model and the {@link VariantEntity} persistence model.
  */
 @Component
 public class VariantPersistenceAdapter implements VariantPort {
 
     private final VariantJpaRepository repository;
 
+    /**
+     * Constructs a new VariantPersistenceAdapter.
+     *
+     * @param repository The JPA repository for variant entities.
+     */
     public VariantPersistenceAdapter(VariantJpaRepository repository) {
         this.repository = repository;
     }
 
+    /**
+     * Finds a product variant by its unique identifier.
+     *
+     * @param id The {@link VariantId} of the variant to find.
+     * @return An {@link Optional} containing the {@link Variant} if found,
+     * or an empty Optional if not.
+     */
     @Override
     public Optional<Variant> findById(VariantId id) {
-        // FIX: Changed id.id() to id.getId()
-        return repository.findByUuid(id.getId())
-                .map(this::toDomain);
+        return repository.findByUuid(id.getId()).map(this::toDomain);
     }
 
     /**
-     * Converts a VariantEntity to a domain Variant object.
-     * Assumes getters exist on VariantEntity.
+     * Converts a {@link VariantEntity} persistence object to a {@link Variant} domain object.
+     *
+     * @param entity The persistence entity to convert.
+     * @return The corresponding domain object.
      */
     private Variant toDomain(VariantEntity entity) {
         Currency currency = entity.getCurrency() != null
                 ? Currency.getInstance(entity.getCurrency())
-                : Currency.getInstance("EUR"); // Default currency
+                : Currency.getInstance("EUR");
 
         return new Variant(
                 new VariantId(entity.getUuid()),
                 new Sku(entity.getSku()),
                 new Money(BigDecimal.valueOf(entity.getPriceCents() / 100.0), currency),
                 new Stock(entity.getStockQuantity(), entity.getReservedQuantity()),
-                Collections.emptyList() // Assuming attributes are not mapped here
+                Collections.emptyList()
         );
     }
 }

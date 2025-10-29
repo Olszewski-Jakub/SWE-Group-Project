@@ -2,7 +2,6 @@ package ie.universityofgalway.groupnine.delivery.rest.cart;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ie.universityofgalway.groupnine.delivery.rest.cart.dto.AddCartItemRequest;
-import ie.universityofgalway.groupnine.delivery.rest.cart.dto.UpdateCartItemQuantityRequest;
 import ie.universityofgalway.groupnine.delivery.rest.util.auth.AccessTokenUserResolver;
 import ie.universityofgalway.groupnine.domain.cart.CartId;
 import ie.universityofgalway.groupnine.domain.cart.InsufficientStockException;
@@ -32,13 +31,15 @@ import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Unit tests for CartController.
+ * Unit tests for the {@link CartController}, verifying its endpoint mappings,
+ * request handling, and exception translation.
  */
 class CartControllerTest {
 
@@ -58,6 +59,12 @@ class CartControllerTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    /**
+     * Sets up the test environment before each test case. This method initializes
+     * mock objects for all dependencies, creates a test user and cart, and
+     * configures a standalone {@link MockMvc} instance with the controller
+     * and a custom exception handler.
+     */
     @BeforeEach
     void setup() {
         userIdObj = UserId.of(UUID.randomUUID());
@@ -84,16 +91,27 @@ class CartControllerTest {
                 .build();
     }
 
+    /**
+     * Verifies that the GET /api/v1/cart/my endpoint successfully retrieves
+     * or creates a cart for the authenticated user and returns an HTTP 200 OK status.
+     *
+     * @throws Exception if the MockMvc call fails.
+     */
     @Test
     void getOrCreateMyCart_returnsCart() throws Exception {
         when(getOrCreateUserCartUseCase.execute(userIdObj)).thenReturn(testCart);
 
         mockMvc.perform(get("/api/v1/cart/my"))
                 .andExpect(status().isOk())
-                // FIX: Use getId() on the CartId object
                 .andExpect(jsonPath("$.id").value(cartIdObj.getId().toString()));
     }
 
+    /**
+     * Verifies that the PUT /api/v1/cart/my/items endpoint successfully adds
+     * an item to the user's cart and returns the updated cart with an HTTP 200 OK status.
+     *
+     * @throws Exception if the MockMvc call fails.
+     */
     @Test
     void addItem_addsItemAndReturnsUpdatedCart() throws Exception {
         UUID variantUuid = UUID.randomUUID();
@@ -106,12 +124,15 @@ class CartControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isOk())
-                // FIX: Use getId() on the CartId object
                 .andExpect(jsonPath("$.id").value(cartIdObj.getId().toString()));
     }
-    
-    // ... (other tests would follow a similar pattern of correction) ...
 
+    /**
+     * Verifies that the GET /api/v1/cart/{cartId} endpoint returns an HTTP 403 Forbidden
+     * status when the authenticated user attempts to access a cart they do not own.
+     *
+     * @throws Exception if the MockMvc call fails.
+     */
     @Test
     void getCart_forbiddenIfNotOwner() throws Exception {
         UUID cartUuid = UUID.randomUUID();
@@ -125,8 +146,12 @@ class CartControllerTest {
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.code").value("FORBIDDEN"));
     }
-    
-    // Controller advice for exception testing
+
+    /**
+     * A minimal, self-contained controller advice for handling exceptions within
+     * the standalone MockMvc tests. It mirrors the exception handling logic
+     * present in the main application's global exception handler.
+     */
     @ControllerAdvice
     static class TestCartControllerAdvice {
         private record ApiError(int status, String code, String message, String timestamp) {}

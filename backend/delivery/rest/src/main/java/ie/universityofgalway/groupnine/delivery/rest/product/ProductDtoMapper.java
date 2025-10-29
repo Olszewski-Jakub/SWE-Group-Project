@@ -5,23 +5,26 @@ import ie.universityofgalway.groupnine.delivery.rest.product.dto.SearchRequestDT
 import ie.universityofgalway.groupnine.delivery.rest.product.dto.VariantResponse;
 import ie.universityofgalway.groupnine.domain.product.AttributeFilter;
 import ie.universityofgalway.groupnine.domain.product.Product;
-import ie.universityofgalway.groupnine.domain.product.SortRule;
 import ie.universityofgalway.groupnine.domain.product.SearchQuery;
-
+import ie.universityofgalway.groupnine.domain.product.SortRule;
 import java.util.List;
 
 /**
- * Mapper for converting domain {@link Product} objects into REST-layer
- * {@link ProductResponse} DTOs and vice-versa.
+ * A utility class for mapping between product-related domain objects and their
+ * corresponding Data Transfer Objects (DTOs) for the REST layer.
  */
 public final class ProductDtoMapper {
+
   private ProductDtoMapper() {}
 
   /**
-   * Maps a domain {@link Product} to a {@link ProductResponse}.
+   * Maps a {@link Product} domain object to a {@link ProductResponse} DTO.
+   *
+   * @param p The Product domain object to map.
+   * @return The resulting ProductResponse DTO.
    */
   public static ProductResponse toDto(Product p) {
-    var variantDTOs = p.getVariants().stream()
+    List<VariantResponse> variantDTOs = p.getVariants().stream()
         .map(v -> new VariantResponse(
             v.getSku().getValue(),
             v.getPrice().getAmount().multiply(new java.math.BigDecimal("100")).intValue(),
@@ -42,11 +45,13 @@ public final class ProductDtoMapper {
   }
 
   /**
-   * Maps a REST {@link SearchRequestDTO} to the domain {@link SearchQuery},
-   * trimming whitespace from key and category.
+   * Maps a {@link SearchRequestDTO} from the REST layer to a {@link SearchQuery}
+   * domain object, normalizing inputs such as trimming whitespace from the key and category.
+   *
+   * @param dto The SearchRequestDTO to map.
+   * @return The resulting SearchQuery domain object.
    */
   public static SearchQuery toDomain(SearchRequestDTO dto) {
-    // FIX: Trim whitespace from key and category before creating the domain query.
     String key = (dto.key() != null) ? dto.key().trim() : null;
     String category = (dto.category() != null) ? dto.category().trim() : null;
 

@@ -1,11 +1,19 @@
 package ie.universityofgalway.groupnine.delivery.rest.product.dto;
 
 import java.time.Instant;
-import java.util.List; // Import the List interface
+import java.util.List;
 
 /**
- * Response DTO for exposing product details over the REST API.
- * Updated to include a list of variants instead of just the count.
+ * A Data Transfer Object (DTO) for exposing product details over the REST API.
+ *
+ * @param id          The unique identifier of the product.
+ * @param name        The name of the product.
+ * @param description A brief description of the product.
+ * @param category    The category the product belongs to.
+ * @param status      The current status of the product (e.g., "AVAILABLE", "DRAFT").
+ * @param variants    A list of {@link VariantResponse} objects associated with this product.
+ * @param createdAt   The timestamp when the product was created.
+ * @param updatedAt   The timestamp when the product was last updated.
  */
 public record ProductResponse(
     String id,
@@ -13,7 +21,6 @@ public record ProductResponse(
     String description,
     String category,
     String status,
-    // FIX: Changed from int variantCount to a list of VariantResponse DTOs
     List<VariantResponse> variants,
     Instant createdAt,
     Instant updatedAt

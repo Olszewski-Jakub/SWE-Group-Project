@@ -6,14 +6,15 @@ import ie.universityofgalway.groupnine.domain.product.VariantId;
 import ie.universityofgalway.groupnine.domain.user.UserId;
 import ie.universityofgalway.groupnine.service.cart.ShoppingCartPort;
 import ie.universityofgalway.groupnine.service.product.VariantPort;
+import java.time.Instant;
+import java.util.Optional;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
-import java.util.Optional;
-
 /**
- * Persistence adapter implementing {@link ShoppingCartPort} using JPA.
+ * Implements the {@link ShoppingCartPort} to provide a persistence mechanism for
+ * {@link ShoppingCart} aggregates using JPA. It manages the lifecycle and mapping
+ * between the domain model and the {@link ShoppingCartEntity} persistence model.
  */
 @Component
 public class CartPersistenceAdapter implements ShoppingCartPort {
@@ -21,80 +22,107 @@ public class CartPersistenceAdapter implements ShoppingCartPort {
     private final CartJpaRepository repository;
     private final VariantPort variantPort;
 
+    /**
+     * Constructs a new CartPersistenceAdapter.
+     *
+     * @param repository The JPA repository for shopping cart entities.
+     * @param variantPort The port for fetching variant domain objects.
+     */
     public CartPersistenceAdapter(CartJpaRepository repository, VariantPort variantPort) {
         this.repository = repository;
         this.variantPort = variantPort;
     }
 
+    /**
+     * Finds a user's shopping cart by their unique user identifier.
+     *
+     * @param userId The {@link UserId} of the cart's owner.
+     * @return An {@link Optional} containing the {@link ShoppingCart} if found,
+     * or an empty Optional if not.
+     */
     @Override
     @Transactional(readOnly = true)
     public Optional<ShoppingCart> findByUserId(UserId userId) {
-        // *** FIX: Assuming UserId now has getId() returning UUID ***
-        // Use the UUID from the UserId object to query the repository.
         return repository.findByUserId(userId.getId()).map(this::toDomain);
     }
 
+    /**
+     * Finds a shopping cart by its unique identifier.
+     *
+     * @param id The {@link CartId} of the cart to find.
+     * @return An {@link Optional} containing the {@link ShoppingCart} if found,
+     * or an empty Optional if not.
+     */
     @Override
     @Transactional(readOnly = true)
     public Optional<ShoppingCart> findById(CartId id) {
-        // This was already correct
         return repository.findById(id.getId()).map(this::toDomain);
     }
 
+    /**
+     * Saves or updates a {@link ShoppingCart} in the database. It maps the domain
+     * aggregate to a persistence entity before saving.
+     *
+     * @param cart The {@link ShoppingCart} domain object to save.
+     * @return The original, unmodified ShoppingCart domain object.
+     */
     @Override
     @Transactional
     public ShoppingCart save(ShoppingCart cart) {
-        // Use the UUIDs from the domain ID objects
         ShoppingCartEntity entity = repository.findById(cart.getId().getId())
-                // *** FIX: Assuming UserId has getId() returning UUID ***
                 .orElseGet(() -> new ShoppingCartEntity(cart.getId().getId(), cart.getUserId().getId()));
 
-        // *** FIX: Assuming UserId has getId() returning UUID ***
         entity.setUserId(cart.getUserId().getId());
         entity.setStatus(cart.getStatus());
-        entity.setUpdatedAt(Instant.now().toEpochMilli()); // Can keep using Instant directly
+        entity.setUpdatedAt(Instant.now().toEpochMilli());
 
-        entity.clearItems(); // Prepare for fresh item list
-        // FIX: Use cart.getItems()
+        entity.clearItems();
         for (CartItem item : cart.getItems()) {
             Variant variant = item.getVariant();
-            // FIX: Use variant.getId().getId() and item.getQuantity()
             entity.addItem(variant.getId().getId(), item.getQuantity());
         }
 
         repository.save(entity);
-        return cart; // Return the original domain object as per port contract
+        return cart;
     }
 
+    /**
+     * Deletes a shopping cart from the database by its unique identifier.
+     *
+     * @param id The {@link CartId} of the cart to delete.
+     */
     @Override
     @Transactional
     public void delete(CartId id) {
-        // This was already correct
         repository.findById(id.getId()).ifPresent(repository::delete);
     }
 
+    /**
+     * Converts a {@link ShoppingCartEntity} to a {@link ShoppingCart} domain aggregate.
+     * This includes reconstructing the {@link CartItems} by fetching each variant.
+     *
+     * @param entity The persistence entity to convert.
+     * @return The corresponding domain aggregate.
+     * @throws RuntimeException if a variant for an item cannot be found.
+     */
     private ShoppingCart toDomain(ShoppingCartEntity entity) {
-        CartItems cartItems = new CartItems(); // Start with empty CartItems
+        CartItems cartItems = new CartItems();
 
-        // Reconstruct CartItems properly
         for (CartItemEntity itemEntity : entity.getItems()) {
              Variant variant = variantPort.findById(new VariantId(itemEntity.getVariantId()))
-                    .orElseThrow(() -> new RuntimeException( // Consider a more specific exception
+                    .orElseThrow(() -> new RuntimeException(
                             "Variant not found during cart hydration: " + itemEntity.getVariantId()
                     ));
-            // Let CartItems handle quantity merging and currency checks
             cartItems.add(variant, itemEntity.getQuantity());
         }
 
         return new ShoppingCart(
                 new CartId(entity.getUuid()),
-                // *** FIX: Assuming UserId.of(UUID) exists or use appropriate factory ***
                 UserId.of(entity.getUserId()),
-                cartItems, // Pass the constructed CartItems
+                cartItems,
                 entity.getStatus(),
-                Instant.ofEpochMilli(entity.getCreatedAt()), // Convert long to Instant
-                Instant.ofEpochMilli(entity.getUpdatedAt()) // Convert long to Instant
+                Instant.ofEpochMilli(entity.getCreatedAt()),
+                Instant.ofEpochMilli(entity.getUpdatedAt())
         );
     }
 }
-
