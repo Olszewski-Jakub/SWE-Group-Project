@@ -3,8 +3,8 @@ package ie.universityofgalway.groupnine.service.cart.usecase;
 import ie.universityofgalway.groupnine.domain.cart.CartId;
 import ie.universityofgalway.groupnine.domain.cart.ShoppingCart;
 import ie.universityofgalway.groupnine.domain.user.UserId;
-import ie.universityofgalway.groupnine.service.cart.CartNotFoundException;
-import ie.universityofgalway.groupnine.service.cart.ShoppingCartPort;
+import ie.universityofgalway.groupnine.domain.cart.exception.CartNotFoundException;
+import ie.universityofgalway.groupnine.service.cart.port.ShoppingCartPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

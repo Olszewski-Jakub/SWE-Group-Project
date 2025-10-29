@@ -1,5 +1,6 @@
 package ie.universityofgalway.groupnine.domain.cart;
 
+import ie.universityofgalway.groupnine.domain.cart.exception.InsufficientStockException;
 import ie.universityofgalway.groupnine.domain.product.Money;
 import ie.universityofgalway.groupnine.domain.product.Stock;
 import ie.universityofgalway.groupnine.domain.product.Variant;

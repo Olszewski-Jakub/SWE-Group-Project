@@ -1,8 +1,8 @@
 package ie.universityofgalway.groupnine.service.auth.usecase;
 
-import ie.universityofgalway.groupnine.domain.auth.ExpiredRefreshToken;
-import ie.universityofgalway.groupnine.domain.auth.InvalidRefreshToken;
-import ie.universityofgalway.groupnine.domain.auth.RefreshReuseDetected;
+import ie.universityofgalway.groupnine.domain.auth.exception.ExpiredRefreshToken;
+import ie.universityofgalway.groupnine.domain.auth.exception.InvalidRefreshToken;
+import ie.universityofgalway.groupnine.domain.auth.exception.RefreshReuseDetected;
 import ie.universityofgalway.groupnine.domain.session.Session;
 import ie.universityofgalway.groupnine.domain.user.UserId;
 import ie.universityofgalway.groupnine.service.audit.port.AuditEventPort;
@@ -15,7 +15,6 @@ import ie.universityofgalway.groupnine.service.auth.port.SessionRepositoryPort;
 import java.net.InetAddress;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.List;
 import java.util.Objects;
 
 /**

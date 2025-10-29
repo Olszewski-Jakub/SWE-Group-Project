@@ -1,6 +1,6 @@
 package ie.universityofgalway.groupnine.service.auth.usecase;
 
-import ie.universityofgalway.groupnine.domain.auth.EmailAlreadyUsed;
+import ie.universityofgalway.groupnine.domain.auth.exception.EmailAlreadyUsed;
 import ie.universityofgalway.groupnine.domain.email.EmailAddress;
 import ie.universityofgalway.groupnine.domain.email.Priority;
 import ie.universityofgalway.groupnine.domain.email.jobs.AccountVerificationEmailJob;
@@ -63,7 +63,7 @@ public class RegisterUserUseCase {
      * @param lastName  last name
      * @return identifier of the newly created user
      * @throws IllegalArgumentException                                     if inputs are invalid
-     * @throws ie.universityofgalway.groupnine.domain.auth.EmailAlreadyUsed if email is taken
+     * @throws EmailAlreadyUsed if email is taken
      */
     public Result execute(String emailRaw, String password, String firstName, String lastName) {
         log.info("register_user_start", "email", emailRaw);

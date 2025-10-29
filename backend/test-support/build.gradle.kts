@@ -18,6 +18,7 @@ dependencies {
     implementation(libs.spring.boot.starter.validation)
     implementation(libs.spring.boot.starter.test)
     implementation(libs.spring.boot.starter.data.jpa)
+    implementation(libs.spring.boot.starter.security)
     implementation(platform(libs.junit.bom))
     implementation(libs.junit.jupiter)
     testRuntimeOnly(libs.junit.platform.launcher)

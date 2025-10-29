@@ -16,7 +16,6 @@ import ie.universityofgalway.groupnine.domain.security.PublicEndpoint;
  * Development-only endpoints for visualizing refresh-token session chains.
  */
 @RestController
-@Profile({"dev", "local"})
 @RequestMapping("/dev/sessions")
 @PublicEndpoint
 public class DevSessionController {

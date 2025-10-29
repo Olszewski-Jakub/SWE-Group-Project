@@ -1,7 +1,7 @@
 package ie.universityofgalway.groupnine.infrastructure.health;
 
 
-import ie.universityofgalway.groupnine.service.health.DatabaseProbe;
+import ie.universityofgalway.groupnine.service.health.probe.DatabaseProbe;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;

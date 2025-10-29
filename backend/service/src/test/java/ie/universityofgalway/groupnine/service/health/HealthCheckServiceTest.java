@@ -1,6 +1,8 @@
 package ie.universityofgalway.groupnine.service.health;
 
 import ie.universityofgalway.groupnine.domain.health.HealthStatus;
+import ie.universityofgalway.groupnine.service.health.probe.DatabaseProbe;
+import ie.universityofgalway.groupnine.service.health.usecase.HealthCheckService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

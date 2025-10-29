@@ -2,8 +2,8 @@ package ie.universityofgalway.groupnine.delivery.rest.health;
 
 import ie.universityofgalway.groupnine.delivery.rest.util.Routes;
 import ie.universityofgalway.groupnine.domain.health.HealthStatus;
-import ie.universityofgalway.groupnine.service.health.HealthReport;
-import ie.universityofgalway.groupnine.service.health.HealthCheckUseCase;
+import ie.universityofgalway.groupnine.service.health.probe.HealthReport;
+import ie.universityofgalway.groupnine.service.health.usecase.HealthCheckUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import ie.universityofgalway.groupnine.domain.security.PublicEndpoint;
 import org.springframework.http.ResponseEntity;

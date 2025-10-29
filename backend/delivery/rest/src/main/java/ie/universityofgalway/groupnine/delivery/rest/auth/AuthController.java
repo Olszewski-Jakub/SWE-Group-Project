@@ -5,7 +5,7 @@ import ie.universityofgalway.groupnine.delivery.rest.auth.dto.RegisterRequest;
 import ie.universityofgalway.groupnine.delivery.rest.auth.dto.TokenResponse;
 import ie.universityofgalway.groupnine.delivery.rest.auth.dto.VerifyRequest;
 import ie.universityofgalway.groupnine.delivery.rest.util.Routes;
-import ie.universityofgalway.groupnine.domain.auth.InvalidRefreshToken;
+import ie.universityofgalway.groupnine.domain.auth.exception.InvalidRefreshToken;
 import ie.universityofgalway.groupnine.security.config.props.AuthProps;
 import ie.universityofgalway.groupnine.service.auth.usecase.LoginUseCase;
 import ie.universityofgalway.groupnine.service.auth.usecase.LogoutAllUseCase;

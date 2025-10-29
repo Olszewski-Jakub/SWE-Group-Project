@@ -1,6 +1,6 @@
 package ie.universityofgalway.groupnine.infrastructure.auth.adapter;
 
-import ie.universityofgalway.groupnine.domain.auth.EmailAlreadyUsed;
+import ie.universityofgalway.groupnine.domain.auth.exception.EmailAlreadyUsed;
 import ie.universityofgalway.groupnine.domain.user.Email;
 import ie.universityofgalway.groupnine.domain.user.User;
 import ie.universityofgalway.groupnine.domain.user.UserId;

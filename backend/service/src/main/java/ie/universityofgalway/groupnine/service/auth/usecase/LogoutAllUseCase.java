@@ -1,6 +1,6 @@
 package ie.universityofgalway.groupnine.service.auth.usecase;
 
-import ie.universityofgalway.groupnine.domain.auth.InvalidRefreshToken;
+import ie.universityofgalway.groupnine.domain.auth.exception.InvalidRefreshToken;
 import ie.universityofgalway.groupnine.domain.session.Session;
 import ie.universityofgalway.groupnine.service.audit.port.AuditEventPort;
 import ie.universityofgalway.groupnine.service.auth.port.ClockPort;

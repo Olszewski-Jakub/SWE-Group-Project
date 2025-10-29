@@ -1,9 +1,9 @@
 package ie.universityofgalway.groupnine.service.auth.usecase;
 
 import ie.universityofgalway.groupnine.domain.auth.EmailVerificationToken;
-import ie.universityofgalway.groupnine.domain.auth.ExpiredVerificationToken;
-import ie.universityofgalway.groupnine.domain.auth.InvalidVerificationToken;
-import ie.universityofgalway.groupnine.domain.auth.TokenAlreadyUsed;
+import ie.universityofgalway.groupnine.domain.auth.exception.ExpiredVerificationToken;
+import ie.universityofgalway.groupnine.domain.auth.exception.InvalidVerificationToken;
+import ie.universityofgalway.groupnine.domain.auth.exception.TokenAlreadyUsed;
 import ie.universityofgalway.groupnine.domain.email.EmailAddress;
 import ie.universityofgalway.groupnine.domain.email.jobs.WelcomeEmailJob;
 import ie.universityofgalway.groupnine.domain.user.User;
@@ -47,9 +47,9 @@ public class VerifyEmailUseCase {
      * valid user; then marks the user as verified and the token as used.
      *
      * @param opaqueToken base64url opaque token from the verification link
-     * @throws ie.universityofgalway.groupnine.domain.auth.InvalidVerificationToken if token is missing/invalid
-     * @throws ie.universityofgalway.groupnine.domain.auth.TokenAlreadyUsed         if token was already used
-     * @throws ie.universityofgalway.groupnine.domain.auth.ExpiredVerificationToken if token expired
+     * @throws InvalidVerificationToken if token is missing/invalid
+     * @throws TokenAlreadyUsed         if token was already used
+     * @throws ExpiredVerificationToken if token expired
      */
     public void execute(String opaqueToken) {
         log.info("verify_email_start");

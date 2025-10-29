@@ -1,5 +1,8 @@
 package ie.universityofgalway.groupnine.service.auth.usecase;
 
+import ie.universityofgalway.groupnine.domain.auth.exception.ExpiredRefreshToken;
+import ie.universityofgalway.groupnine.domain.auth.exception.InvalidRefreshToken;
+import ie.universityofgalway.groupnine.domain.auth.exception.RefreshReuseDetected;
 import ie.universityofgalway.groupnine.domain.session.Session;
 import ie.universityofgalway.groupnine.domain.user.UserId;
 import ie.universityofgalway.groupnine.service.audit.port.AuditEventPort;
@@ -77,7 +80,7 @@ public class RefreshUseCaseTest {
 
         RefreshUseCase uc = new RefreshUseCase(repo, jwt, factory, random, audit, clock, Duration.ofDays(14));
         assertThrows(
-                ie.universityofgalway.groupnine.domain.auth.RefreshReuseDetected.class,
+                RefreshReuseDetected.class,
                 () -> uc.execute("stale", "ua", null)
         );
         verify(repo, never()).revokeAllForUser(any(), any(), any());
@@ -97,7 +100,7 @@ public class RefreshUseCaseTest {
         when(repo.findByRefreshTokenHash("bad_hash")).thenReturn(java.util.Optional.empty());
 
         RefreshUseCase uc = new RefreshUseCase(repo, jwt, factory, random, audit, clock, Duration.ofDays(14));
-        assertThrows(ie.universityofgalway.groupnine.domain.auth.InvalidRefreshToken.class, () -> uc.execute("bad", null, null));
+        assertThrows(InvalidRefreshToken.class, () -> uc.execute("bad", null, null));
     }
 
     @Test
@@ -116,6 +119,6 @@ public class RefreshUseCaseTest {
         when(repo.findByRefreshTokenHash("h")).thenReturn(java.util.Optional.of(sess));
 
         RefreshUseCase uc = new RefreshUseCase(repo, jwt, factory, random, audit, clock, Duration.ofDays(14));
-        assertThrows(ie.universityofgalway.groupnine.domain.auth.ExpiredRefreshToken.class, () -> uc.execute("x", null, null));
+        assertThrows(ExpiredRefreshToken.class, () -> uc.execute("x", null, null));
     }
 }

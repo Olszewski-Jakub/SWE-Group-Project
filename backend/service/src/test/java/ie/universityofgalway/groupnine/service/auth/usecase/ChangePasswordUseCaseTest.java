@@ -1,6 +1,6 @@
 package ie.universityofgalway.groupnine.service.auth.usecase;
 
-import ie.universityofgalway.groupnine.domain.auth.InvalidCredentials;
+import ie.universityofgalway.groupnine.domain.auth.exception.InvalidCredentials;
 import ie.universityofgalway.groupnine.domain.user.Email;
 import ie.universityofgalway.groupnine.domain.user.User;
 import ie.universityofgalway.groupnine.domain.user.UserId;

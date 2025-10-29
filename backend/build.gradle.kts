@@ -112,7 +112,25 @@ tasks.register("verifyCoverageAll") {
 
     dependsOn(
         subprojects.mapNotNull { sub ->
-            sub.tasks.findByName("check")
+            sub.tasks.findByName("jacocoTestCoverageVerification")
+
         }
     )
+}
+subprojects {
+    tasks.withType<JacocoCoverageVerification>().configureEach {
+        outputs.cacheIf { false }
+        outputs.upToDateWhen { false }
+
+    }
+}
+gradle.taskGraph.whenReady {
+    if (allTasks.any { it.path.endsWith(":verifyCoverageAll") || it.name == "verifyCoverageAll" }) {
+        subprojects.forEach { sub ->
+            sub.tasks.withType<Test>().configureEach {
+                outputs.cacheIf { false }
+                outputs.upToDateWhen { false }
+            }
+        }
+    }
 }

@@ -4,10 +4,10 @@ import ie.universityofgalway.groupnine.domain.cart.CartId;
 import ie.universityofgalway.groupnine.domain.cart.ShoppingCart;
 import ie.universityofgalway.groupnine.domain.product.Variant;
 import ie.universityofgalway.groupnine.domain.product.VariantId;
-import ie.universityofgalway.groupnine.service.cart.CartNotFoundException;
-import ie.universityofgalway.groupnine.service.cart.ShoppingCartPort;
-import ie.universityofgalway.groupnine.service.product.VariantNotFoundException;
-import ie.universityofgalway.groupnine.service.product.VariantPort;
+import ie.universityofgalway.groupnine.domain.cart.exception.CartNotFoundException;
+import ie.universityofgalway.groupnine.service.cart.port.ShoppingCartPort;
+import ie.universityofgalway.groupnine.domain.product.exception.VariantNotFoundException;
+import ie.universityofgalway.groupnine.service.product.port.VariantPort;
 import org.springframework.stereotype.Service;
 
 /**

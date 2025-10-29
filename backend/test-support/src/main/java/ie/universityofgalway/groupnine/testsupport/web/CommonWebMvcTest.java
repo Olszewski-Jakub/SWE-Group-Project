@@ -1,11 +1,13 @@
 package ie.universityofgalway.groupnine.testsupport.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * Base class for MVC slice tests.
@@ -21,6 +23,11 @@ public abstract class CommonWebMvcTest {
     protected MockMvc mockMvc;
     @Autowired
     protected ObjectMapper objectMapper;
+
+    @BeforeEach
+    void clearSecurityContext() {
+        SecurityContextHolder.clearContext();
+    }
 
     protected String toJson(Object value) {
         try {

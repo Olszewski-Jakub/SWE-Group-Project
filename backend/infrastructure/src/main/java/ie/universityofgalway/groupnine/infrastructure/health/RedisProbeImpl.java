@@ -1,6 +1,6 @@
 package ie.universityofgalway.groupnine.infrastructure.health;
 
-import ie.universityofgalway.groupnine.service.health.RedisProbe;
+import ie.universityofgalway.groupnine.service.health.probe.RedisProbe;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;

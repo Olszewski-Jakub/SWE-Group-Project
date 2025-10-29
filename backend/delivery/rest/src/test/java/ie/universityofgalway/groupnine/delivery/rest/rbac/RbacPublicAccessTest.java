@@ -9,7 +9,7 @@ import ie.universityofgalway.groupnine.service.auth.usecase.LogoutUseCase;
 import ie.universityofgalway.groupnine.service.auth.usecase.RefreshUseCase;
 import ie.universityofgalway.groupnine.service.auth.usecase.RegisterUserUseCase;
 import ie.universityofgalway.groupnine.service.auth.usecase.VerifyEmailUseCase;
-import ie.universityofgalway.groupnine.service.health.HealthCheckUseCase;
+import ie.universityofgalway.groupnine.service.health.usecase.HealthCheckUseCase;
 import ie.universityofgalway.groupnine.testsupport.web.CommonWebMvcTest;
 import ie.universityofgalway.groupnine.testsupport.web.DeliveryWebMvcTest;
 import org.junit.jupiter.api.Test;

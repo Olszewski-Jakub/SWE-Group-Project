@@ -1,18 +1,19 @@
 package ie.universityofgalway.groupnine.service.cart.usecase;
 
 import ie.universityofgalway.groupnine.domain.cart.CartId;
-import ie.universityofgalway.groupnine.domain.cart.InsufficientStockException;
+import ie.universityofgalway.groupnine.domain.cart.exception.CartNotFoundException;
+import ie.universityofgalway.groupnine.domain.cart.exception.InsufficientStockException;
 import ie.universityofgalway.groupnine.domain.cart.ShoppingCart;
 import ie.universityofgalway.groupnine.domain.product.*;
+import ie.universityofgalway.groupnine.domain.product.exception.VariantNotFoundException;
 import ie.universityofgalway.groupnine.domain.user.UserId;
-import ie.universityofgalway.groupnine.service.cart.CartNotFoundException;
-import ie.universityofgalway.groupnine.service.cart.ShoppingCartPort;
-import ie.universityofgalway.groupnine.service.product.VariantNotFoundException;
-import ie.universityofgalway.groupnine.service.product.VariantPort;
 import java.math.BigDecimal;
 import java.util.Currency;
 import java.util.Optional;
 import java.util.UUID;
+
+import ie.universityofgalway.groupnine.service.cart.port.ShoppingCartPort;
+import ie.universityofgalway.groupnine.service.product.port.VariantPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
