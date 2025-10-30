@@ -22,6 +22,12 @@ class QueryUseCasesTest {
         @Override public Page<Product> findAvailableByCategory(String category, org.springframework.data.domain.Pageable pageable){return Page.empty();}
         @Override public Page<Product> search(SearchQuery query, org.springframework.data.domain.Pageable pageable){return Page.empty();}
         @Override public Optional<Product> findById(ProductId id){return found;}
+
+        @Override
+        public Optional<Product> findByVariantId(VariantId id) {
+            return Optional.empty();
+        }
+
         @Override public Page<Product> listAll(org.springframework.data.domain.Pageable pageable){return list;}
         @Override public boolean productExistsByUuid(UUID uuid){return false;}
         @Override public Product saveProduct(Product product){return product;}

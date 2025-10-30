@@ -15,5 +15,8 @@ public enum EmailType {
     /**
      * Password reset email containing a reset link.
      */
-    PASSWORD_RESET
+    PASSWORD_RESET,
+    ORDER_PAID,
+    PAYMENT_FAILED,
+    ORDER_REFUNDED
 }

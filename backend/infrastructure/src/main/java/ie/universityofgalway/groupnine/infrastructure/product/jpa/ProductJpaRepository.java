@@ -166,4 +166,7 @@ public interface ProductJpaRepository extends JpaRepository<ProductEntity, Long>
   Optional<ProductEntity> findByUuid(UUID uuid); 
 
   boolean existsByUuid(UUID uuid);
+
+  @Query("SELECT p FROM ProductEntity p JOIN p.variants v WHERE v.uuid = :variantUuid")
+  Optional<ProductEntity> findByVariantUuid(@Param("variantUuid") UUID variantUuid);
 }

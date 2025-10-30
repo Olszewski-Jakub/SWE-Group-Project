@@ -1,0 +1,20 @@
+<html>
+  <body style="font-family: Arial, Helvetica, sans-serif;">
+    <h2>Your refund has been processed</h2>
+    <p>
+      We’ve issued a refund for order <strong>${orderId}</strong>.
+    </p>
+    <p>
+      <strong>Refunded amount:</strong>
+      <span>
+        [[${#numbers.formatDecimal(amountMinor / 100.0, 1, 2)}]] [[${currency}]]
+      </span>
+    </p>
+    <p>
+      It can take several business days for the refund to appear on your statement.
+    </p>
+    <div style="margin-top: 16px; color: #666;">
+      <p>If you have any questions, reply to this email and we’ll be happy to help.</p>
+    </div>
+  </body>
+</html>

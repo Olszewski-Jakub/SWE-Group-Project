@@ -36,4 +36,26 @@ class GetSessionChainUseCaseTest {
         assertEquals(a, nodes.get(0).id());
         assertEquals(b, nodes.get(1).id());
     }
+
+    @Test
+    void byRefreshToken_resolves_start_and_walks_chain() {
+        SessionRepositoryPort repo = mock(SessionRepositoryPort.class);
+        RandomTokenPort random = mock(RandomTokenPort.class);
+        when(random.sha256("r")).thenReturn("h");
+
+        Instant now = Instant.parse("2024-01-01T00:00:00Z");
+        UserId uid = UserId.newId();
+        UUID a = UUID.randomUUID();
+        UUID b = UUID.randomUUID();
+        Session s1 = new Session(a, uid, "h", "ua", null, now, now.plusSeconds(60), null, b, null);
+        Session s2 = new Session(b, uid, "h2", "ua", null, now, now.plusSeconds(60), null, null, null);
+        when(repo.findByRefreshTokenHash("h")).thenReturn(Optional.of(s1));
+        when(repo.findById(a)).thenReturn(Optional.of(s1));
+        when(repo.findById(b)).thenReturn(Optional.of(s2));
+
+        GetSessionChainUseCase uc = new GetSessionChainUseCase(repo, random);
+        var nodes = uc.byRefreshToken("r");
+        assertEquals(2, nodes.size());
+        assertEquals(b, nodes.get(1).id());
+    }
 }

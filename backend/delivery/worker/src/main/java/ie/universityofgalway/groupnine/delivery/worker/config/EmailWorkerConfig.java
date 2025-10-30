@@ -149,6 +149,33 @@ public class EmailWorkerConfig {
     }
 
     @Bean
+    public ie.universityofgalway.groupnine.service.mailer.OrderPaidMailer orderPaidMailer(@Autowired RenderTemplatePort renderer,
+                                                                                          @Autowired SendEmailPort sender,
+                                                                                          @Autowired IdempotencyPort idempotency,
+                                                                                          @Value("${mailjet.from.email:no-reply@example.com}") String fromEmail,
+                                                                                          @Value("${mailjet.from.name:GroupNine}") String fromName) {
+        return new ie.universityofgalway.groupnine.service.mailer.OrderPaidMailer(idempotency, renderer, sender, fromEmail, fromName);
+    }
+
+    @Bean
+    public ie.universityofgalway.groupnine.service.mailer.PaymentFailedMailer paymentFailedMailer(@Autowired RenderTemplatePort renderer,
+                                                                                                  @Autowired SendEmailPort sender,
+                                                                                                  @Autowired IdempotencyPort idempotency,
+                                                                                                  @Value("${mailjet.from.email:no-reply@example.com}") String fromEmail,
+                                                                                                  @Value("${mailjet.from.name:GroupNine}") String fromName) {
+        return new ie.universityofgalway.groupnine.service.mailer.PaymentFailedMailer(idempotency, renderer, sender, fromEmail, fromName);
+    }
+
+    @Bean
+    public ie.universityofgalway.groupnine.service.mailer.OrderRefundedMailer orderRefundedMailer(@Autowired RenderTemplatePort renderer,
+                                                                                                  @Autowired SendEmailPort sender,
+                                                                                                  @Autowired IdempotencyPort idempotency,
+                                                                                                  @Value("${mailjet.from.email:no-reply@example.com}") String fromEmail,
+                                                                                                  @Value("${mailjet.from.name:GroupNine}") String fromName) {
+        return new ie.universityofgalway.groupnine.service.mailer.OrderRefundedMailer(idempotency, renderer, sender, fromEmail, fromName);
+    }
+
+    @Bean
     public EmailMailerRegistry emailMailerRegistry(List<BaseMailer<?>> mailers) {
         return new EmailMailerRegistry(mailers);
     }

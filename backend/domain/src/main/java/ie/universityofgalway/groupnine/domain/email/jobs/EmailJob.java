@@ -13,7 +13,7 @@ import java.util.Map;
  * Marker interface for email jobs handled by the worker. Implementations provide the template
  * model and identify their {@link EmailType}.
  */
-public sealed interface EmailJob permits AccountVerificationEmailJob, WelcomeEmailJob, PasswordResetEmailJob {
+public sealed interface EmailJob permits AccountVerificationEmailJob, OrderPaidEmailJob, OrderRefundedEmailJob, PasswordResetEmailJob, PaymentFailedEmailJob, WelcomeEmailJob {
     EmailJobId id();
 
     EmailType type();

@@ -24,6 +24,8 @@ dependencies {
     implementation(libs.thymeleaf)
     // Mailjet API client
     implementation(libs.mailjet.client)
+    // Stripe SDK for outbound payments integration
+    implementation("com.stripe:stripe-java:24.9.0")
 }
 
 coverage {

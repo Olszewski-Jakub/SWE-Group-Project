@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: ${DB_URL:jdbc:postgresql://db:5432/demo_db}
-    username: ${DB_USERNAME:demo}
-    password: ${DB_PASSWORD:demo}
+    url: jdbc:postgresql://localhost:5432/demo_db
+    username: demo
+    password: demo
     hikari:
       maximum-pool-size: ${DB_MAX_POOL_SIZE:10}
   jpa:
@@ -19,6 +19,7 @@ spring:
     enabled: true
     locations: classpath:db/migration
     baseline-on-migrate: true
+
   data:
     redis:
       host: ${REDIS_HOST:localhost}
@@ -26,7 +27,7 @@ spring:
       password: ${REDIS_PASSWORD:}
       database: ${REDIS_DB:0}
   rabbitmq:
-    host: ${RABBITMQ_HOST:rabbitmq}
+    host: ${RABBITMQ_HOST:localhost}
     port: ${RABBITMQ_PORT:5672}
     username: ${RABBITMQ_USERNAME:guest}
     password: ${RABBITMQ_PASSWORD:guest}
@@ -35,7 +36,6 @@ spring:
         acknowledge-mode: MANUAL
         prefetch: 10
         concurrency: 2
-
 
 management:
   endpoint:
@@ -65,10 +65,15 @@ app:
     refresh-cookie-name: ${REFRESH_TOKEN_COOKIE_NAME:refreshToken}
   flyway:
     repair-on-start: true
-
-email:
-  worker:
-    enabled: ${EMAIL_WORKER_ENABLED:true}
+  checkout:
+    success-path: "${CHECKOUT_SUCCESS_PATH:/checkout/success}"
+    cancel-path: "${CHECKOUT_CANCEL_PATH:/checkout/cancel}"
+    shipping:
+      allowed-countries: IE,
+      rate-ids: shr_1SO4hr5VVAd3gFAtZQYKJSR3, shr_1SO4hS5VVAd3gFAtCCAMifwR
+  reservations:
+    ttl-seconds: ${RESERVATION_TTL_SECONDS:1800}
+  base-url: https://stack-over-flowed-cup.jakubolszewski.dev
 
 mailjet:
   apiKey: ${MAILJET_API_KEY:}
@@ -76,3 +81,10 @@ mailjet:
   from:
     email: ${MAIL_FROM_EMAIL:no-reply@example.com}
     name: ${MAIL_FROM_NAME:GroupNine}
+
+stripe:
+  secret: ${STRIPE_API_KEY:}
+  webhook-secret: ${STRIPE_WEBHOOK_SECRET:}
+flyway:
+  repair-on-start: true
+

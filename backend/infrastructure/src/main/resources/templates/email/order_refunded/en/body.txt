@@ -1,0 +1,7 @@
+Your refund has been processed.
+
+Order: ${orderId}
+Amount: ${(amountMinor / 100.0)} ${currency}
+
+It may take several business days to appear on your statement.
+If you have any questions, reply to this email.

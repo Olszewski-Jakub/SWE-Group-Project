@@ -1,5 +1,3 @@
-
-
 spring:
   datasource:
     url: ${DB_URL:jdbc:postgresql://db:5432/demo_db}
@@ -38,7 +36,6 @@ spring:
         prefetch: 10
         concurrency: 2
 
-
 management:
   endpoint:
     health:
@@ -62,17 +59,20 @@ app:
       backoff-base-seconds: ${BRUTEFORCE_BACKOFF_BASE_SECONDS:60}
       backoff-factor: ${BRUTEFORCE_BACKOFF_FACTOR:2.0}
       backoff-max-seconds: ${BRUTEFORCE_BACKOFF_MAX_SECONDS:3600}
-  base-url: "https://stack-over-flowed-cup.jakubolszewski.dev"
+  base-url: https://stack-over-flowed-cup.jakubolszewski.dev
   auth:
     refresh-ttl-days: ${REFRESH_TOKEN_TTL_DAYS:14}
     refresh-cookie-name: ${REFRESH_TOKEN_COOKIE_NAME:refreshToken}
   flyway:
     repair-on-start: true
-
-
-email:
-  worker:
-    enabled: ${EMAIL_WORKER_ENABLED:true}
+  checkout:
+    success-path: "${CHECKOUT_SUCCESS_PATH:/checkout/success}"
+    cancel-path: "${CHECKOUT_CANCEL_PATH:/checkout/cancel}"
+    shipping:
+      allowed-countries: IE,
+      rate-ids: shr_1SO4hr5VVAd3gFAtZQYKJSR3, shr_1SO4hS5VVAd3gFAtCCAMifwR
+  reservations:
+    ttl-seconds: ${RESERVATION_TTL_SECONDS:1800}
 
 mailjet:
   apiKey: ${MAILJET_API_KEY:}
@@ -84,3 +84,6 @@ mailjet:
 server:
   port: ${PORT:8080}
 
+stripe:
+  secret: ${STRIPE_API_KEY:}
+  webhook-secret: ${STRIPE_WEBHOOK_SECRET:}

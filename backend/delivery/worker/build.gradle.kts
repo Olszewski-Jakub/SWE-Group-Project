@@ -10,9 +10,11 @@ dependencies {
     implementation(project(":service"))
     implementation(project(":domain"))
     implementation(project(":infrastructure"))
+    implementation(project(":util"))
 
     implementation(libs.spring.boot.starter)
     implementation(libs.spring.boot.starter.amqp)
+    implementation(libs.spring.boot.starter.actuator)
     implementation(libs.spring.context)
     implementation(libs.jackson.databind)
     implementation(libs.spring.boot.starter.validation)
@@ -22,5 +24,5 @@ dependencies {
 }
 
 coverage {
-    minimum = 0.2
+    minimum = 0.69
 }

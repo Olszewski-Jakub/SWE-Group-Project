@@ -64,11 +64,12 @@ class CartPersistenceAdapterTest {
 
         when(repository.findById(cart.getId().getId())).thenReturn(Optional.empty());
         ArgumentCaptor<ShoppingCartEntity> entityCaptor = ArgumentCaptor.forClass(ShoppingCartEntity.class);
-        when(repository.save(entityCaptor.capture())).thenAnswer(i -> i.getArgument(0));
+        // Adapter invokes saveAndFlush twice; capture arguments on verify
 
         adapter.save(cart);
 
-        ShoppingCartEntity capturedEntity = entityCaptor.getValue();
+        verify(repository, atLeastOnce()).saveAndFlush(entityCaptor.capture());
+        ShoppingCartEntity capturedEntity = entityCaptor.getValue(); // last saved state
         assertNotNull(capturedEntity);
         assertEquals(cart.getId().getId(), capturedEntity.getUuid());
         assertEquals(cart.getUserId().getId(), capturedEntity.getUserId());
