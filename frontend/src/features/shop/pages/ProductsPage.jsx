@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import ProductsGrid from '../components/ProductsGrid';
-import { getProducts } from '../../../lib/ProductService';
+import { getProducts, postSearch } from '../../../lib/ProductService';
 
 /**
  * ProductsPage is the main component for the product catalog.
@@ -18,11 +18,22 @@ export default function ProductsPage() {
   // New state for pagination
   const [currentPage, setCurrentPage] = useState(0); // Track the current page, starting at 0
   const [totalPages, setTotalPages] = useState(0);   // Store the total pages from the API response
-  
+  const [size] = useState(9); // Number of items per page
+
   // State to track whether the data is currently being fetched.
   const [loading, setLoading] = useState(true);
   // State to store any error messages if the fetch fails.
   const [error, setError] = useState(null);
+
+  // Search & Filter state
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+  const [sortRule, setSortRule] = useState('');
+
+  // Check if any filters are active
+  const hasActiveFilters = searchTerm || selectedCategory || minPrice || maxPrice || sortRule;
 
   // The useEffect hook now depends on `currentPage`
   // It will re-run whenever `currentPage` changes.
@@ -30,8 +41,21 @@ export default function ProductsPage() {
     const fetchProducts = async () => {
       try {
         setLoading(true); 
-        // Pass the current page to the service function
-        const pageData = await getProducts(currentPage); 
+        
+        let pageData
+        if (hasActiveFilters){
+            const searchQuery = {
+              key: searchTerm || null,
+              category: selectedCategory || null,
+              minPriceCents: minPrice ? minPrice : null,
+              maxPriceCents: maxPrice ? maxPrice : null,
+              sortRule: sortRule || null,
+          };
+          pageData = await postSearch(currentPage, size, searchQuery)
+        } else {
+          // Pass the current page to the service function
+          pageData = await getProducts(currentPage, size); 
+        }
         
         // Update both products and total pages from the response
         setProducts(pageData.content); 
