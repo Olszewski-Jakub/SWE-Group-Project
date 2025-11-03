@@ -13,6 +13,7 @@ public final class Routes {
 
     public static final String AUTH = V1 + "/auth";
     public static final String CART = V1 + "/cart";
+    public static final String PRODUCTS = V1 + "/products";
     public static final String MANAGEMENT = V1 + "/management";
     public  static final String PRODUCT_MANAGEMENT = MANAGEMENT + "/products";
 

@@ -10,6 +10,7 @@ import ie.universityofgalway.groupnine.infrastructure.product.jpa.ProductJpaRepo
 import ie.universityofgalway.groupnine.infrastructure.product.jpa.VariantEntity;
 import ie.universityofgalway.groupnine.infrastructure.product.jpa.VariantJpaRepository;
 import ie.universityofgalway.groupnine.service.product.port.ProductPort;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -43,6 +44,7 @@ public class ProductPersistenceAdapter implements ProductPort {
      *
      * @param repository The JPA repository for product data access.
      */
+    @Autowired
     public ProductPersistenceAdapter(ProductJpaRepository repository, VariantJpaRepository variantRepository) {
         this.repository = repository;
         this.variantRepository = variantRepository;
