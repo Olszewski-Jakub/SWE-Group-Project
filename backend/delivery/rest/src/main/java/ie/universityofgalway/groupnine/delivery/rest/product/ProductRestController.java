@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -31,7 +32,7 @@ import static ie.universityofgalway.groupnine.delivery.rest.util.Routes.PRODUCTS
  * REST controller exposing read-only product endpoints.
  */
 @RestController
-@RequestMapping(PRODUCTS)
+@RequestMapping(value=PRODUCTS)
 @PublicEndpoint
 public class ProductRestController {
 
@@ -40,6 +41,7 @@ public class ProductRestController {
   /**
    * Creates the controller.
    */
+  @Autowired
   public ProductRestController(ProductService svc,ProductSearchService productSearchService) {
     this.svc = svc;
     this.productSearchService = productSearchService;

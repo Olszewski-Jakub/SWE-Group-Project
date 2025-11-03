@@ -50,7 +50,7 @@ public class SecurityConfig {
         http.cors(cors -> cors.configurationSource(request -> {
             CorsConfiguration config = new CorsConfiguration();
             config.setAllowedOriginPatterns(java.util.List.of("*"));
-            config.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+            config.setAllowedMethods(java.util.List.of("GET", "POST", "PUT","PATCH", "DELETE", "OPTIONS"));
             config.setAllowedHeaders(java.util.List.of("*"));
             config.setAllowCredentials(true);
             return config;

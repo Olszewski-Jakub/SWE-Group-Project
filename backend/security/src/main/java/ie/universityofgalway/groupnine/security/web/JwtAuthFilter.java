@@ -43,8 +43,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        String auth = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (auth != null && auth.startsWith("Bearer ")) {
+        String auth = resolveAuthHeader(request);
+        if (auth != null && startsWithBearerIgnoreCase(auth)) {
             String token = auth.substring(7);
             try {
                 JwtClaims claims = jwtService.validate(token);
@@ -56,8 +56,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                         "authorities_count", authentication.getAuthorities() == null ? 0 : authentication.getAuthorities().size()
                 );
             } catch (JwtException ex) {
-                // Return JSON 401
-                LOG.warn("jwt_auth_failed", "reason", ex.getMessage());
+                // Allow public routes to pass through even with bad tokens
+                if (isConfiguredPublic(request)) {
+                    LOG.warn("jwt_auth_failed_public_allowed", "reason", ex.getMessage(), "uri", request.getRequestURI());
+                    filterChain.doFilter(request, response);
+                    return;
+                }
+                // Return JSON 401 for protected routes
+                LOG.warn("jwt_auth_failed", "reason", ex.getMessage(), "uri", request.getRequestURI());
                 handlers.authenticationEntryPoint().commence(request, response, new AuthenticationException(ex.getMessage()) {
                 });
                 return;
@@ -78,5 +84,30 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private Collection<? extends GrantedAuthority> extractAuthorities(JwtClaims claims) {
         Object raw = claims.getClaims().get(props.getJwt().getAuthoritiesClaim());
         return Authorities.fromClaim(raw);
+    }
+
+    private String resolveAuthHeader(HttpServletRequest request) {
+        String auth = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (auth == null || !startsWithBearerIgnoreCase(auth)) {
+            String forwarded = request.getHeader("X-Forwarded-Authorization");
+            if (forwarded != null) return forwarded;
+        }
+        return auth;
+    }
+
+    private boolean startsWithBearerIgnoreCase(String header) {
+        return header.length() >= 7 && header.regionMatches(true, 0, "Bearer ", 0, 7);
+    }
+
+    private boolean isConfiguredPublic(HttpServletRequest request) {
+        if (props == null || props.getRoutes() == null || props.getRoutes().getPublicRoutes() == null) return false;
+        String uri = request.getRequestURI();
+        org.springframework.util.AntPathMatcher matcher = new org.springframework.util.AntPathMatcher();
+        for (AppSecurityProps.PublicRoute pr : props.getRoutes().getPublicRoutes()) {
+            if (pr != null && pr.getPattern() != null && matcher.match(pr.getPattern(), uri)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
