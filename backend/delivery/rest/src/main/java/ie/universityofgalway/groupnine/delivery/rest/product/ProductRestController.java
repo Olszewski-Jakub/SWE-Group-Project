@@ -25,12 +25,13 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import java.time.OffsetDateTime;
 import java.util.NoSuchElementException;
 
+import static ie.universityofgalway.groupnine.delivery.rest.util.Routes.PRODUCTS;
+
 /**
  * REST controller exposing read-only product endpoints.
  */
-@Validated
 @RestController
-@RequestMapping("/api/v1/products")
+@RequestMapping(PRODUCTS)
 @PublicEndpoint
 public class ProductRestController {
 
