@@ -1,9 +1,10 @@
 package ie.universityofgalway.groupnine.service.product.admin.usecase;
 
 import ie.universityofgalway.groupnine.domain.product.*;
-import ie.universityofgalway.groupnine.service.product.port.ProductPort;
 import ie.universityofgalway.groupnine.service.product.admin.UpdateVariantCommand;
+import ie.universityofgalway.groupnine.service.product.port.ProductPort;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.math.BigDecimal;
 import java.util.Currency;
@@ -11,41 +12,40 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 class UpdateVariantUseCaseTest {
 
-    private static class StubPort implements ProductPort {
-        Product existingProduct;
-        Variant existingVariant;
-        Variant saved;
-        @Override public org.springframework.data.domain.Page<Product> findAvailable(org.springframework.data.domain.Pageable pageable){return org.springframework.data.domain.Page.empty();}
-        @Override public org.springframework.data.domain.Page<Product> findAvailableByCategory(String category, org.springframework.data.domain.Pageable pageable){return org.springframework.data.domain.Page.empty();}
-        @Override public org.springframework.data.domain.Page<Product> search(SearchQuery query, org.springframework.data.domain.Pageable pageable){return org.springframework.data.domain.Page.empty();}
-        @Override public Optional<Product> findById(ProductId id){return Optional.ofNullable(existingProduct);}    
-        @Override public org.springframework.data.domain.Page<Product> listAll(org.springframework.data.domain.Pageable pageable){return org.springframework.data.domain.Page.empty();}
-        @Override public boolean productExistsByUuid(UUID uuid){return false;}
-        @Override public Product saveProduct(Product product){return product;}
-        @Override public void deleteProduct(ProductId id){}
-        @Override public boolean variantExistsBySku(String sku){return false;}
-        @Override public Optional<Variant> findVariantById(VariantId id){return Optional.ofNullable(existingVariant);}    
-        @Override public Variant saveVariant(ProductId productId, Variant variant){this.saved = variant; return variant;}
-        @Override public void deleteVariant(ProductId productId, VariantId variantId){}
+    @Test
+    void invalid_currency_throws() {
+        ProductPort port = Mockito.mock(ProductPort.class);
+        ProductId pid = new ProductId(UUID.randomUUID());
+        VariantId vid = new VariantId(UUID.randomUUID());
+        when(port.findById(pid)).thenReturn(Optional.of(new Product(pid, "n", "d", "c", ProductStatus.ACTIVE, java.util.List.of(), java.time.Instant.now(), java.time.Instant.now())));
+        when(port.findVariantById(vid)).thenReturn(Optional.of(new Variant(vid, new Sku("S"), new Money(new BigDecimal("1.00"), Currency.getInstance("EUR")), new Stock(1,0), java.util.List.of())));
+
+        UpdateVariantUseCase uc = new UpdateVariantUseCase(port);
+        UpdateVariantCommand cmd = new UpdateVariantCommand(vid, null, new BigDecimal("1.00"), "BAD", null, null, null, java.util.List.of());
+        assertThrows(IllegalArgumentException.class, () -> uc.execute(pid, cmd));
     }
 
     @Test
-    void updatesPartialFields() {
-        StubPort port = new StubPort();
-        UUID pid = UUID.randomUUID();
-        UUID vid = UUID.randomUUID();
-        port.existingProduct = new Product(new ProductId(pid), "P", "d", "c", ProductStatus.DRAFT, java.util.List.of(), java.time.Instant.now(), java.time.Instant.now());
-        port.existingVariant = new Variant(new VariantId(vid), new Sku("SKU-1"), new Money(new BigDecimal("5.00"), Currency.getInstance("EUR")), new Stock(10, 2), java.util.List.of());
-        UpdateVariantUseCase uc = new UpdateVariantUseCase(port);
+    void updates_and_saves_variant() {
+        ProductPort port = Mockito.mock(ProductPort.class);
+        ProductId pid = new ProductId(UUID.randomUUID());
+        VariantId vid = new VariantId(UUID.randomUUID());
+        when(port.findById(pid)).thenReturn(Optional.of(new Product(pid, "n", "d", "c", ProductStatus.ACTIVE, java.util.List.of(), java.time.Instant.now(), java.time.Instant.now())));
+        Variant existing = new Variant(vid, new Sku("S"), new Money(new BigDecimal("1.00"), Currency.getInstance("EUR")), new Stock(1,0), java.util.List.of());
+        when(port.findVariantById(vid)).thenReturn(Optional.of(existing));
+        when(port.saveVariant(any(ProductId.class), any(Variant.class))).thenAnswer(inv -> inv.getArgument(1));
 
-        UpdateVariantCommand cmd = new UpdateVariantCommand(new VariantId(vid), null, new BigDecimal("6.50"), null, 12, 1, null, null);
-        Variant out = uc.execute(new ProductId(pid), cmd);
-        assertEquals(new BigDecimal("6.50"), out.getPrice().getAmount());
-        assertEquals(12, out.getStock().getQuantity());
-        assertEquals(1, out.getStock().getReserved());
-        assertNotNull(port.saved);
+        UpdateVariantUseCase uc = new UpdateVariantUseCase(port);
+        UpdateVariantCommand cmd = new UpdateVariantCommand(vid, "NEWSKU", new BigDecimal("2.00"), "USD", 5, 0, null, java.util.List.of());
+        Variant saved = uc.execute(pid, cmd);
+        assertEquals("NEWSKU", saved.getSku().getValue());
+        assertEquals(new BigDecimal("2.00"), saved.getPrice().getAmount());
+        assertEquals("USD", saved.getPrice().getCurrency().getCurrencyCode());
+        assertEquals(5, saved.getStock().getQuantity());
     }
 }

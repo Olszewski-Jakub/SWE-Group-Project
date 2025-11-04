@@ -1,6 +1,8 @@
 package ie.universityofgalway.groupnine.infrastructure.cart.jpa;
 
 import ie.universityofgalway.groupnine.domain.cart.CartStatus;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import jakarta.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
@@ -30,7 +32,8 @@ public class ShoppingCartEntity {
 
     /** Lifecycle status of the shopping cart (ACTIVE, CHECKED_OUT, ABANDONED). */
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(nullable = false, columnDefinition = "cart_status")
     private CartStatus status = CartStatus.ACTIVE;
 
     /** Set of items associated with this shopping cart. */

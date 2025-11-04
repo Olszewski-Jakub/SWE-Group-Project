@@ -39,6 +39,7 @@ public interface ProductPort {
      * Finds a product by its public identifier.
      */
     Optional<Product> findById(ProductId id);
+    Optional<Product> findByVariantId(VariantId id);
 
     // Admin (CRUD) operations
     Page<Product> listAll(Pageable pageable);

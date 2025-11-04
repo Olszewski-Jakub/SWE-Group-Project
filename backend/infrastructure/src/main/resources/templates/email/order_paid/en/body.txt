@@ -1,0 +1,7 @@
+Thanks for your order!
+
+We’ve received your payment and are getting your order ${orderId} ready to ship.
+
+Total paid: ${(amountMinor / 100.0)} ${currency}
+
+If you have any questions, just reply to this email.

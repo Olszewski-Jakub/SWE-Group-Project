@@ -46,7 +46,8 @@ public class CartPersistenceAdapter implements ShoppingCartPort {
     @Override
     @Transactional(readOnly = true)
     public Optional<ShoppingCart> findByUserId(UserId userId) {
-        return repository.findByUserId(userId.getId()).map(this::toDomain);
+        return repository.findFirstByUserIdAndStatusOrderByUpdatedAtDesc(userId.getId(), CartStatus.ACTIVE)
+                .map(this::toDomain);
     }
 
     /**
@@ -79,13 +80,16 @@ public class CartPersistenceAdapter implements ShoppingCartPort {
         entity.setStatus(cart.getStatus());
         entity.setUpdatedAt(Instant.now().toEpochMilli());
 
+        // Rebuild items with a delete-then-insert approach to avoid unique constraint conflicts
         entity.clearItems();
+        // Flush deletions before re-inserting to satisfy (cart_uuid, variant_id) unique constraint
+        repository.saveAndFlush(entity);
         for (CartItem item : cart.getItems()) {
             Variant variant = item.getVariant();
             entity.addItem(variant.getId().getId(), item.getQuantity());
         }
 
-        repository.save(entity);
+        repository.saveAndFlush(entity);
         return cart;
     }
 

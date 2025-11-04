@@ -1,0 +1,7 @@
+We couldn’t process your payment.
+
+Order: ${orderId}
+Reason: ${reason}
+
+Please try again or update your payment method.
+If this is unexpected, reply to this email and we’ll help.

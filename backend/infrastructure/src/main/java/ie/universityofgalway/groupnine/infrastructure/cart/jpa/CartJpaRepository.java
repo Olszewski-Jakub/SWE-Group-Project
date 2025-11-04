@@ -1,5 +1,6 @@
 package ie.universityofgalway.groupnine.infrastructure.cart.jpa;
 
+import ie.universityofgalway.groupnine.domain.cart.CartStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 import java.util.UUID;
@@ -20,5 +21,6 @@ public interface CartJpaRepository extends JpaRepository<ShoppingCartEntity, UUI
     Optional<ShoppingCartEntity> findByUuid(UUID uuid);
 
     Optional<ShoppingCartEntity> findByUserId(UUID userId);
-}
 
+    Optional<ShoppingCartEntity> findFirstByUserIdAndStatusOrderByUpdatedAtDesc(UUID userId, CartStatus status);
+}

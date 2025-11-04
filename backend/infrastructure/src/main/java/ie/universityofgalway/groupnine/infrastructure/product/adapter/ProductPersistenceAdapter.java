@@ -111,6 +111,11 @@ public class ProductPersistenceAdapter implements ProductPort {
         return repository.findByUuid(id.getId()).map(this::toDomain);
     }
 
+    @Override
+    public Optional<Product> findByVariantId(VariantId id) {
+        return repository.findByVariantUuid(id.getId()).map(this::toDomain);
+    }
+
     // ---------- Admin CRUD ----------
     @Override
     public Page<Product> listAll(Pageable pageable) { return repository.findAll(pageable).map(this::toDomain); }

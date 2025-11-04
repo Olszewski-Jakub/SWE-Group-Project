@@ -1,34 +1,101 @@
 package ie.universityofgalway.groupnine.service.mailer;
 
 import ie.universityofgalway.groupnine.domain.email.EmailAddress;
-import ie.universityofgalway.groupnine.domain.email.EmailJobId;
-import ie.universityofgalway.groupnine.domain.email.Priority;
-import ie.universityofgalway.groupnine.domain.email.jobs.AccountVerificationEmailJob;
-import ie.universityofgalway.groupnine.domain.email.jobs.PasswordResetEmailJob;
-import ie.universityofgalway.groupnine.domain.email.jobs.WelcomeEmailJob;
+import ie.universityofgalway.groupnine.domain.email.EmailType;
+import ie.universityofgalway.groupnine.domain.email.jobs.*;
 import ie.universityofgalway.groupnine.service.email.port.IdempotencyPort;
 import ie.universityofgalway.groupnine.service.email.port.RenderTemplatePort;
 import ie.universityofgalway.groupnine.service.email.port.SendEmailPort;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 
 import java.net.URI;
-import java.util.Locale;
-import java.util.Map;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 class MailersTest {
-    private RenderTemplatePort.RenderedEmail okEmail() { return new RenderTemplatePort.RenderedEmail("s","<p>h</p>","t"); }
+
+    private IdempotencyPort idem;
+    private RenderTemplatePort renderer;
+    private SendEmailPort sender;
+
+    @BeforeEach
+    void setup() {
+        idem = Mockito.mock(IdempotencyPort.class);
+        renderer = Mockito.mock(RenderTemplatePort.class);
+        sender = Mockito.mock(SendEmailPort.class);
+        when(idem.claim(any())).thenReturn(true);
+        when(renderer.render(any(EmailType.class), any(), anyMap())).thenReturn(new RenderTemplatePort.RenderedEmail("Subj", "<h>html</h>", "txt"));
+    }
 
     @Test
-    void welcomeMailer_sendsWhenIdempotent() {
-        IdempotencyPort idem = id -> true;
-        RenderTemplatePort renderer = (type, locale, model) -> okEmail();
-        SendEmailPort sender = mock(SendEmailPort.class);
-        WelcomeMailer m = new WelcomeMailer(idem, renderer, sender, "noreply@example.com", "Example");
-        var job = WelcomeEmailJob.builder().to(new EmailAddress("to@example.com")).id(EmailJobId.newId()).locale(Locale.ENGLISH).priority(Priority.NORMAL).build();
+    void accountVerificationMailer_process_sends() {
+        AccountVerificationMailer m = new AccountVerificationMailer(idem, renderer, sender, "from@example.com", "From");
+        AccountVerificationEmailJob job = AccountVerificationEmailJob.builder()
+                .to(new EmailAddress("u@example.com"))
+                .verificationLink(URI.create("https://example.com/verify"))
+                .build();
+
         m.process(job);
-        verify(sender).send(any(), any(), eq("to@example.com"), any(), any(), any());
+        verify(sender).send(eq("from@example.com"), eq("From"), eq("u@example.com"), eq("Subj"), anyString(), anyString());
+    }
+
+    @Test
+    void passwordResetMailer_requires_resetLink_and_sends() {
+        PasswordResetMailer m = new PasswordResetMailer(idem, renderer, sender, "from@example.com", "From");
+        PasswordResetEmailJob job = PasswordResetEmailJob.builder()
+                .to(new EmailAddress("u@example.com"))
+                .resetLink(URI.create("https://example.com/reset"))
+                .build();
+
+        m.process(job);
+        verify(sender).send(eq("from@example.com"), eq("From"), eq("u@example.com"), eq("Subj"), anyString(), anyString());
+    }
+
+    @Test
+    void orderPaidMailer_processes() {
+        OrderPaidMailer m = new OrderPaidMailer(idem, renderer, sender, "from@example.com", "From");
+        OrderPaidEmailJob job = OrderPaidEmailJob.builder()
+                .to(new EmailAddress("u@example.com"))
+                .orderId("o1").amountMinor(123).currency("EUR")
+                .build();
+        m.process(job);
+        verify(sender).send(eq("from@example.com"), eq("From"), eq("u@example.com"), eq("Subj"), anyString(), anyString());
+    }
+
+    @Test
+    void orderRefundedMailer_processes() {
+        OrderRefundedMailer m = new OrderRefundedMailer(idem, renderer, sender, "from@example.com", "From");
+        OrderRefundedEmailJob job = OrderRefundedEmailJob.builder()
+                .to(new EmailAddress("u@example.com"))
+                .orderId("o1").amountMinor(123).currency("EUR")
+                .build();
+        m.process(job);
+        verify(sender).send(eq("from@example.com"), eq("From"), eq("u@example.com"), eq("Subj"), anyString(), anyString());
+    }
+
+    @Test
+    void paymentFailedMailer_processes_and_idempotency_false_skips() {
+        PaymentFailedMailer m = new PaymentFailedMailer(idem, renderer, sender, "from@example.com", "From");
+        PaymentFailedEmailJob job = PaymentFailedEmailJob.builder()
+                .to(new EmailAddress("u@example.com"))
+                .orderId("o1").reason("PAYMENT_FAILED")
+                .build();
+
+        // First: claimed -> send
+        when(idem.claim(any())).thenReturn(true);
+        m.process(job);
+        verify(sender, times(1)).send(anyString(), anyString(), anyString(), anyString(), anyString(), any());
+
+        // Second: not claimed -> skip
+        reset(sender);
+        when(idem.claim(any())).thenReturn(false);
+        m.process(job);
+        verifyNoInteractions(sender);
     }
 }
+

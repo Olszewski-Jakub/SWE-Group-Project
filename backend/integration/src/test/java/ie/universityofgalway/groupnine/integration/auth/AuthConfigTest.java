@@ -1,6 +1,7 @@
 package ie.universityofgalway.groupnine.integration.auth;
 
 import ie.universityofgalway.groupnine.domain.session.Session;
+import ie.universityofgalway.groupnine.integration.config.AuthConfig;
 import ie.universityofgalway.groupnine.security.config.props.AuthProps;
 import ie.universityofgalway.groupnine.service.audit.port.AuditEventPort;
 import ie.universityofgalway.groupnine.service.auth.factory.RefreshTokenFactory;

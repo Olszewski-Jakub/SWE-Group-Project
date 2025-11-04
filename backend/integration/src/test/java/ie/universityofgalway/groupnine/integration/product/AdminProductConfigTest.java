@@ -1,5 +1,8 @@
 package ie.universityofgalway.groupnine.integration.product;
 
+import ie.universityofgalway.groupnine.domain.product.Product;
+import ie.universityofgalway.groupnine.domain.product.VariantId;
+import ie.universityofgalway.groupnine.integration.config.AdminProductConfig;
 import ie.universityofgalway.groupnine.service.product.port.ProductPort;
 import ie.universityofgalway.groupnine.service.product.admin.usecase.*;
 import org.junit.jupiter.api.Test;
@@ -7,6 +10,8 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -21,6 +26,12 @@ class AdminProductConfigTest {
             @Override public org.springframework.data.domain.Page<ie.universityofgalway.groupnine.domain.product.Product> findAvailableByCategory(String category, org.springframework.data.domain.Pageable pageable){return org.springframework.data.domain.Page.empty();}
             @Override public org.springframework.data.domain.Page<ie.universityofgalway.groupnine.domain.product.Product> search(ie.universityofgalway.groupnine.domain.product.SearchQuery query, org.springframework.data.domain.Pageable pageable){return org.springframework.data.domain.Page.empty();}
             @Override public java.util.Optional<ie.universityofgalway.groupnine.domain.product.Product> findById(ie.universityofgalway.groupnine.domain.product.ProductId id){return java.util.Optional.empty();}
+
+            @Override
+            public Optional<Product> findByVariantId(VariantId id) {
+                return Optional.empty();
+            }
+
             @Override public org.springframework.data.domain.Page<ie.universityofgalway.groupnine.domain.product.Product> listAll(org.springframework.data.domain.Pageable pageable){return org.springframework.data.domain.Page.empty();}
             @Override public boolean productExistsByUuid(java.util.UUID uuid){return false;}
             @Override public ie.universityofgalway.groupnine.domain.product.Product saveProduct(ie.universityofgalway.groupnine.domain.product.Product product){return product;}
