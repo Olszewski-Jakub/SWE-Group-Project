@@ -1,4 +1,4 @@
-name: Frontend CI
+name: Deploy Frontend - Production
 
 on:
   workflow_call:
