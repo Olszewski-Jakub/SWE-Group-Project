@@ -33,7 +33,8 @@ import java.nio.charset.StandardCharsets;
 @Configuration
 @EnableConfigurationProperties({
         ie.universityofgalway.groupnine.security.config.props.AppSecurityProps.class,
-        ie.universityofgalway.groupnine.security.config.props.AuthProps.class
+        ie.universityofgalway.groupnine.security.config.props.AuthProps.class,
+        ie.universityofgalway.groupnine.security.config.props.GoogleOAuthProps.class
 })
 public class SecurityConfig {
 

@@ -6,7 +6,7 @@ import ie.universityofgalway.groupnine.delivery.rest.product.dto.ProductRequest;
 import ie.universityofgalway.groupnine.delivery.rest.product.dto.StockDto;
 import ie.universityofgalway.groupnine.delivery.rest.product.dto.VariantRequest;
 import ie.universityofgalway.groupnine.delivery.rest.rbac.RbacTestSecurityConfig;
-import ie.universityofgalway.groupnine.delivery.rest.util.Routes;
+import ie.universityofgalway.groupnine.util.Routes;
 import ie.universityofgalway.groupnine.domain.product.Money;
 import ie.universityofgalway.groupnine.domain.product.Product;
 import ie.universityofgalway.groupnine.domain.product.ProductId;

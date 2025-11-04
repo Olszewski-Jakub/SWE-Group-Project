@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.util.UUID;
 
-import static ie.universityofgalway.groupnine.delivery.rest.util.Routes.PRODUCT_MANAGEMENT;
+import static ie.universityofgalway.groupnine.util.Routes.PRODUCT_MANAGEMENT;
 
 @RestController
 @RequestMapping(PRODUCT_MANAGEMENT)

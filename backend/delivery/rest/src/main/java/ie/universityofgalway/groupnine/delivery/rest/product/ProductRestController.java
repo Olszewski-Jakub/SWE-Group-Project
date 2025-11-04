@@ -25,7 +25,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import java.time.OffsetDateTime;
 import java.util.NoSuchElementException;
 
-import static ie.universityofgalway.groupnine.delivery.rest.util.Routes.PRODUCTS;
+import static ie.universityofgalway.groupnine.util.Routes.PRODUCTS;
 
 /**
  * REST controller exposing read-only product endpoints.

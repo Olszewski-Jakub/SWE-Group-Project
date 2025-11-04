@@ -1,7 +1,7 @@
 package ie.universityofgalway.groupnine.delivery.rest.auth;
 
 import ie.universityofgalway.groupnine.delivery.rest.auth.dto.ForgotPasswordRequest;
-import ie.universityofgalway.groupnine.delivery.rest.util.Routes;
+import ie.universityofgalway.groupnine.util.Routes;
 import ie.universityofgalway.groupnine.service.auth.usecase.RequestPasswordResetUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

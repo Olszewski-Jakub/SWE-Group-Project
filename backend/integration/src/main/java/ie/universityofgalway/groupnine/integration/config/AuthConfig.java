@@ -18,6 +18,12 @@ import ie.universityofgalway.groupnine.service.auth.usecase.LogoutUseCase;
 import ie.universityofgalway.groupnine.service.auth.usecase.RefreshUseCase;
 import ie.universityofgalway.groupnine.service.auth.usecase.RegisterUserUseCase;
 import ie.universityofgalway.groupnine.service.auth.usecase.VerifyEmailUseCase;
+import ie.universityofgalway.groupnine.service.auth.usecase.SocialLoginUseCase;
+import ie.universityofgalway.groupnine.service.auth.usecase.GoogleOAuthFlowUseCase;
+import ie.universityofgalway.groupnine.service.auth.port.GoogleOAuthClientPort;
+import ie.universityofgalway.groupnine.service.auth.port.GoogleOAuthConfigPort;
+import ie.universityofgalway.groupnine.service.auth.port.OAuthStatePort;
+import ie.universityofgalway.groupnine.service.auth.port.OAuthAccountRepositoryPort;
 import ie.universityofgalway.groupnine.service.auth.usecase.RequestPasswordResetUseCase;
 import ie.universityofgalway.groupnine.service.auth.usecase.ResetPasswordUseCase;
 import ie.universityofgalway.groupnine.service.auth.usecase.ChangePasswordUseCase;
@@ -232,5 +238,38 @@ public class AuthConfig {
             @Autowired UserRepositoryPort userRepository
     ) {
         return new ie.universityofgalway.groupnine.service.auth.usecase.GetUserRolesUseCase(userRepository);
+    }
+
+    @Bean
+    public SocialLoginUseCase socialLoginUseCase(
+            @Autowired UserRepositoryPort userRepository,
+            @Autowired SessionRepositoryPort sessionRepository,
+            @Autowired JwtAccessTokenPort jwtAccessTokenPort,
+            @Autowired RefreshTokenFactory refreshTokenFactory,
+            @Autowired AuditEventPort auditEventPort,
+            @Autowired ClockPort clock,
+            @Autowired AuthProps authProps
+    ) {
+        return new SocialLoginUseCase(
+                userRepository,
+                sessionRepository,
+                jwtAccessTokenPort,
+                refreshTokenFactory,
+                auditEventPort,
+                clock,
+                java.time.Duration.ofDays(authProps.getRefreshTtlDays())
+        );
+    }
+
+    @Bean
+    public GoogleOAuthFlowUseCase googleOAuthFlowUseCase(
+            @Autowired GoogleOAuthConfigPort cfg,
+            @Autowired OAuthStatePort state,
+            @Autowired GoogleOAuthClientPort google,
+            @Autowired SocialLoginUseCase socialLogin,
+            @Autowired UserRepositoryPort users,
+            @Autowired OAuthAccountRepositoryPort oauthAccounts
+    ) {
+        return new GoogleOAuthFlowUseCase(cfg, state, google, socialLogin, users, oauthAccounts);
     }
 }

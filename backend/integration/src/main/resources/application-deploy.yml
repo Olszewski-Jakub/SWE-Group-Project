@@ -60,6 +60,13 @@ app:
       backoff-factor: ${BRUTEFORCE_BACKOFF_FACTOR:2.0}
       backoff-max-seconds: ${BRUTEFORCE_BACKOFF_MAX_SECONDS:3600}
   base-url: https://stack-over-flowed-cup.jakubolszewski.dev
+  oauth:
+    google:
+      client-id: ${GOOGLE_CLIENT_ID:}
+      client-secret: ${GOOGLE_CLIENT_SECRET:}
+      redirect-uri: ${GOOGLE_REDIRECT_URI:${app.base-url}/auth/oauth/google/callback}
+      scopes: ${GOOGLE_SCOPES:openid,email,profile}
+      allowed-redirects: ${GOOGLE_ALLOWED_REDIRECTS:https://stack-over-flowed-cup.jakubolszewski.dev}
   auth:
     refresh-ttl-days: ${REFRESH_TOKEN_TTL_DAYS:14}
     refresh-cookie-name: ${REFRESH_TOKEN_COOKIE_NAME:refreshToken}

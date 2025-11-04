@@ -63,6 +63,9 @@ app:
   auth:
     refresh-ttl-days: ${REFRESH_TOKEN_TTL_DAYS:14}
     refresh-cookie-name: ${REFRESH_TOKEN_COOKIE_NAME:refreshToken}
+    # Dev-friendly cookie flags: allow HTTP and same-site requests during local development
+    cookie-secure: ${APP_AUTH_COOKIE_SECURE:false}
+    cookie-same-site: ${APP_AUTH_COOKIE_SAMESITE:Lax}
   flyway:
     repair-on-start: true
   checkout:
@@ -74,7 +77,13 @@ app:
   reservations:
     ttl-seconds: ${RESERVATION_TTL_SECONDS:1800}
   base-url: https://stack-over-flowed-cup.jakubolszewski.dev
-
+  oauth:
+    google:
+      client-id: ${GOOGLE_CLIENT_ID:}
+      client-secret: ${GOOGLE_CLIENT_SECRET:}
+      redirect-uri: ${GOOGLE_REDIRECT_URI}/auth/oauth/google/callback
+      scopes: ${GOOGLE_SCOPES:openid,email,profile}
+      allowed-redirects: ${GOOGLE_ALLOWED_REDIRECTS:https://stack-over-flowed-cup.jakubolszewski.dev}
 mailjet:
   apiKey: ${MAILJET_API_KEY:}
   apiSecret: ${MAILJET_API_SECRET:}
@@ -87,4 +96,3 @@ stripe:
   webhook-secret: ${STRIPE_WEBHOOK_SECRET:}
 flyway:
   repair-on-start: true
-

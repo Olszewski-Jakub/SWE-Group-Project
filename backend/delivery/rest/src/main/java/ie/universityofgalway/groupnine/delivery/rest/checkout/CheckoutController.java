@@ -2,12 +2,11 @@ package ie.universityofgalway.groupnine.delivery.rest.checkout;
 
 import ie.universityofgalway.groupnine.delivery.rest.checkout.dto.CheckoutSessionRequest;
 import ie.universityofgalway.groupnine.delivery.rest.checkout.dto.CheckoutSessionResponse;
-import ie.universityofgalway.groupnine.delivery.rest.util.Routes;
+import ie.universityofgalway.groupnine.util.Routes;
 import ie.universityofgalway.groupnine.delivery.rest.util.auth.AccessTokenUserResolver;
 import ie.universityofgalway.groupnine.domain.cart.CartId;
 import ie.universityofgalway.groupnine.domain.user.User;
 import ie.universityofgalway.groupnine.service.payments.usecase.StartCheckoutUseCase;
-import ie.universityofgalway.groupnine.util.url.UrlUtility;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;

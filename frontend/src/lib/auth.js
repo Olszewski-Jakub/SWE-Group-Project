@@ -56,3 +56,22 @@ export async function requestPasswordReset({ email, locale }) {
   const res = await axiosClient.post('/auth/forgot-password', payload);
   return res?.data ?? null; // { message }
 }
+
+// Build Google OAuth authorize URL, optionally overriding the post-login redirect
+export function getGoogleAuthorizeUrl(redirectTo) {
+  const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || '';
+  let appOrigin = '';
+  try { appOrigin = typeof window !== 'undefined' ? window.location.origin : ''; } catch (_) {}
+  const finalRedirect = redirectTo || (appOrigin ? `${appOrigin}/signin/redirect` : '/signin/redirect');
+  const redirect = encodeURIComponent(finalRedirect);
+  return `${apiBase}/auth/oauth/google/authorize/redirect?redirect=${redirect}`;
+}
+
+// Start Google OAuth by navigating the browser to the authorize URL
+export function startGoogleLogin(redirectTo) {
+  const url = getGoogleAuthorizeUrl(redirectTo);
+  if (typeof window !== 'undefined') {
+    window.location.assign(url);
+  }
+  return url;
+}
