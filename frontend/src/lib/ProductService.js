@@ -14,7 +14,6 @@ import axiosClient from './axiosClient';
  * @returns {Promise<any>} A promise that resolves to the paginated product data.
  * @throws {Error} If the network response is not OK.
  */
-
 export const getProducts = async (page = 0, size = 9) => {
   try {
     const response = await axiosClient.get(`/products?page=${page}&size=${size}`);
