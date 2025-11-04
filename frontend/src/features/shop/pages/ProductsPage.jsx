@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import ProductsGrid from '../components/ProductsGrid';
 import { getProducts, postSearch } from '../../../lib/ProductService';
 import { CATEGORIES, SORT_OPTIONS, ATTRIBUTE_FILTERS } from '@/constants/productFilters';
@@ -34,11 +34,76 @@ export default function ProductsPage() {
   const [sortRule, setSortRule] = useState('');
   const [attributeFilters, setAttributeFilters] = useState({});
 
+  // Debounces
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+  const [debouncedMinPrice, setDebouncedMinPrice] = useState('');
+  const [debouncedMaxPrice, setDebouncedMaxPrice] = useState('');
+
   // Mobile filters toggle
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
+  // Ref to store the debounce timers
+  const searchDebounceTimerRef = useRef(null);
+  const priceDebounceTimerRef = useRef(null);
+
   // Check if any filters are active
-  const hasActiveFilters = searchTerm || selectedCategory || minPrice || maxPrice || sortRule || Object.keys(attributeFilters).length > 0;
+  const hasActiveFilters = debouncedSearchTerm || selectedCategory || debouncedMinPrice || debouncedMaxPrice || sortRule || Object.keys(attributeFilters).length > 0;
+
+  /**
+   * Debounce the search term input
+   * Updates debouncedSearchTerm after 500ms of no typing
+   */
+  useEffect(() => {
+    // Clear any existing timer
+    if (searchDebounceTimerRef.current) {
+      clearTimeout(searchDebounceTimerRef.current);
+    }
+
+    // Set a new timer to update the debounced value
+    searchDebounceTimerRef.current = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+      // Reset to first page when search term changes
+      if (searchTerm !== debouncedSearchTerm) {
+        setCurrentPage(0);
+      }
+    }, 500); // 500ms delay
+
+    // Cleanup function to clear timer if component unmounts or searchTerm changes
+    return () => {
+      if (searchDebounceTimerRef.current) {
+        clearTimeout(searchDebounceTimerRef.current);
+      }
+    };
+  }, [searchTerm]);
+
+
+/**
+   * Debounce the price inputs
+   * Updates debouncedMinPrice and debouncedMaxPrice after 500ms of no typing
+   */
+  useEffect(() => {
+    // Clear any existing timer
+    if (priceDebounceTimerRef.current) {
+      clearTimeout(priceDebounceTimerRef.current);
+    }
+
+    // Set a new timer to update the debounced values
+    priceDebounceTimerRef.current = setTimeout(() => {
+      setDebouncedMinPrice(minPrice);
+      setDebouncedMaxPrice(maxPrice);
+      // Reset to first page when prices change
+      if (minPrice !== debouncedMinPrice || maxPrice !== debouncedMaxPrice) {
+        setCurrentPage(0);
+      }
+    }, 500); // 500ms delay
+
+    // Cleanup function to clear timer if component unmounts or prices change
+    return () => {
+      if (priceDebounceTimerRef.current) {
+        clearTimeout(priceDebounceTimerRef.current);
+      }
+    };
+  }, [minPrice, maxPrice]); // Depend on both price inputs
 
   // The useEffect hook now depends on `currentPage`
   // It will re-run whenever `currentPage` changes.
@@ -55,10 +120,10 @@ export default function ProductsPage() {
               .map(([name, values]) => ({ name, values }));
           
             const searchQuery = {
-              key: searchTerm || null,
+              key: debouncedSearchTerm || null,
               category: selectedCategory || null,
-              minPriceCents: minPrice ? Math.round(parseFloat(minPrice) * 100) : null,
-              maxPriceCents: maxPrice ? Math.round(parseFloat(maxPrice) * 100) : null,
+              minPriceCents: debouncedMinPrice ? Math.round(parseFloat(debouncedMinPrice) * 100) : null,
+              maxPriceCents: debouncedMaxPrice ? Math.round(parseFloat(debouncedMaxPrice) * 100) : null,
               sortRule: sortRule || null,
               attributeFilters: attributeFiltersArray.length > 0 ? attributeFiltersArray : null,
           };
@@ -80,7 +145,7 @@ export default function ProductsPage() {
     };
 
     fetchProducts();
-  }, [currentPage, searchTerm, selectedCategory, minPrice, maxPrice, sortRule, attributeFilters, hasActiveFilters, size]); 
+  }, [currentPage, debouncedSearchTerm, selectedCategory, debouncedMinPrice, debouncedMaxPrice, sortRule, attributeFilters, hasActiveFilters, size]); 
 
   /**
    * Toggle a value inside attributeFilters[attributeName].
@@ -116,10 +181,10 @@ export default function ProductsPage() {
    * Clear all filters and reset to first page
    */
   const handleClearFilters = () => {
-    setSearchTerm('');
+    setDebouncedSearchTerm('');
     setSelectedCategory('');
-    setMinPrice('');
-    setMaxPrice('');
+    setDebouncedMinPrice('');
+    setDebouncedMaxPrice('');
     setSortRule('');
     setAttributeFilters({});
     setCurrentPage(0);
@@ -187,20 +252,14 @@ export default function ProductsPage() {
             type="number"
             placeholder="Min Price €"
             value={minPrice}
-            onChange={(e) => {
-              setMinPrice(e.target.value);
-              setCurrentPage(0);
-            }}
+            onChange={(e) => setMinPrice(e.target.value)}
             className="w-full px-4 py-2 border border-[#B6771D] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7B542F]"
           />
           <input
             type="number"
             placeholder="Max Price €"
             value={maxPrice}
-            onChange={(e) => {
-              setMaxPrice(e.target.value);
-              setCurrentPage(0);
-            }}
+            onChange={(e) => setMaxPrice(e.target.value)}
             className="w-full px-4 py-2 border border-[#B6771D] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7B542F]"
           />
         </div>
@@ -250,10 +309,7 @@ export default function ProductsPage() {
               type="text"
               placeholder="Search products..."
               value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setCurrentPage(0);
-              }}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="flex-1 px-4 py-3 border border-[#B6771D] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7B542F]"
             />
             {/* Mobile Filters Button - Hidden on desktop (lg breakpoint) */}
