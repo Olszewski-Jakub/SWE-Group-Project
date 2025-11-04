@@ -17,7 +17,7 @@ import axiosClient from './axiosClient';
 
 export const getProducts = async (page = 0, size = 9) => {
   try {
-    const response = await axiosClient.get(`/api/v1/products?page=${page}&size=${size}`);
+    const response = await axiosClient.get(`/products?page=${page}&size=${size}`);
     
     // With axios, the data is directly on the `data` property
     return response.data;
@@ -54,7 +54,7 @@ export const postSearch = async (page = 0, size = 9, searchQuery = {}) => {
     };
 
     const response = await axiosClient.post(
-      `/api/v1/products/search?page=${page}&size=${size}`,
+      `/products/search?page=${page}&size=${size}`,
       requestBody
     );
     
