@@ -1,4 +1,4 @@
-name:  Deploy Frontend - Staging
+name:  Deploy Backend - Staging
 
 on:
   workflow_call:
