@@ -4,7 +4,7 @@ import ie.universityofgalway.groupnine.delivery.rest.auth.dto.LoginRequest;
 import ie.universityofgalway.groupnine.delivery.rest.auth.dto.RegisterRequest;
 import ie.universityofgalway.groupnine.delivery.rest.auth.dto.TokenResponse;
 import ie.universityofgalway.groupnine.delivery.rest.auth.dto.VerifyRequest;
-import ie.universityofgalway.groupnine.delivery.rest.util.Routes;
+import ie.universityofgalway.groupnine.util.Routes;
 import ie.universityofgalway.groupnine.domain.auth.exception.InvalidRefreshToken;
 import ie.universityofgalway.groupnine.security.config.props.AuthProps;
 import ie.universityofgalway.groupnine.service.auth.usecase.LoginUseCase;
@@ -172,8 +172,8 @@ public class AuthController {
         long maxAge = java.time.Duration.ofDays(authProps.getRefreshTtlDays()).getSeconds();
         return ResponseCookie.from(authProps.getRefreshCookieName(), token)
                 .httpOnly(true)
-                .secure(true)
-                .sameSite("None")
+                .secure(authProps.isCookieSecure())
+                .sameSite(authProps.getCookieSameSite())
                 .path(Routes.AUTH + "/refresh")
                 .maxAge(maxAge)
                 .build();
@@ -182,8 +182,8 @@ public class AuthController {
     private ResponseCookie clearRefreshCookie() {
         return ResponseCookie.from(authProps.getRefreshCookieName(), "")
                 .httpOnly(true)
-                .secure(true)
-                .sameSite("None")
+                .secure(authProps.isCookieSecure())
+                .sameSite(authProps.getCookieSameSite())
                 .path(Routes.AUTH + "/refresh")
                 .maxAge(0)
                 .build();

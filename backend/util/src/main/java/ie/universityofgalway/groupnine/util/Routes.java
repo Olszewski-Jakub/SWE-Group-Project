@@ -1,4 +1,4 @@
-package ie.universityofgalway.groupnine.delivery.rest.util;
+package ie.universityofgalway.groupnine.util;
 
 /**
  * Centralized API route constants to ensure a single source of truth

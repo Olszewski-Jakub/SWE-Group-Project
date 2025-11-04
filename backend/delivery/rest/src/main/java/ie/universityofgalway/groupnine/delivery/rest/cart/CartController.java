@@ -3,7 +3,7 @@ package ie.universityofgalway.groupnine.delivery.rest.cart;
 import ie.universityofgalway.groupnine.delivery.rest.cart.dto.AddCartItemRequest;
 import ie.universityofgalway.groupnine.delivery.rest.cart.dto.CartResponse;
 import ie.universityofgalway.groupnine.delivery.rest.cart.dto.UpdateCartItemQuantityRequest;
-import ie.universityofgalway.groupnine.delivery.rest.util.Routes;
+import ie.universityofgalway.groupnine.util.Routes;
 import ie.universityofgalway.groupnine.delivery.rest.util.auth.AccessTokenUserResolver;
 import ie.universityofgalway.groupnine.domain.cart.CartId;
 import ie.universityofgalway.groupnine.domain.cart.ShoppingCart;
