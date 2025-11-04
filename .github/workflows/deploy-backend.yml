@@ -1,4 +1,4 @@
-name: Backend CI/CD
+name:  Deploy Frontend - Staging
 
 on:
   workflow_call:
@@ -165,7 +165,11 @@ jobs:
             fi
 
             echo "Deploying new version to $NEW_VERSION..."
-            sudo docker compose -f ${{ vars.DOCKER_COMPOSE_FILE }} up -d swe-backend-$NEW_VERSION --remove-orphans
+            # Always pull the latest image for the target service
+            sudo docker compose -f ${{ vars.DOCKER_COMPOSE_FILE }} pull swe-backend-$NEW_VERSION
+            
+            # Recreate the container to ensure the new image is used
+            sudo docker compose -f ${{ vars.DOCKER_COMPOSE_FILE }} up -d --no-deps --force-recreate swe-backend-$NEW_VERSION --remove-orphans
 
             # Health check with retry logic and incremental
             max_retries=15
