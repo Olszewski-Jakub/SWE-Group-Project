@@ -15,8 +15,8 @@ export default function ProductCard({ product }) {
   const price = firstVariant
     ? new Intl.NumberFormat('en-IE', { // Use Irish English locale for Euro formatting.
         style: 'currency',
-        currency: firstVariant.price.currency || 'EUR', // Use currency from data, or default to EUR.
-      }).format(firstVariant.price.amount)
+        currency: firstVariant.currency || 'EUR', // Use currency from data, or default to EUR.
+      }).format(firstVariant.priceCents/100)
     : 'Not available';
 
   return (
