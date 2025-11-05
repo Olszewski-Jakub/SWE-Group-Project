@@ -23,7 +23,7 @@ public class TokenCookieFactory {
                 .httpOnly(true)
                 .secure(authProps.isCookieSecure())
                 .sameSite(authProps.getCookieSameSite())
-                .path(AUTH + "/refresh")
+                .path(authProps.getCookieBasePath() + "/auth/refresh")
                 .maxAge(maxAge)
                 .build();
     }
@@ -39,4 +39,3 @@ public class TokenCookieFactory {
                 .build();
     }
 }
-
