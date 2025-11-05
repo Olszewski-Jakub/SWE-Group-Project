@@ -17,12 +17,14 @@ export default function LoginRedirectPage() {
         const hash = typeof window !== 'undefined' ? window.location.hash : '';
         const params = new URLSearchParams((hash || '').replace(/^#/, ''));
         const token = params.get('accessToken');
-        const refresh = params.get('refreshToken');
+        const refreshTok = params.get('refreshToken');
         if (token) {
           setAccessToken(token);
-          if (refresh) setRefreshToken(refresh);
+          if (refreshTok) setRefreshToken(refreshTok);
           // Clean up the hash to avoid leaking tokens in history
           try { window.history.replaceState(null, '', window.location.pathname + window.location.search); } catch (_) {}
+          // Sync auth context (user/roles) and schedule proactive refresh
+          try { await refresh(); } catch (_) {}
         } else {
           // Fallback: rely on refresh cookie to obtain an access token
           await refresh();
