@@ -1,15 +1,17 @@
-import axiosClient, { setAccessToken, loadTokenFromStorage, refreshAccessTokenAndStore } from './axiosClient';
+import axiosClient, { setAccessToken, setRefreshToken, loadTokenFromStorage, loadRefreshFromStorage, refreshAccessTokenAndStore } from './axiosClient';
 
 export function bootstrapToken({ onRefreshSchedule } = {}) {
   const token = loadTokenFromStorage();
+  loadRefreshFromStorage();
   if (token) setAccessToken(token, { onRefreshSchedule });
   return token;
 }
 
 export async function signIn({ email, password }, { onRefreshSchedule } = {}) {
   const res = await axiosClient.post('/auth/login', { email, password });
-  const { accessToken, user } = res.data || {};
+  const { accessToken, refreshToken, user } = res.data || {};
   if (accessToken) setAccessToken(accessToken, { onRefreshSchedule });
+  if (refreshToken) setRefreshToken(refreshToken);
   return { user: user || null, accessToken: accessToken || null };
 }
 
@@ -21,11 +23,13 @@ export async function signUp({ firstName, lastName, email, password }) {
 export async function signOut() {
   try { await axiosClient.post('/auth/logout'); } catch (_) {}
   setAccessToken(null);
+  setRefreshToken(null);
 }
 
 export async function signOutAll() {
   try { await axiosClient.post('/auth/logout-all'); } catch (_) {}
   setAccessToken(null);
+  setRefreshToken(null);
 }
 
 export async function refresh({ onRefreshSchedule } = {}) {

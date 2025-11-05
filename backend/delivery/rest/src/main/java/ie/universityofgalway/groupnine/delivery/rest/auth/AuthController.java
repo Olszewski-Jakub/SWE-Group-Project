@@ -172,7 +172,7 @@ public class AuthController {
         long maxAge = java.time.Duration.ofDays(authProps.getRefreshTtlDays()).getSeconds();
         return ResponseCookie.from(authProps.getRefreshCookieName(), token)
                 .httpOnly(true)
-                .secure(authProps.isCookieSecure())
+                .secure(false)
                 .sameSite(authProps.getCookieSameSite())
                 .path(authProps.getCookieBasePath() + "/auth/refresh")
                 .maxAge(maxAge)

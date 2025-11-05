@@ -63,7 +63,7 @@ public class GoogleOAuthController {
         ResponseCookie accessCookie = cookieFactory.buildAccessCookie(result.accessToken());
         String redirectTarget = result.redirectTarget();
         if (redirectTarget != null) {
-            String html = buildLocalStorageRedirectHtml(result.accessToken(), result.expiresInSeconds(), redirectTarget);
+            String html = buildLocalStorageRedirectHtml(result.accessToken(), result.refreshToken(), result.expiresInSeconds(), redirectTarget);
             return ResponseEntity.ok()
                     .contentType(MediaType.TEXT_HTML)
                     .header(org.springframework.http.HttpHeaders.CACHE_CONTROL, "no-store, no-cache, must-revalidate")
@@ -98,13 +98,17 @@ public class GoogleOAuthController {
         }
     }
 
-    private String buildLocalStorageRedirectHtml(String accessToken, long expiresInSeconds, String redirect) {
+    private String buildLocalStorageRedirectHtml(String accessToken, String refreshToken, long expiresInSeconds, String redirect) {
         String safeToken = jsonString(accessToken == null ? "" : accessToken);
+        String safeRefresh = jsonString(refreshToken == null ? "" : refreshToken);
         String safeRedirect = jsonString(redirect == null ? "/" : redirect);
         return "<!doctype html><html><head><meta charset=\"utf-8\"><title>Signing In…</title></head>" +
                 "<body><script>(function(){" +
-                "try{localStorage.setItem('accessToken'," + safeToken + ");localStorage.setItem('accessTokenExpiresIn','" + expiresInSeconds + "');}catch(e){console.error('ls_error',e);}" +
-                "window.location.replace(" + safeRedirect + ");})();</script>" +
+                // Build redirect with hash tokens for first-party storage on the app origin
+                "var u=" + safeRedirect + ";" +
+                "var h='#accessToken=' + encodeURIComponent(" + safeToken + ") + '&refreshToken=' + encodeURIComponent(" + safeRefresh + ") + '&expiresIn=" + expiresInSeconds + "';" +
+                "try{sessionStorage.setItem('postLoginRedirect','1');}catch(e){}" +
+                "window.location.replace(u + h);})();</script>" +
                 "<noscript>Login completed. Please enable JavaScript to continue.</noscript>" +
                 "</body></html>";
     }

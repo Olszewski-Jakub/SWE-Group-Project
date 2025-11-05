@@ -3,6 +3,7 @@ import { getJwtExp } from './jwt';
 
 // In-memory token + localStorage mirror (with one-time sessionStorage migration)
 let accessToken = null;
+let refreshTokenMem = null;
 let refreshPromise = null;
 let logoutHandler = null;
 let proactiveTimerId = null;
@@ -14,6 +15,10 @@ export function setLogoutHandler(handler) {
 
 export function getAccessToken() {
   return accessToken;
+}
+
+export function getRefreshToken() {
+  return refreshTokenMem;
 }
 
 // Prefer localStorage; migrate from sessionStorage if present
@@ -31,6 +36,18 @@ export function loadTokenFromStorage() {
       }
     }
     if (t) accessToken = t;
+    return t || null;
+  } catch (_) {
+    return null;
+  }
+}
+
+export function loadRefreshFromStorage() {
+  try {
+    if (typeof window === 'undefined') return null;
+    // Use sessionStorage for refresh to keep it more ephemeral
+    const t = sessionStorage.getItem('refreshToken');
+    if (t) refreshTokenMem = t;
     return t || null;
   } catch (_) {
     return null;
@@ -82,6 +99,16 @@ export function setAccessToken(token, { persist = true, onRefreshSchedule } = {}
   }
 }
 
+export function setRefreshToken(token) {
+  refreshTokenMem = token || null;
+  try {
+    if (typeof window !== 'undefined') {
+      if (token) sessionStorage.setItem('refreshToken', token);
+      else sessionStorage.removeItem('refreshToken');
+    }
+  } catch (_) {}
+}
+
 // Base URL:
 // - local: set via NEXT_PUBLIC_API_BASE_URL (e.g., http://localhost:4000)
 // - dev/prod: leave empty to use same-origin relative paths or reverse proxy
@@ -105,9 +132,23 @@ axiosClient.interceptors.request.use((config) => {
 async function performRefresh() {
   if (!refreshPromise) {
     refreshPromise = axios
-      .post(`${baseURL}/auth/refresh`, {}, { withCredentials: true })
+      .post(
+        `${baseURL}/auth/refresh`,
+        {},
+        {
+          withCredentials: true,
+          headers: (() => {
+            const h = {};
+            const rt = getRefreshToken();
+            if (rt) h['X-Refresh-Token'] = rt;
+            return h;
+          })(),
+        }
+      )
       .then((res) => {
         const newToken = res?.data?.accessToken;
+        const newRefresh = res?.data?.refreshToken;
+        if (newRefresh) setRefreshToken(newRefresh);
         if (!newToken) throw new Error('No access token from refresh');
         // setAccessToken is called by consumer to re-schedule proactive refresh
         return newToken;
