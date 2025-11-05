@@ -2,10 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { CATEGORIES } from "@/constants/productFilters";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { COFFEE_CATEGORIES } from "@/constants/coffeeCategories";
 import VariantInfo from "./VariantInfo";
 
 export default function ProductInfo({ product }) {
+  const router = useRouter();
   // Normalize variants to avoid crashes when product.variants is missing.
   const variants = (product && Array.isArray(product.variants)) ? product.variants : [];
 
@@ -23,29 +26,66 @@ export default function ProductInfo({ product }) {
     [variants, variantIndex]
   );
 
+  // Category label mapping using coffee categories constant
+  const categoryLabel = useMemo(() => {
+    const toLabel = (val) => {
+      if (!val) return "";
+      const found = COFFEE_CATEGORIES.find((c) => c.value === val);
+      if (found) return found.label;
+      if (typeof val === "string") {
+        return val.replaceAll("_", " ").replace(/\b\w/g, (ch) => ch.toUpperCase());
+      }
+      return String(val);
+    };
+    const cat = product?.category;
+    if (Array.isArray(cat)) return cat.map(toLabel).filter(Boolean).join(", ");
+    return toLabel(cat);
+  }, [product?.category]);
+
+  // Build absolute image URLs; prefer selected variant image when available
+  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "";
+  const toAbsoluteUrl = (url) => {
+    if (!url) return null;
+    const isAbsolute = /^(?:[a-z]+:)?\/\//i.test(url) || url.startsWith("data:");
+    if (isAbsolute) return url;
+    const trimmedBase = baseUrl.replace(/\/$/, "");
+    const path = url.startsWith("/") ? url : `/${url}`;
+    return `${trimmedBase}${path}`;
+  };
+
+  const productFallbackImage = useMemo(() => {
+    const raw = product?.urlImage ?? product?.imageUrl ?? product?.image ?? product?.images?.[0]?.url;
+    return toAbsoluteUrl(raw) || "https://coffee.alexflipnote.dev/random";
+  }, [product]);
+
+  const selectedVariantImage = useMemo(() => {
+    const v = selectedVariant;
+    const raw = v?.imageUrl || v?.images?.[0]?.url;
+    return toAbsoluteUrl(raw);
+  }, [selectedVariant]);
+
+  const mainImageUrl = selectedVariantImage || productFallbackImage;
+
   return (
     // Page-level wrapper with responsive horizontal padding and max width
     <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Breadcrumbs or page heading area */}
+      {/* Top bar: back + category */}
       <header className="mb-6">
-        {(() => {
-          const map = (Array.isArray(CATEGORIES) ? CATEGORIES : []).reduce((acc, c) => {
-            if (!c) return acc;
-            const v = (c.value ?? '').toString().toLowerCase();
-            const l = c.label ?? '';
-            if (v) acc[v] = l;
-            if (l) acc[l.toLowerCase()] = l;
-            return acc;
-          }, {});
-          const humanize = (s) => (s || '').toString().replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim().replace(/\b\w/g, (m) => m.toUpperCase());
-          const key = (product?.category || '').toString().toLowerCase();
-          const catLabel = map[key] || humanize(product?.category || '');
-          return (
-            <Link href="/products" className="inline-flex items-center gap-2 text-sm tracking-wide text-[#B6771D]/90 hover:text-[#7B542F]">
-              <span className="uppercase">{catLabel}</span>
-            </Link>
-          );
-        })()}
+        <div className="mb-3 flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="inline-flex items-center gap-2 rounded-md border border-stone-300 bg-white px-3 py-1.5 text-sm text-stone-700 shadow-sm transition-colors hover:bg-stone-50 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
+            aria-label="Go back"
+          >
+            <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fillRule="evenodd" d="M12.78 15.72a.75.75 0 01-1.06 0l-4.5-4.5a.75.75 0 010-1.06l4.5-4.5a.75.75 0 111.06 1.06L8.56 10l4.22 4.22a.75.75 0 010 1.06z" clipRule="evenodd"/></svg>
+            Back
+          </button>
+          <span className="h-5 w-px bg-stone-300" aria-hidden="true" />
+          <Link href="/products" className="inline-flex items-center gap-2 text-sm tracking-wide text-[#B6771D]/90 hover:text-[#7B542F]">
+            <span className="uppercase">{categoryLabel}</span>
+          </Link>
+        </div>
         <h1 className="mt-1 text-2xl font-bold text-[#7B542F]">
           {product?.name}
         </h1>
@@ -57,27 +97,58 @@ export default function ProductInfo({ product }) {
       <section className="grid grid-cols-1 gap-8 lg:grid-cols-12">
         {/* Media column */}
         <div className="lg:col-span-6">
-          {/* Image placeholder */}
-          <div className="relative grid h-80 place-items-center rounded-lg bg-[#FFCF71]/40">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-[#B6771D] opacity-60" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path d="M12.4,6.6c-1.3-1-3.1-1.5-4.9-1.5C4.2,5.1,1,8.3,1,11.7c0,2.5,2.1,4.6,4.6,4.6c2.5,0,4.6-2.1,4.6-4.6c0-0.4,0-0.9-0.1-1.3c1.3,0.3,2.7,0.5,4.1,0.5c3.3,0,6.5-2.2,6.5-5.2C20.7,5.7,17.4,5,12.4,6.6z M7.5,14.3c-1.4,0-2.6-1.2-2.6-2.6c0-1.4,1.2-2.6,2.6-2.6c1.4,0,2.6,1.2,2.6,2.6C10.1,13.1,8.9,14.3,7.5,14.3z M15.2,9.3c-0.8,0-1.5-0.7-1.5-1.5s0.7-1.5,1.5-1.5c0.8,0,1.5,0.7,1.5,1.5S16,9.3,15.2,9.3z" />
-            </svg>
+          {/* Main product/variant image */}
+          <div className="relative overflow-hidden rounded-xl border border-stone-200 bg-gradient-to-br from-[#FFF6E6] to-white shadow-sm">
+            <div className="relative w-full aspect-square">
+              <Image
+                src={mainImageUrl}
+                alt={product?.name || "Product image"}
+                fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                className="object-cover transition-transform duration-300 hover:scale-[1.02]"
+                priority={false}
+                unoptimized
+              />
+            </div>
           </div>
+
+          {/* Variant thumbnails when available */}
+          {variants.some(v => v?.imageUrl || v?.images?.[0]?.url) && (
+            <div className="mt-3 flex gap-2 overflow-x-auto no-scrollbar">
+              {variants.map((v, i) => {
+                const thumb = toAbsoluteUrl(v?.imageUrl || v?.images?.[0]?.url);
+                if (!thumb) return null;
+                const isActive = i === variantIndex;
+                return (
+                  <button
+                    key={v?.sku ?? i}
+                    type="button"
+                    onClick={() => setVariantIndex(i)}
+                    className={`relative h-16 w-16 flex-none overflow-hidden rounded-md border ${isActive ? 'border-[#B6771D] ring-2 ring-[#FF9D00]' : 'border-stone-300'}`}
+                    aria-label={`Select variant ${v?.sku ?? i+1}`}
+                  >
+                    <Image src={thumb} alt={v?.sku || `Variant ${i+1}`} fill className="object-cover" sizes="64px" unoptimized />
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Details column */}
         <div className="lg:col-span-6">
           {/* Description */}
-          <p className="text-base leading-relaxed text-gray-700">
-            {product?.description}
-          </p>
+          <section className="rounded-xl border border-stone-200 bg-white/70 p-4 shadow-sm backdrop-blur">
+            <h2 className="mb-2 text-sm font-semibold tracking-wide text-stone-900">Description</h2>
+            <p className="text-[15px] leading-7 text-stone-700">
+              {product?.description || "No description available for this product."}
+            </p>
+          </section>
 
-          {/* Variant selector: accessible tabs pattern */}
+          {/* Variant selector */}
           {variants.length > 0 && (
             <div className="mt-6 space-y-2">
               <span className="text-sm font-medium text-gray-900">Select variant:</span>
-
-              {/* role=tablist groups the variant "tabs" for screen readers */}
               <div
                 role="tablist"
                 aria-label="Product variants"
@@ -114,6 +185,12 @@ export default function ProductInfo({ product }) {
               </div>
             </div>
           )}
+          {/* Quick meta under selector */}
+          {selectedVariant && (
+            <div className="mt-2 text-xs text-stone-600">
+              <span className="font-medium text-stone-800">SKU:</span> {selectedVariant.sku || "N/A"}
+            </div>
+          )}
 
           {/* Selected variant details */}
           {selectedVariant && (
@@ -128,7 +205,8 @@ export default function ProductInfo({ product }) {
           )}
 
 
-            <button className="mt-4 rounded-md bg-[#FF9D00] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-[#B6771D] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF9D00]">
+            <button className="mt-4 inline-flex items-center gap-2 rounded-md bg-[#FF9D00] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-[#B6771D] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF9D00]">
+                <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M3 3.75A.75.75 0 013.75 3h1.5a.75.75 0 01.728.568L6.53 7h9.72a.75.75 0 01.73.954l-1.5 5.25a.75.75 0 01-.73.546H7.28l-.3 1.2a.75.75 0 01-.73.55h-1.5a.75.75 0 010-1.5h.93l1.5-6H4.28l-.53-2.12H3.75a.75.75 0 01-.75-.75z"/></svg>
                 Add to Cart
             </button>
         </div>

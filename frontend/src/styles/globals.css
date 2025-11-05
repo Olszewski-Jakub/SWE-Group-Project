@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* Utility to hide scrollbars for horizontal chip rows */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
 /* Global styles */
 html, body { height: 100%; }
 body { @apply bg-stone-50 text-stone-900; }
