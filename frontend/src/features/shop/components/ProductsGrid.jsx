@@ -20,7 +20,7 @@ export default function ProductsGrid({ products = [] }) {
 
   // If there are products, map over the array to render a card for each one.
   return (
-    <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {products.map((product) => (
         // The `key` prop is crucial for React's performance. It must be a unique
         // identifier, so we use the product's ID.
