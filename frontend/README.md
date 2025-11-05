@@ -37,13 +37,13 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 ---
 
-## Copper Cup Coffee — Auth Frontend
+## StackOverFlowedCup — Auth Frontend
 
 - Base URL: set `NEXT_PUBLIC_API_BASE_URL` for the backend (defaults to `http://localhost:4000`).
 - Tokens: access token is kept in memory and mirrored to `sessionStorage`; refresh token is never stored and is handled via HttpOnly cookie by the backend.
 - Axios: all requests use a secure instance with `withCredentials` and automatic 401 refresh + single-flight queuing.
 - Pages: `/signin`, `/signup`, `/dashboard` (protected), `/admin` (ADMIN only).
-- Navbar: coffee-themed brand (Copper Cup), Home; Dashboard (when signed in); Admin (when `ADMIN`); right side shows Login or a user menu with Logout.
+- Navbar: coffee-themed brand (StackOverFlowedCup), Home; Dashboard (when signed in); Admin (when `ADMIN`); right side shows Login or a user menu with Logout.
 
 ### Run
 

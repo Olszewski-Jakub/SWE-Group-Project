@@ -4,8 +4,8 @@ import Navbar from '../components/layout/Navbar';
 import EnvBadge from '../components/common/EnvBadge';
 
 export const metadata = {
-  title: 'Copper Cup Coffee',
-  description: 'Copper Cup Coffee — artisanal roasts with a smooth shopping experience',
+  title: 'StackOverFlowedCup',
+  description: 'StackOverFlowedCup — artisanal roasts with a smooth shopping experience',
 };
 
 export default function RootLayout({ children }) {
