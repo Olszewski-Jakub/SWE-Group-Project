@@ -36,12 +36,16 @@ export function AuthProvider({ children }) {
     const token = getAccessToken();
     const payload = parseJwt(token) || {};
     if (!token || !payload) return null;
-    const nameParts = [payload.given_name, payload.family_name].filter(Boolean);
+    const firstName = payload.given_name || payload.firstName || payload.givenName || null;
+    const lastName = payload.family_name || payload.lastName || payload.familyName || null;
+    const nameParts = [firstName, lastName].filter(Boolean);
     const name = payload.name || (nameParts.length ? nameParts.join(' ') : undefined);
     return {
       id: payload.userId || payload.id || payload.sub || null,
       email: payload.email || payload.preferred_username || payload.upn || payload.sub || null,
       name: name || null,
+      firstName: firstName || null,
+      lastName: lastName || null,
     };
   }, []);
 
