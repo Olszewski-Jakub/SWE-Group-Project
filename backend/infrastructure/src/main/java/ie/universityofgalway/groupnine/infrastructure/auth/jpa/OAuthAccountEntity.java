@@ -2,6 +2,8 @@ package ie.universityofgalway.groupnine.infrastructure.auth.jpa;
 
 import ie.universityofgalway.groupnine.domain.auth.OAuthProvider;
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -22,6 +24,7 @@ public class OAuthAccountEntity {
 
     // Postgres enum oauth_provider
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "provider", nullable = false, columnDefinition = "oauth_provider")
     private OAuthProvider provider;
 
