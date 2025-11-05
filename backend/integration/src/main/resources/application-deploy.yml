@@ -70,6 +70,9 @@ app:
   auth:
     refresh-ttl-days: ${REFRESH_TOKEN_TTL_DAYS:14}
     refresh-cookie-name: ${REFRESH_TOKEN_COOKIE_NAME:refreshToken}
+    cookie-base-path: /swe
+    cookie-same-site: None
+    cookie-secure: false
   flyway:
     repair-on-start: true
   checkout:

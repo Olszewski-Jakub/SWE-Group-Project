@@ -10,6 +10,7 @@ public class AuthProps {
     private String refreshCookieName = "refreshToken";
     private boolean cookieSecure = true;
     private String cookieSameSite = "None";
+    private String cookieBasePath = "/api/v1";
 
     public int getRefreshTtlDays() {
         return refreshTtlDays;
@@ -41,5 +42,13 @@ public class AuthProps {
 
     public void setCookieSameSite(String cookieSameSite) {
         this.cookieSameSite = cookieSameSite;
+    }
+
+    public String getCookieBasePath() {
+        return cookieBasePath;
+    }
+
+    public void setCookieBasePath(String cookieBasePath) {
+        this.cookieBasePath = cookieBasePath;
     }
 }

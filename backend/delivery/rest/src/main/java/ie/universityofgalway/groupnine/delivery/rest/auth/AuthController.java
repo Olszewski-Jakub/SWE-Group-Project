@@ -174,7 +174,7 @@ public class AuthController {
                 .httpOnly(true)
                 .secure(authProps.isCookieSecure())
                 .sameSite(authProps.getCookieSameSite())
-                .path(Routes.AUTH + "/refresh")
+                .path(authProps.getCookieBasePath() + "/auth/refresh")
                 .maxAge(maxAge)
                 .build();
     }
@@ -184,7 +184,7 @@ public class AuthController {
                 .httpOnly(true)
                 .secure(authProps.isCookieSecure())
                 .sameSite(authProps.getCookieSameSite())
-                .path(Routes.AUTH + "/refresh")
+                .path(authProps.getCookieBasePath() + "/auth/refresh")
                 .maxAge(0)
                 .build();
     }

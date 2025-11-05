@@ -66,6 +66,7 @@ app:
     # Dev-friendly cookie flags: allow HTTP and same-site requests during local development
     cookie-secure: ${APP_AUTH_COOKIE_SECURE:false}
     cookie-same-site: ${APP_AUTH_COOKIE_SAMESITE:Lax}
+    cookie-base-path: /api/v1
   flyway:
     repair-on-start: true
   checkout:
