@@ -21,7 +21,7 @@ public class TokenCookieFactory {
         long maxAge = java.time.Duration.ofDays(authProps.getRefreshTtlDays()).getSeconds();
         return ResponseCookie.from(authProps.getRefreshCookieName(), token)
                 .httpOnly(true)
-                .secure(authProps.isCookieSecure())
+                .secure(false)
                 .sameSite(authProps.getCookieSameSite())
                 .path(authProps.getCookieBasePath() + "/auth/refresh")
                 .maxAge(maxAge)
@@ -32,7 +32,7 @@ public class TokenCookieFactory {
         int ttl = (int) appSecurityProps.getJwt().getAccessTokenTtl().getSeconds();
         return ResponseCookie.from("accessToken", token)
                 .httpOnly(false)
-                .secure(authProps.isCookieSecure())
+                .secure(false)
                 .sameSite(authProps.getCookieSameSite())
                 .path("/")
                 .maxAge(ttl)
