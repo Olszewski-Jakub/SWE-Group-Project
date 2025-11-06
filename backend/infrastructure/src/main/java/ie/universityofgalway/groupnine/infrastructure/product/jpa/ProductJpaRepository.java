@@ -73,7 +73,8 @@ public interface ProductJpaRepository extends JpaRepository<ProductEntity, Long>
     SELECT p.*
     FROM products p
     JOIN product_variants v ON v.product_id = p.id
-    WHERE (:category IS NULL OR :category = '' OR LOWER(p.category) = LOWER(:category))
+    WHERE v.available = true 
+      AND (:category IS NULL OR :category = '' OR LOWER(p.category) = LOWER(:category))
       AND (
         :key IS NULL OR :key = ''
         OR p.name ILIKE '%' || :key || '%' ESCAPE '\'
@@ -115,7 +116,8 @@ public interface ProductJpaRepository extends JpaRepository<ProductEntity, Long>
     SELECT COUNT(DISTINCT p.id)
     FROM products p
     JOIN product_variants v ON v.product_id = p.id
-    WHERE (:category IS NULL OR :category = '' OR lower(p.category) = lower(:category))
+    WHERE v.available = true
+      AND (:category IS NULL OR :category = '' OR lower(p.category) = lower(:category))
       AND (
         :key IS NULL OR :key = ''
         OR p.name ILIKE '%' || :key || '%'
