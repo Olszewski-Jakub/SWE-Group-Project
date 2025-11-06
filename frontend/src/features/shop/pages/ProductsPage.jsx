@@ -145,8 +145,7 @@ export default function ProductsPage() {
     };
 
     fetchProducts();
-  }, [currentPage, debouncedSearchTerm, selectedCategory, debouncedMinPrice, debouncedMaxPrice, sortRule, attributeFilters, hasActiveFilters, size]); 
-
+  }, [currentPage, debouncedSearchTerm, selectedCategory, debouncedMinPrice, debouncedMaxPrice, sortRule, attributeFilters, size]);
   /**
    * Toggle a value inside attributeFilters[attributeName].
    * - Adds value if not present
@@ -181,13 +180,13 @@ export default function ProductsPage() {
    * Clear all filters and reset to first page
    */
   const handleClearFilters = () => {
-    setDebouncedSearchTerm('');
-    setSelectedCategory('');
-    setDebouncedMinPrice('');
-    setDebouncedMaxPrice('');
-    setSortRule('');
-    setAttributeFilters({});
-    setCurrentPage(0);
+      setSearchTerm('');         
+      setSelectedCategory('');
+      setMinPrice('');        
+      setMaxPrice('');        
+      setSortRule('');
+      setAttributeFilters({});
+      setCurrentPage(0);
   };
 
   /**
