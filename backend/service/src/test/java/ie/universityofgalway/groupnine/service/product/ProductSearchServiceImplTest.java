@@ -93,14 +93,14 @@ class ProductSearchServiceImplTest {
         assertFalse(captor.getValue().getSort().isSorted());
     }
 
-    /** Price-based sorts are handled in the repository layer; pageable remains unsorted. */
+    /** Sorts are handled in the repository layer; pageable remains unsorted. */
     @Test
-    @DisplayName("PRICE sorts -> unsorted pageable")
+    @DisplayName("Sorts -> unsorted pageable")
     void priceSorts_areUnsorted() {
         ProductPort port = mock(ProductPort.class);
         ProductSearchServiceImpl svc = new ProductSearchServiceImpl(port);
 
-        for (SortRule r : new SortRule[]{SortRule.PRICE_LOW_TO_HIGH, SortRule.PRICE_HIGH_TO_LOW}) {
+        for (SortRule r : new SortRule[]{SortRule.PRICE_LOW_TO_HIGH, SortRule.PRICE_HIGH_TO_LOW, SortRule.NEWEST_FIRST}) {
             SearchQuery q = SearchQuery.builder("", null, 0, 0, r, List.of());
             when(port.search(any(), any(Pageable.class))).thenReturn(new PageImpl<Product>(List.of()));
 
@@ -110,25 +110,6 @@ class ProductSearchServiceImplTest {
             verify(port, atLeastOnce()).search(eq(q), captor.capture());
             assertFalse(captor.getValue().getSort().isSorted());
         }
-    }
-
-    /** NEWEST_FIRST should sort by createdAt DESC. */
-    @Test
-    @DisplayName("NEWEST_FIRST -> sort by createdAt DESC")
-    void newestFirst_sortsByCreatedAtDesc() {
-        ProductPort port = mock(ProductPort.class);
-        ProductSearchServiceImpl svc = new ProductSearchServiceImpl(port);
-
-        SearchQuery q = SearchQuery.builder("", null, 0, 0, SortRule.NEWEST_FIRST, List.of());
-        when(port.search(any(), any(Pageable.class))).thenReturn(new PageImpl<Product>(List.of()));
-
-        svc.search(q, 0, 5);
-
-        ArgumentCaptor<Pageable> captor = ArgumentCaptor.forClass(Pageable.class);
-        verify(port).search(eq(q), captor.capture());
-        Sort.Order order = captor.getValue().getSort().getOrderFor("createdAt");
-        assertNotNull(order);
-        assertEquals(Sort.Direction.DESC, order.getDirection());
     }
 
     // ---------- Null and unexpected sort ----------
@@ -152,24 +133,6 @@ class ProductSearchServiceImplTest {
         ArgumentCaptor<Pageable> captor = ArgumentCaptor.forClass(Pageable.class);
         verify(port).search(eq(q), captor.capture());
         assertFalse(captor.getValue().getSort().isSorted());
-    }
-
-    /** An unexpected sort value should hit the switch default and throw IllegalStateException. */
-    @Test
-    @DisplayName("unexpected sort value -> IllegalStateException")
-    void unexpectedSort_throwsIllegalState() {
-        ProductPort port = mock(ProductPort.class);
-        ProductSearchServiceImpl svc = new ProductSearchServiceImpl(port);
-
-        // Mock a SortRule that doesn't match any known enum constant.
-        SortRule unknown = mock(SortRule.class);
-
-        SearchQuery q = mock(SearchQuery.class);
-        when(q.minPriceCents()).thenReturn(0);
-        when(q.maxPriceCents()).thenReturn(0);
-        when(q.sortRule()).thenReturn(unknown);
-
-        assertThrows(IllegalStateException.class, () -> svc.search(q, 0, 5));
     }
 
     // ---------- Delegation ----------

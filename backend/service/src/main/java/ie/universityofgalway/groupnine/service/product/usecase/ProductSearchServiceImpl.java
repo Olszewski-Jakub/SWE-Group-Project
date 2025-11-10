@@ -31,25 +31,8 @@ public class ProductSearchServiceImpl implements ProductSearchService {
     @Override
     public Page<Product> search(SearchQuery query, int page, int size) {
         validate(query);
-        var pageable = org.springframework.data.domain.PageRequest.of(page, size, toSort(query.sortRule()));
+        var pageable = org.springframework.data.domain.PageRequest.of(page, size);
         return productPort.search(query,pageable);
-    }
-
-    /**
-
-     Maps sort rule to Spring Sort.
-
-     @param rule desired rule (might be null)
-
-     @return sort for repository layer
-     */
-    private Sort toSort(SortRule rule) {
-        if (rule == null|| rule == SortRule.DEFAULT) return Sort.unsorted();
-        return switch (rule) {
-            case PRICE_LOW_TO_HIGH, PRICE_HIGH_TO_LOW -> Sort.unsorted(); // Handled inside query (since only variants has price while product doesn't)
-            case NEWEST_FIRST -> Sort.by(Sort.Order.desc("createdAt"));
-            default -> throw new IllegalStateException("Unexpected value: " + rule);
-        };
     }
 
     /**
