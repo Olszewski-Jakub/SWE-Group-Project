@@ -1,5 +1,6 @@
 package ie.universityofgalway.groupnine.delivery.rest.product;
 
+import ie.universityofgalway.groupnine.delivery.rest.product.dto.AttributeDto;
 import ie.universityofgalway.groupnine.delivery.rest.product.dto.ProductResponse;
 import ie.universityofgalway.groupnine.delivery.rest.product.dto.SearchRequestDTO;
 import ie.universityofgalway.groupnine.delivery.rest.product.dto.VariantResponse;
@@ -28,7 +29,11 @@ public final class ProductDtoMapper {
         .map(v -> new VariantResponse(
             v.getSku().getValue(),
             v.getPrice().getAmount().multiply(new java.math.BigDecimal("100")).intValue(),
-            v.getPrice().getCurrency().getCurrencyCode()
+            v.getPrice().getCurrency().getCurrencyCode(),
+            v.getAttributes() == null ? List.of()
+                    : v.getAttributes().stream()
+                    .map(a -> new AttributeDto(a.name(), a.value()))
+                    .toList()
         ))
         .toList();
 
