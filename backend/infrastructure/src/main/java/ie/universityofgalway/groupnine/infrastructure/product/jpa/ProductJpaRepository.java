@@ -62,7 +62,7 @@ public interface ProductJpaRepository extends JpaRepository<ProductEntity, Long>
    * @param key        optional search keyword for name or description; ignored if {@code null} or blank
    * @param minPrice   optional minimum variant price in cents; ignored if {@code null}
    * @param maxPrice   optional maximum variant price in cents; ignored if {@code null}
-   * @param sort       sort rule controlling price ordering (ascending or descending); other values leave natural order
+   * @param sort       sort rule controlling ordering (cheapest, most expensive, newest); other values leave natural order
    * @param simCutoff  similarity threshold used with trigram matching
    * @param attrJson   JSON string representing attribute filters; {@code null} to skip JSONB comparison
    * @param pageable   pagination and sorting configuration
@@ -108,7 +108,8 @@ public interface ProductJpaRepository extends JpaRepository<ProductEntity, Long>
     GROUP BY p.id
     ORDER BY
       CASE WHEN :sort = 'PRICE_LOW_TO_HIGH' THEN MIN(v.price_cents) END ASC,
-      CASE WHEN :sort = 'PRICE_HIGH_TO_LOW' THEN MAX(v.price_cents) END DESC
+      CASE WHEN :sort = 'PRICE_HIGH_TO_LOW' THEN MAX(v.price_cents) END DESC,
+      CASE WHEN :sort = 'NEWEST_FIRST' THEN p.created_at END DESC
     """,
     countQuery = """
     SELECT COUNT(DISTINCT p.id)
