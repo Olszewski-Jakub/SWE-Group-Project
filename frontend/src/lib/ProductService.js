@@ -64,3 +64,19 @@ export const postSearch = async (page = 0, size = 9, searchQuery = {}) => {
   }
 };
 
+/**
+ * Fetch a product by ID.
+ * @param {string} id - product id
+ */
+export const getProduct = async (id) => {
+  try {
+    // GET /products/:id
+    const res = await axiosClient.get(`/products/${id}`);
+    return res.data;
+  } catch (err) {
+    console.error("Failed to fetch product", err);
+    throw new Error("Sorry, we could not fetch this product right now.");
+  }
+};
+
+

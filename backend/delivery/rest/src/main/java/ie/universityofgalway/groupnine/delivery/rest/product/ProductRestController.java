@@ -91,7 +91,7 @@ public class ProductRestController {
   @Operation(summary = "Get a product by id")
   @GetMapping("/{id}")
   @PublicEndpoint
-  public ProductResponse byId(@PathVariable String id) {
+  public ProductResponse byId(@PathVariable("id") String id) {
     return ProductDtoMapper.toDto(svc.getById(id));
   }
 
