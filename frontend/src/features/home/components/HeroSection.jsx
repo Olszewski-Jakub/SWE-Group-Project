@@ -5,7 +5,7 @@ export default function HeroSection() {
   return (
     <section className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-amber-50 to-white p-8 shadow-sm">
       <div className="space-y-6">
-        <h1 className="text-4xl font-extrabold tracking-tight text-stone-900">Copper Cup Coffee</h1>
+        <h1 className="text-4xl font-extrabold tracking-tight text-stone-900">StackOverFlowedCup</h1>
         <p className="max-w-prose text-stone-700">
           Artisanal roasts and crafted blends. This is a wireframe landing page to showcase our products and story.
         </p>

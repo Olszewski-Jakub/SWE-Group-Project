@@ -53,7 +53,7 @@ export default function SignUpPage() {
       <Card className="w-full max-w-md">
         <div className="mb-4 flex items-center gap-2 text-amber-800">
           <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-amber-700 text-white"><CoffeeIcon className="h-4 w-4"/></span>
-          <h1 className="text-xl font-bold">Join Copper Cup</h1>
+          <h1 className="text-xl font-bold">Join StackOverFlowedCup</h1>
         </div>
         <p className="mb-6 text-sm text-stone-600">
           Already have an account?{' '}
