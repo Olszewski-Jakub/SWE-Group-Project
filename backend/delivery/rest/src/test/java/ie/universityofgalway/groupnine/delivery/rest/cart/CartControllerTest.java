@@ -12,6 +12,7 @@ import ie.universityofgalway.groupnine.domain.user.User;
 import ie.universityofgalway.groupnine.domain.user.UserId;
 import ie.universityofgalway.groupnine.domain.user.UserStatus;
 import ie.universityofgalway.groupnine.service.cart.usecase.*;
+import ie.universityofgalway.groupnine.service.product.port.ProductPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -51,6 +52,7 @@ class CartControllerTest {
     private RemoveCartItemUseCase removeCartItemUseCase;
     private UpdateCartItemUseCase updateCartItemUseCase;
     private ClearCartUseCase clearCartUseCase;
+    private CartDtoMapper cartDtoMapper;
 
     private User testUser;
     private ShoppingCart testCart;
@@ -77,6 +79,8 @@ class CartControllerTest {
         removeCartItemUseCase = Mockito.mock(RemoveCartItemUseCase.class);
         updateCartItemUseCase = Mockito.mock(UpdateCartItemUseCase.class);
         clearCartUseCase = Mockito.mock(ClearCartUseCase.class);
+        ProductPort productPort = Mockito.mock(ProductPort.class);
+        cartDtoMapper = new CartDtoMapper(productPort);
 
         testCart = ShoppingCart.createNew(userIdObj);
         cartIdObj = testCart.getId();
@@ -84,7 +88,7 @@ class CartControllerTest {
         when(userResolver.requireUser(any())).thenReturn(testUser);
 
         CartController controller = new CartController(userResolver, getCartUseCase, getOrCreateUserCartUseCase,
-                addCartItemUseCase, removeCartItemUseCase, updateCartItemUseCase, clearCartUseCase);
+                addCartItemUseCase, removeCartItemUseCase, updateCartItemUseCase, clearCartUseCase, cartDtoMapper);
 
         mockMvc = MockMvcBuilders.standaloneSetup(controller)
                 .setControllerAdvice(new TestCartControllerAdvice())

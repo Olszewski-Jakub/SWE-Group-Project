@@ -44,13 +44,14 @@ public class CartController {
     private final RemoveCartItemUseCase removeCartItemUseCase;
     private final UpdateCartItemUseCase updateCartItemUseCase;
     private final ClearCartUseCase clearCartUseCase;
+    private final CartDtoMapper cartDtoMapper;
 
     @Autowired
     public CartController(
         AccessTokenUserResolver userResolver, GetCartUseCase getCartUseCase,
         GetOrCreateUserCartUseCase getOrCreateUserCartUseCase, AddCartItemUseCase addCartItemUseCase,
         RemoveCartItemUseCase removeCartItemUseCase, UpdateCartItemUseCase updateCartItemUseCase,
-        ClearCartUseCase clearCartUseCase) {
+        ClearCartUseCase clearCartUseCase, CartDtoMapper cartDtoMapper) {
         this.userResolver = userResolver;
         this.getCartUseCase = getCartUseCase;
         this.getOrCreateUserCartUseCase = getOrCreateUserCartUseCase;
@@ -58,6 +59,7 @@ public class CartController {
         this.removeCartItemUseCase = removeCartItemUseCase;
         this.updateCartItemUseCase = updateCartItemUseCase;
         this.clearCartUseCase = clearCartUseCase;
+        this.cartDtoMapper = cartDtoMapper;
     }
 
     /**
@@ -70,7 +72,7 @@ public class CartController {
     public ResponseEntity<CartResponse> getOrCreateMyCart(HttpServletRequest request) {
         User user = userResolver.requireUser(request);
         ShoppingCart cart = getOrCreateUserCartUseCase.execute(user.getId());
-        return ResponseEntity.ok(CartDtoMapper.toDto(cart));
+        return ResponseEntity.ok(cartDtoMapper.toDto(cart));
     }
 
     /**
@@ -86,7 +88,7 @@ public class CartController {
         ShoppingCart cart = getOrCreateUserCartUseCase.execute(user.getId());
         ShoppingCart updated = addCartItemUseCase.execute(
             cart.getId(), new VariantId(req.getVariantId()), req.getQuantity());
-        return ResponseEntity.ok(CartDtoMapper.toDto(updated));
+        return ResponseEntity.ok(cartDtoMapper.toDto(updated));
     }
 
     /**
@@ -102,7 +104,7 @@ public class CartController {
         ShoppingCart cart = getOrCreateUserCartUseCase.execute(user.getId());
         ShoppingCart updated = removeCartItemUseCase.execute(
             cart.getId(), new VariantId(variantId));
-        return ResponseEntity.ok(CartDtoMapper.toDto(updated));
+        return ResponseEntity.ok(cartDtoMapper.toDto(updated));
     }
 
     /**
@@ -116,7 +118,7 @@ public class CartController {
     public ResponseEntity<CartResponse> getCart(@PathVariable("cartId") UUID cartId, HttpServletRequest request) {
         ShoppingCart cart = getCartUseCase.execute(new CartId(cartId));
         verifyOwnership(cart.getUserId().getId(), request);
-        return ResponseEntity.ok(CartDtoMapper.toDto(cart));
+        return ResponseEntity.ok(cartDtoMapper.toDto(cart));
     }
 
     /**
@@ -137,7 +139,7 @@ public class CartController {
         ShoppingCart cart = getCartUseCase.execute(domainCartId);
         verifyOwnership(cart.getUserId().getId(), request);
         ShoppingCart updated = updateCartItemUseCase.execute(domainCartId, domainVariantId, req.getQuantity());
-        return ResponseEntity.ok(CartDtoMapper.toDto(updated));
+        return ResponseEntity.ok(cartDtoMapper.toDto(updated));
     }
 
     /**
@@ -153,7 +155,7 @@ public class CartController {
         ShoppingCart cart = getCartUseCase.execute(domainCartId);
         verifyOwnership(cart.getUserId().getId(), request);
         ShoppingCart cleared = clearCartUseCase.execute(domainCartId);
-        return ResponseEntity.ok(CartDtoMapper.toDto(cleared));
+        return ResponseEntity.ok(cartDtoMapper.toDto(cleared));
     }
 
     /**
