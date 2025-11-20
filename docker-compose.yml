@@ -1,0 +1,113 @@
+version: "3.9"
+
+services:
+  postgresql:
+    image: postgres:17.6-alpine3.22
+    container_name: postgresql-group9
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-demo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-demo}
+      POSTGRES_DB: ${POSTGRES_DB:-demo_db}
+    networks:
+      - app_net
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: rabbitmq-group9
+    networks:
+      - app_net
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest}
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: redis-group9
+    networks:
+      - app_net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app:
+    build:
+      context: ./backend
+      dockerfile: docker/Dockerfile.dev
+    container_name: backend
+    depends_on:
+      - postgresql
+      - rabbitmq
+      - redis
+    environment:
+      SPRING_PROFILES_ACTIVE: "docker"
+      RABBITMQ_HOST: rabbitmq-group9
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: ${RABBITMQ_USERNAME:-guest}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-guest}
+      SPRING_DATA_REDIS_HOST: redis-group9
+      SPRING_DATA_REDIS_PORT: 6379
+      EMAIL_WORKER_ENABLED: "true"
+      MAILJET_API_KEY: ${MAILJET_API_KEY:-changeme}
+      MAILJET_API_SECRET: ${MAILJET_API_SECRET:-changeme}
+      MAIL_FROM_EMAIL: ${MAIL_FROM_EMAIL:-no-reply@example.com}
+      MAIL_FROM_NAME: ${MAIL_FROM_NAME:-GroupNine}
+      # Secrets (set via .env)
+      JWT_SECRET: ${JWT_SECRET:-change-me}
+      STRIPE_API_KEY: ${STRIPE_API_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI:-http://localhost:3000}
+    ports:
+      - "8080:8080"
+    networks:
+      - app_net
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/api/v1/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # Build-time public env so the browser calls the backend on host 8080
+        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8080/api/v1}
+        NEXT_PUBLIC_ENVIRONMENT: ${NEXT_PUBLIC_ENVIRONMENT:-local}
+    platform: linux/amd64
+    container_name: next_frontend
+    depends_on:
+      - app
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8080/api/v1}
+      NEXT_PUBLIC_ENVIRONMENT: ${NEXT_PUBLIC_ENVIRONMENT:-local}
+      LIGHTNINGCSS_IGNORE_NATIVE: "1"
+      LIGHTNINGCSS_FORCE_WASM: "1"
+    ports:
+      - "3000:3000"
+    networks:
+      - app_net
+
+volumes:
+  db-data:
+
+networks:
+  app_net:
+    name: swe_app_net
+    driver: bridge
