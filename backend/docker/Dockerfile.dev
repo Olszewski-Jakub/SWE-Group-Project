@@ -38,4 +38,6 @@ COPY --from=jre-build /workspace/integration/build/libs/*-SNAPSHOT.jar /app/app.
 EXPOSE 8080
 USER appuser
 
-ENTRYPOINT ["java","-jar","/app/app.jar","--spring.profiles.active=local"]
+# Allow overriding Spring profile via env; default to 'docker' for compose
+ENV SPRING_PROFILES_ACTIVE=docker
+ENTRYPOINT ["sh","-c","java -jar /app/app.jar --spring.profiles.active=${SPRING_PROFILES_ACTIVE}"]
