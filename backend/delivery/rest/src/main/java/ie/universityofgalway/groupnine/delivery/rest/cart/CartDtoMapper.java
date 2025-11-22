@@ -47,6 +47,7 @@ public class CartDtoMapper {
                 prod.map(p -> p.getId().getId()).orElse(null),
                 prod.map(Product::getName).orElse(null),
                 prod.map(Product::getDescription).orElse(null),
+                i.getVariant().getImageUrl(),
                 priceDto,
                 subtotalDto
             );

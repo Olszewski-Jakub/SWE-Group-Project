@@ -1,5 +1,7 @@
 package ie.universityofgalway.groupnine.delivery.rest.cart.dto;
 
+import ie.universityofgalway.groupnine.delivery.rest.product.dto.MoneyDto;
+
 import java.util.UUID;
 
 /**
@@ -13,19 +15,34 @@ public class CartResponseItem {
     private UUID productId;
     private String productName;
     private String productDescription;
-    private ie.universityofgalway.groupnine.delivery.rest.product.dto.MoneyDto unitPrice;
-    private ie.universityofgalway.groupnine.delivery.rest.product.dto.MoneyDto subtotal;
+    private String imageUrl;
+    private MoneyDto unitPrice;
+    private MoneyDto subtotal;
 
     public CartResponseItem() {}
 
     public CartResponseItem(UUID variantId, int quantity, UUID productId, String productName, String productDescription,
-                            ie.universityofgalway.groupnine.delivery.rest.product.dto.MoneyDto unitPrice,
-                            ie.universityofgalway.groupnine.delivery.rest.product.dto.MoneyDto subtotal) {
+                            MoneyDto unitPrice,
+                            MoneyDto subtotal) {
         this.variantId = variantId;
         this.quantity = quantity;
         this.productId = productId;
         this.productName = productName;
         this.productDescription = productDescription;
+        this.unitPrice = unitPrice;
+        this.subtotal = subtotal;
+    }
+
+    public CartResponseItem(UUID variantId, int quantity, UUID productId, String productName, String productDescription,
+                            String imageUrl,
+                            MoneyDto unitPrice,
+                            MoneyDto subtotal) {
+        this.variantId = variantId;
+        this.quantity = quantity;
+        this.productId = productId;
+        this.productName = productName;
+        this.productDescription = productDescription;
+        this.imageUrl = imageUrl;
         this.unitPrice = unitPrice;
         this.subtotal = subtotal;
     }
@@ -45,9 +62,12 @@ public class CartResponseItem {
     public String getProductDescription() { return productDescription; }
     public void setProductDescription(String productDescription) { this.productDescription = productDescription; }
 
-    public ie.universityofgalway.groupnine.delivery.rest.product.dto.MoneyDto getUnitPrice() { return unitPrice; }
-    public void setUnitPrice(ie.universityofgalway.groupnine.delivery.rest.product.dto.MoneyDto unitPrice) { this.unitPrice = unitPrice; }
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 
-    public ie.universityofgalway.groupnine.delivery.rest.product.dto.MoneyDto getSubtotal() { return subtotal; }
-    public void setSubtotal(ie.universityofgalway.groupnine.delivery.rest.product.dto.MoneyDto subtotal) { this.subtotal = subtotal; }
+    public MoneyDto getUnitPrice() { return unitPrice; }
+    public void setUnitPrice(MoneyDto unitPrice) { this.unitPrice = unitPrice; }
+
+    public MoneyDto getSubtotal() { return subtotal; }
+    public void setSubtotal(MoneyDto subtotal) { this.subtotal = subtotal; }
 }
