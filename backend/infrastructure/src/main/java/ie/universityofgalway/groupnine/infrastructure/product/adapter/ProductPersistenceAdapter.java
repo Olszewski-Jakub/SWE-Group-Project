@@ -156,6 +156,7 @@ public class ProductPersistenceAdapter implements ProductPort {
             ve.setStockQuantity(v.getStock().getQuantity());
             ve.setReservedQuantity(v.getStock().getReserved());
             ve.setAttributes(attributesToJson(v.getAttributes()));
+            ve.setImageUrl(v.getImageUrl());
             if (ve.getUuid() != null) keep.add(ve.getUuid());
         }
 
@@ -192,6 +193,7 @@ public class ProductPersistenceAdapter implements ProductPort {
         entity.setStockQuantity(variant.getStock().getQuantity());
         entity.setReservedQuantity(variant.getStock().getReserved());
         entity.setAttributes(attributesToJson(variant.getAttributes()));
+        entity.setImageUrl(variant.getImageUrl());
         VariantEntity saved = variantRepository.save(entity);
         return toVariantDomain(saved);
     }
@@ -217,7 +219,8 @@ public class ProductPersistenceAdapter implements ProductPort {
                 new Sku(variantEntity.getSku()),
                 new Money(amount, currency),
                 new Stock(variantEntity.getStockQuantity(), variantEntity.getReservedQuantity()),
-                jsonToAttributes(variantEntity.getAttributes())
+                jsonToAttributes(variantEntity.getAttributes()),
+                variantEntity.getImageUrl()
         );
     }
 
@@ -291,6 +294,7 @@ public class ProductPersistenceAdapter implements ProductPort {
         e.setStockQuantity(v.getStock().getQuantity());
         e.setReservedQuantity(v.getStock().getReserved());
         e.setAttributes(attributesToJson(v.getAttributes()));
+        e.setImageUrl(v.getImageUrl());
         return e;
     }
 }

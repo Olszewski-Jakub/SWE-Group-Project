@@ -7,6 +7,10 @@ import ie.universityofgalway.groupnine.delivery.rest.product.dto.SearchRequestDT
 import ie.universityofgalway.groupnine.domain.product.SearchQuery;
 import ie.universityofgalway.groupnine.domain.security.PublicEndpoint;
 import ie.universityofgalway.groupnine.service.product.usecase.ProductSearchService;
+import ie.universityofgalway.groupnine.service.product.usecase.GetVariantImageUseCase;
+import ie.universityofgalway.groupnine.service.product.port.ImageStoragePort.ImageData;
+import ie.universityofgalway.groupnine.domain.product.ProductId;
+import ie.universityofgalway.groupnine.domain.product.VariantId;
 import ie.universityofgalway.groupnine.service.product.usecase.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.ConstraintViolationException;
@@ -37,12 +41,14 @@ public class ProductRestController {
 
   private final ProductService svc;
   private final ProductSearchService productSearchService;
+  private final GetVariantImageUseCase getVariantImage;
   /**
    * Creates the controller.
    */
-  public ProductRestController(ProductService svc,ProductSearchService productSearchService) {
+  public ProductRestController(ProductService svc, ProductSearchService productSearchService, GetVariantImageUseCase getVariantImage) {
     this.svc = svc;
     this.productSearchService = productSearchService;
+    this.getVariantImage = getVariantImage;
   }
 
   /**
@@ -93,6 +99,23 @@ public class ProductRestController {
   @PublicEndpoint
   public ProductResponse byId(@PathVariable("id") String id) {
     return ProductDtoMapper.toDto(svc.getById(id));
+  }
+
+  @Operation(summary = "Get an image for a product variant")
+  @GetMapping("/{productId}/variants/{variantId}/image")
+  @PublicEndpoint
+  public ResponseEntity<byte[]> getVariantImage(
+          @PathVariable("productId") String productId,
+          @PathVariable("variantId") String variantId
+  ) throws Exception {
+    var pid = new ProductId(java.util.UUID.fromString(productId));
+    var vid = new ie.universityofgalway.groupnine.domain.product.VariantId(java.util.UUID.fromString(variantId));
+    java.util.Optional<ImageData> data = getVariantImage.execute(pid, vid);
+    if (data.isEmpty()) return ResponseEntity.notFound().build();
+    return ResponseEntity
+            .ok()
+            .header(org.springframework.http.HttpHeaders.CONTENT_TYPE, data.get().getContentType())
+            .body(data.get().getBytes());
   }
 
 

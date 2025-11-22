@@ -14,10 +14,11 @@ class ProductDtoRecordsTest {
         AttributeDto size  = new AttributeDto("size", "L");
         AttributeDto origin  = new AttributeDto("origin", "Brazil");
 
-        VariantResponse v = new VariantResponse("SKU-123", 1599, "EUR", List.of(size, origin));
+        VariantResponse v = new VariantResponse("SKU-123", 1599, "EUR", "https://example/img.jpg", List.of(size, origin));
         assertEquals("SKU-123", v.sku());
         assertEquals(1599, v.priceCents());
         assertEquals("EUR", v.currency());
+        assertEquals("https://example/img.jpg", v.imageUrl());
         assertEquals(List.of(size, origin), v.attributes());
     }
 
@@ -31,7 +32,7 @@ class ProductDtoRecordsTest {
                 "Rich taste",
                 "beverages",
                 "ACTIVE",
-                List.of(new VariantResponse("SKU-1", 250, "EUR", List.of(new AttributeDto("size", "L"), new AttributeDto("origin", "Brazil")))),
+                List.of(new VariantResponse("SKU-1", 250, "EUR", null, List.of(new AttributeDto("size", "L"), new AttributeDto("origin", "Brazil")))),
                 created,
                 updated
         );
@@ -58,4 +59,3 @@ class ProductDtoRecordsTest {
         assertEquals(5, page.totalPages());
     }
 }
-

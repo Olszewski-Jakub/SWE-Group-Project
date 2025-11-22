@@ -38,6 +38,7 @@ class VariantPersistenceAdapterTest {
         e.setCurrency("USD");
         e.setStockQuantity(7);
         e.setReservedQuantity(2);
+        e.setImageUrl("/products/p/variants/v/image");
 
         when(repo.findByUuid(vid)).thenReturn(Optional.of(e));
 
@@ -49,6 +50,7 @@ class VariantPersistenceAdapterTest {
         assertEquals(Currency.getInstance("USD"), v.getPrice().getCurrency());
         assertEquals(7, v.getStock().getQuantity());
         assertEquals(2, v.getStock().getReserved());
+        assertEquals("/products/p/variants/v/image", v.getImageUrl());
     }
 
     @Test
@@ -77,4 +79,3 @@ class VariantPersistenceAdapterTest {
         }
     }
 }
-

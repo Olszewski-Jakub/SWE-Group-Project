@@ -23,6 +23,7 @@ import ie.universityofgalway.groupnine.service.product.admin.usecase.GetProductU
 import ie.universityofgalway.groupnine.service.product.admin.usecase.ListProductsUseCase;
 import ie.universityofgalway.groupnine.service.product.admin.usecase.UpdateProductUseCase;
 import ie.universityofgalway.groupnine.service.product.admin.usecase.UpdateVariantUseCase;
+import ie.universityofgalway.groupnine.service.product.admin.usecase.UploadVariantImageUseCase;
 import ie.universityofgalway.groupnine.testsupport.web.CommonWebMvcTest;
 import ie.universityofgalway.groupnine.testsupport.web.DeliveryWebMvcTest;
 import org.junit.jupiter.api.Test;
@@ -68,6 +69,8 @@ class ProductManagementControllerTest extends CommonWebMvcTest {
     DeleteVariantUseCase deleteVariant;
     @MockitoBean
     ListProductsUseCase listProducts;
+    @MockitoBean
+    UploadVariantImageUseCase uploadVariantImage;
 
     private AutoCloseable withRoles(String... roles) {
         var auth = new UsernamePasswordAuthenticationToken(
@@ -157,4 +160,3 @@ class ProductManagementControllerTest extends CommonWebMvcTest {
         }
     }
 }
-

@@ -88,3 +88,4 @@ yarn-error.log*
 .gradle
 !**/src/main/**/build/
 !**/src/test/**/build/
+/data/
