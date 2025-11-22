@@ -45,6 +45,25 @@ export async function createProductWithForm(payload) {
   form.append('category', payload.category);
   form.append('status', payload.status);
   const variants = Array.isArray(payload.variants) ? payload.variants : [];
+  // Prepare variantAttributes JSON array aligned by index
+  const attrsArray = variants.map((v) => {
+    const curated = v.attrs || {};
+    const custom = Array.isArray(v.customAttrs) ? v.customAttrs : [];
+    const out = {};
+    // Include curated keys when present
+    Object.entries(curated).forEach(([k, raw]) => {
+      if (raw === undefined || raw === null || `${raw}`.trim() === '') return;
+      out[k] = Array.isArray(raw) ? raw.map(String) : String(raw);
+    });
+    // Include custom name/value pairs
+    custom.forEach((p) => {
+      const n = (p?.name ?? '').trim();
+      const val = (p?.value ?? '').trim();
+      if (!n || !val) return;
+      out[n] = val;
+    });
+    return out;
+  });
   variants.forEach((v) => {
     form.append('variantSku', v.sku);
     form.append('variantPriceAmount', String(v.priceAmount));
@@ -60,6 +79,13 @@ export async function createProductWithForm(payload) {
       form.append('images', v.imageFile);
     }
   });
+  // Attach the attributes JSON array once
+  try {
+    form.append('variantAttributes', JSON.stringify(attrsArray));
+  } catch (_) {
+    // fallback: empty array
+    form.append('variantAttributes', '[]');
+  }
   const res = await axiosClient.post(`${BASE}/form`, form, {
     headers: { 'Content-Type': 'multipart/form-data' },
   });

@@ -103,4 +103,69 @@ class LocalImageStorageAdapterTest {
         assertEquals("image/png", loaded.get().getContentType());
         assertEquals(garbage.length, loaded.get().getBytes().length);
     }
+
+    @Test
+    void jpgExtWithAlphaIsFlattenedToOpaqueJpeg() throws Exception {
+        Path tmp = Files.createTempDirectory("img-test-jpg-alpha-");
+        LocalImageStorageAdapter adapter = new LocalImageStorageAdapter(tmp.toString());
+
+        // Create ARGB image larger than MAX_DIMENSION to force scaling/encode branch
+        BufferedImage img = new BufferedImage(2000, 1600, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = img.createGraphics();
+        try {
+            g.setComposite(AlphaComposite.SrcOver);
+            g.setColor(new Color(0, 0, 255, 120));
+            g.fillRect(0, 0, img.getWidth(), img.getHeight());
+        } finally {
+            g.dispose();
+        }
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(img, "png", baos);
+        byte[] original = baos.toByteArray();
+
+        ProductId pid = new ProductId(UUID.randomUUID());
+        VariantId vid = new VariantId(UUID.randomUUID());
+
+        adapter.saveVariantImage(pid, vid, "photo.jpg", "image/jpeg", new ByteArrayInputStream(original));
+        var loaded = adapter.loadVariantImage(pid, vid);
+        assertTrue(loaded.isPresent());
+        assertEquals("image/jpeg", loaded.get().getContentType());
+        // Read back to ensure alpha channel is not present
+        BufferedImage back = ImageIO.read(new ByteArrayInputStream(loaded.get().getBytes()));
+        assertNotNull(back);
+        assertFalse(back.getColorModel().hasAlpha());
+    }
+
+    @Test
+    void loadReturnsEmptyWhenNotFound() throws Exception {
+        Path tmp = Files.createTempDirectory("img-test-missing-");
+        LocalImageStorageAdapter adapter = new LocalImageStorageAdapter(tmp.toString());
+        ProductId pid = new ProductId(UUID.randomUUID());
+        VariantId vid = new VariantId(UUID.randomUUID());
+        assertTrue(adapter.loadVariantImage(pid, vid).isEmpty());
+    }
+
+    @Test
+    void loadWithoutCtFallsBackToProbe() throws Exception {
+        Path tmp = Files.createTempDirectory("img-test-probe-");
+        LocalImageStorageAdapter adapter = new LocalImageStorageAdapter(tmp.toString());
+
+        // Create large opaque image to trigger scaling and encoding; keep PNG ext to save as PNG
+        BufferedImage img = new BufferedImage(1600, 1200, BufferedImage.TYPE_INT_RGB);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(img, "png", baos);
+        byte[] original = baos.toByteArray();
+
+        ProductId pid = new ProductId(UUID.randomUUID());
+        VariantId vid = new VariantId(UUID.randomUUID());
+        adapter.saveVariantImage(pid, vid, "pic.png", "image/png", new ByteArrayInputStream(original));
+
+        // Delete .ct to force probe
+        Path dir = tmp.resolve(pid.getId().toString()).resolve("variants");
+        Files.deleteIfExists(dir.resolve(vid.getId().toString() + ".ct"));
+
+        var loaded = adapter.loadVariantImage(pid, vid);
+        assertTrue(loaded.isPresent());
+        assertEquals("image/png", loaded.get().getContentType());
+    }
 }

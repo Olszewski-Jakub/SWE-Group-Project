@@ -69,25 +69,35 @@ public class LocalImageStorageAdapter implements ImageStoragePort {
             return;
         }
 
-        // Downscale if needed and strip metadata by re-rendering
+        // Downscale if needed (no additional compression; preserve original format when possible)
         BufferedImage processed = scaleDownIfNeeded(inputImage, MAX_DIMENSION);
+
+        // If no scaling occurred, keep original bytes to avoid any quality loss
+        if (processed.getWidth() == inputImage.getWidth() && processed.getHeight() == inputImage.getHeight()) {
+            rawCopy(productId, variantId, originalFilename, contentType, originalBytes);
+            return;
+        }
 
         boolean hasAlphaChannel = processed.getColorModel().hasAlpha();
         boolean alphaUsed = hasAlphaChannel && isAlphaUsed(processed);
 
-        // Choose best target format: prefer WebP if available; else PNG for alpha, JPEG for opaque
+        // Preserve original extension/content-type where possible
+        String ext = extFrom(originalFilename, contentType);
         String targetFormat;
         String targetContentType;
-        boolean webpAvailable = hasWriter("webp");
-        if (webpAvailable) {
-            targetFormat = "webp";
-            targetContentType = "image/webp";
-        } else if (alphaUsed) {
-            targetFormat = "png";
-            targetContentType = "image/png";
-        } else {
-            targetFormat = "jpg";
-            targetContentType = "image/jpeg";
+        switch (ext) {
+            case "png" -> { targetFormat = "png"; targetContentType = "image/png"; }
+            case "jpg", "jpeg" -> { targetFormat = "jpg"; targetContentType = "image/jpeg"; }
+            case "webp" -> {
+                if (hasWriter("webp")) { targetFormat = "webp"; targetContentType = "image/webp"; }
+                else if (alphaUsed) { targetFormat = "png"; targetContentType = "image/png"; }
+                else { targetFormat = "jpg"; targetContentType = "image/jpeg"; }
+            }
+            case "gif" -> { targetFormat = "gif"; targetContentType = "image/gif"; }
+            default -> {
+                if (alphaUsed) { targetFormat = "png"; targetContentType = "image/png"; }
+                else { targetFormat = "jpg"; targetContentType = "image/jpeg"; }
+            }
         }
 
         // If writing JPEG but image has alpha, flatten onto white background
@@ -95,13 +105,15 @@ public class LocalImageStorageAdapter implements ImageStoragePort {
             processed = toOpaque(processed, Color.WHITE);
         }
 
-        // Try to compress
-        byte[] bytes = writeCompressed(processed, targetFormat, hasAlphaChannel);
-
-        // Size guard: if our compressed bytes are larger than the original, keep original
-        if (bytes != null && originalBytes.length > 0 && bytes.length >= originalBytes.length) {
-            rawCopy(productId, variantId, originalFilename, contentType, originalBytes);
-            return;
+        // Encode with maximum quality, no extra compression loss
+        byte[] bytes;
+        if ("jpg".equals(targetFormat) || "webp".equals(targetFormat)) {
+            bytes = writeCompressed(processed, targetFormat, 1.0f);
+        } else {
+            // PNG/GIF: use default writer without lossy compression
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(processed, targetFormat, baos);
+            bytes = baos.toByteArray();
         }
 
         Path dir = baseDir.resolve(productId.getId().toString()).resolve("variants");
@@ -191,8 +203,7 @@ public class LocalImageStorageAdapter implements ImageStoragePort {
         return it != null && it.hasNext();
     }
 
-    private byte[] writeCompressed(BufferedImage img, String format, boolean hasAlpha) throws IOException {
-        float quality = 0.75f;
+    private byte[] writeCompressed(BufferedImage img, String format, Float quality) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName(format);
         if (writers != null && writers.hasNext()) {
@@ -200,10 +211,9 @@ public class LocalImageStorageAdapter implements ImageStoragePort {
             try (ImageOutputStream ios = ImageIO.createImageOutputStream(baos)) {
                 writer.setOutput(ios);
                 ImageWriteParam param = writer.getDefaultWriteParam();
-                if (param.canWriteCompressed()) {
+                if (param.canWriteCompressed() && quality != null) {
                     param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-                    // For some formats (e.g., PNG standard writer) quality may be ignored; that's fine
-                    param.setCompressionQuality(quality);
+                    param.setCompressionQuality(Math.max(0f, Math.min(1f, quality)));
                 }
                 writer.write(null, new IIOImage(img, null, null), param);
             } finally {

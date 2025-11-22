@@ -5,6 +5,7 @@ import ie.universityofgalway.groupnine.delivery.rest.product.dto.ProductRequest;
 import ie.universityofgalway.groupnine.delivery.rest.product.dto.VariantRequest;
 import ie.universityofgalway.groupnine.delivery.rest.product.dto.VariantManagementResponse;
 import ie.universityofgalway.groupnine.domain.product.Money;
+import ie.universityofgalway.groupnine.domain.product.Attribute;
 import ie.universityofgalway.groupnine.domain.product.Product;
 import ie.universityofgalway.groupnine.domain.product.ProductId;
 import ie.universityofgalway.groupnine.domain.product.Sku;
@@ -141,13 +142,22 @@ public class ProductManagementController {
             @RequestParam(name = "variantPriceCurrency") List<String> variantPriceCurrency,
             @RequestParam(name = "variantStockQuantity") List<String> variantStockQuantity,
             @RequestParam(name = "variantStockReserved", required = false) List<String> variantStockReserved,
-            @RequestPart(value = "images", required = false) List<MultipartFile> images
+            @RequestPart(value = "images", required = false) List<MultipartFile> images,
+            @RequestParam(name = "variantAttributes", required = false) String variantAttributesJson
     ) throws Exception {
         // Basic list size validation
         int n = variantSku.size();
         if (variantPriceAmount.size() != n || variantPriceCurrency.size() != n || variantStockQuantity.size() != n) {
             return ResponseEntity.badRequest().build();
         }
+        // Parse optional attributes JSON aligned per variant
+        List<List<Attribute>> parsedAttrs;
+        try {
+            parsedAttrs = parseVariantAttributesJson(variantAttributesJson, n);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().build();
+        }
+
         // Build domain product from raw fields
         java.util.List<Variant> variants = new java.util.ArrayList<>(n);
         for (int i = 0; i < n; i++) {
@@ -171,7 +181,7 @@ public class ProductManagementController {
                     new Sku(sku),
                     new Money(amount, cur),
                     new Stock(qty, res),
-                    java.util.List.of(),
+                    (parsedAttrs.size() > i && parsedAttrs.get(i) != null) ? parsedAttrs.get(i) : java.util.List.of(),
                     null
             ));
         }
@@ -204,5 +214,102 @@ public class ProductManagementController {
 
         ProductManagementResponse dto = ProductManagementDtoMapper.toDto(created);
         return ResponseEntity.created(URI.create(PRODUCT_MANAGEMENT + "/" + dto.getId())).body(dto);
+    }
+
+    // Allowed attribute keys and values (constrained for admin form)
+    private static final java.util.Set<String> ALLOWED_KEYS = java.util.Set.of(
+            "roast", "origin", "grind", "size_ml", "caffeine", "weight_g", "count"
+    );
+    private static final java.util.regex.Pattern CUSTOM_KEY_PATTERN = java.util.regex.Pattern.compile("^[a-z0-9_]{1,30}$");
+    private static final java.util.Map<String, java.util.Set<String>> ALLOWED_VALUES = java.util.Map.of(
+            "roast", java.util.Set.of("light", "medium", "dark"),
+            "origin", java.util.Set.of("brazil", "colombia", "ethiopia", "kenya"),
+            "grind", java.util.Set.of("whole_beans", "espresso", "filter", "french_press"),
+            "size_ml", java.util.Set.of("250", "350", "500", "1000"),
+            "caffeine", java.util.Set.of("regular", "decaf")
+    );
+
+    /**
+     * Parses the optional variantAttributes JSON array into a per-variant list of Attribute pairs.
+     * Enforces allowed keys and values. Numeric values are coerced to strings.
+     *
+     * Expected shape (array of objects, aligned by variant index):
+     *   [ {"roast":"medium","origin":"Brazil","weight_g":"250","count":"10"}, ... ]
+     */
+    private List<List<Attribute>> parseVariantAttributesJson(String json, int expected) throws Exception {
+        java.util.List<java.util.List<Attribute>> result = new java.util.ArrayList<>();
+        for (int i = 0; i < expected; i++) result.add(java.util.List.of());
+        if (json == null || json.isBlank()) return result;
+
+        ObjectMapper mapper = new ObjectMapper();
+        com.fasterxml.jackson.databind.JsonNode root;
+        try {
+            root = mapper.readTree(json);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("variantAttributes must be a valid JSON array", e);
+        }
+        if (!root.isArray()) throw new IllegalArgumentException("variantAttributes must be an array");
+
+        int idx = 0;
+        for (com.fasterxml.jackson.databind.JsonNode node : root) {
+            if (idx >= expected) break; // ignore extras
+            if (!node.isObject()) { idx++; continue; }
+            java.util.List<Attribute> attrs = new java.util.ArrayList<>();
+            java.util.Iterator<String> fields = node.fieldNames();
+            while (fields.hasNext()) {
+                String rawKey = fields.next();
+                String key = rawKey == null ? null : rawKey.trim();
+                if (key == null || key.isEmpty()) continue;
+                // Normalize custom keys to snake_case alphanumeric for consistency
+                String normKey = key.toLowerCase(java.util.Locale.ROOT).replaceAll("[^a-z0-9_]", "_");
+                // Collapse multiple underscores
+                normKey = normKey.replaceAll("_+", "_");
+                // Trim leading/trailing underscores
+                normKey = normKey.replaceAll("^_+|_+$", "");
+                if (normKey.isEmpty() || normKey.length() > 30) {
+                    throw new IllegalArgumentException("Invalid attribute key: " + key);
+                }
+                boolean isKnownKey = ALLOWED_KEYS.contains(normKey);
+                if (!isKnownKey && !CUSTOM_KEY_PATTERN.matcher(normKey).matches()) {
+                    throw new IllegalArgumentException("Invalid attribute key: " + key);
+                }
+                com.fasterxml.jackson.databind.JsonNode valNode = node.get(rawKey);
+                // Coerce to array for uniform handling
+                java.util.List<String> values = new java.util.ArrayList<>();
+                if (valNode == null || valNode.isNull()) continue;
+                if (valNode.isArray()) {
+                    valNode.forEach(el -> values.add(el.asText()));
+                } else {
+                    values.add(valNode.asText());
+                }
+                for (String vRaw : values) {
+                    String v = vRaw == null ? "" : vRaw.trim();
+                    if (v.isEmpty()) continue;
+                    // Validate categorical values (case-insensitive)
+                    if (ALLOWED_VALUES.containsKey(normKey)) {
+                        String lv = v.toLowerCase();
+                        if (!ALLOWED_VALUES.get(normKey).contains(lv)) {
+                            throw new IllegalArgumentException("Invalid value for " + normKey + ": " + v);
+                        }
+                        attrs.add(new Attribute(normKey, lv));
+                    } else if (normKey.equals("weight_g") || normKey.equals("count")) {
+                        // Numeric positive values
+                        if (!v.matches("^\\d+$")) {
+                            throw new IllegalArgumentException("Invalid numeric value for " + normKey + ": " + v);
+                        }
+                        if (Integer.parseInt(v) <= 0) {
+                            throw new IllegalArgumentException(normKey + " must be > 0");
+                        }
+                        attrs.add(new Attribute(normKey, v));
+                    } else {
+                        // Custom key: accept normalized key
+                        attrs.add(new Attribute(normKey, v));
+                    }
+                }
+            }
+            result.set(idx, java.util.List.copyOf(attrs));
+            idx++;
+        }
+        return result;
     }
 }

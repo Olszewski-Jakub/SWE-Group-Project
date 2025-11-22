@@ -109,7 +109,6 @@ export default function Navbar() {
     { href: '/', label: 'Home', icon: HomeIcon, show: true },
     { href: '/products', label: 'Products', icon: BoxIcon, show: true },
     { href: '/contact', label: 'Contact', icon: MailIcon, show: true },
-    { href: '/dashboard', label: 'Dashboard', icon: GaugeIcon, show: isAuthenticated },
     { href: '/admin', label: 'Admin', icon: ShieldIcon, show: roles.includes('ADMIN') },
   ].filter((i) => i.show);
 
