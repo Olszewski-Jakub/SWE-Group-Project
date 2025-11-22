@@ -5,6 +5,8 @@ import ie.universityofgalway.groupnine.delivery.rest.product.dto.PageResponse;
 import ie.universityofgalway.groupnine.delivery.rest.product.dto.SearchRequestDTO;
 import ie.universityofgalway.groupnine.domain.product.*;
 import ie.universityofgalway.groupnine.service.product.usecase.ProductSearchService;
+import ie.universityofgalway.groupnine.service.product.usecase.GetVariantImageUseCase;
+import ie.universityofgalway.groupnine.service.product.port.ImageStoragePort.ImageData;
 import ie.universityofgalway.groupnine.service.product.usecase.ProductService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,6 +41,7 @@ class ProductRestControllerTest {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private ProductService productService;
     private ProductSearchService productSearchService;
+    private GetVariantImageUseCase getVariantImageUseCase;
 
     private Product sampleProduct;
 
@@ -46,11 +49,26 @@ class ProductRestControllerTest {
     void setup() {
         productService = Mockito.mock(ProductService.class);
         productSearchService = Mockito.mock(ProductSearchService.class);
+        getVariantImageUseCase = Mockito.mock(GetVariantImageUseCase.class);
 
-        ProductRestController controller = new ProductRestController(productService, productSearchService);
+        ProductRestController controller = new ProductRestController(productService, productSearchService, getVariantImageUseCase);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
 
         sampleProduct = buildSampleProduct();
+    }
+
+    @Test
+    void getVariantImage_returnsImageBytesAndContentType() throws Exception {
+        UUID pid = UUID.randomUUID();
+        UUID vid = UUID.randomUUID();
+        byte[] bytes = new byte[]{1,2,3,4,5};
+        when(getVariantImageUseCase.execute(new ProductId(pid), new VariantId(vid)))
+                .thenReturn(java.util.Optional.of(new ImageData(bytes, "image/jpeg")));
+
+        mockMvc.perform(get("/api/v1/products/{productId}/variants/{variantId}/image", pid.toString(), vid.toString()))
+                .andExpect(status().isOk())
+                .andExpect(result -> assertEquals("image/jpeg", result.getResponse().getContentType()))
+                .andExpect(result -> assertEquals(bytes.length, result.getResponse().getContentAsByteArray().length));
     }
 
     private Product buildSampleProduct() {

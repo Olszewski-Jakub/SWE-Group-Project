@@ -24,12 +24,15 @@ public class UpdateVariantUseCase {
         validateMoney(amount, currencyCode);
         validateStock(qty, res);
 
+        String imageUrl = cmd.getImageUrl() != null ? cmd.getImageUrl() : existing.getImageUrl();
+
         Variant updated = new Variant(
                 existing.getId(),
                 new Sku(sku),
                 new Money(amount, java.util.Currency.getInstance(currencyCode.toUpperCase())),
                 new Stock(qty, res),
-                existing.getAttributes()
+                existing.getAttributes(),
+                imageUrl
         );
         return port.saveVariant(productId, updated);
     }

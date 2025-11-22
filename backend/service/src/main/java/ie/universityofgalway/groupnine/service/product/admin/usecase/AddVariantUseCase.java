@@ -12,7 +12,7 @@ public class AddVariantUseCase {
         // Generate id if missing
         Variant v = variant;
         if (variant.getId() == null || variant.getId().getId() == null) {
-            v = new Variant(new VariantId(java.util.UUID.randomUUID()), variant.getSku(), variant.getPrice(), variant.getStock(), variant.getAttributes());
+            v = new Variant(new VariantId(java.util.UUID.randomUUID()), variant.getSku(), variant.getPrice(), variant.getStock(), variant.getAttributes(), variant.getImageUrl());
         }
         validate(v);
         return port.saveVariant(productId, v);

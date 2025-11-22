@@ -47,7 +47,8 @@ public final class ProductManagementDtoMapper {
                 new Sku(req.getSku()),
                 new Money(req.getPrice().getAmount(), currency),
                 stock,
-                attrs
+                attrs,
+                req.getImageUrl()
         );
     }
 
@@ -83,7 +84,7 @@ public final class ProductManagementDtoMapper {
                 v.getSku().getValue(),
                 new MoneyDto(v.getPrice().getAmount(), v.getPrice().getCurrency().getCurrencyCode()),
                 new StockDto(v.getStock().getQuantity(), v.getStock().getReserved()),
-                null,
+                v.getImageUrl(),
                 v.getAttributes().stream().map(a -> new AttributeDto(a.name(), a.value())).toList(),
                 null,
                 null

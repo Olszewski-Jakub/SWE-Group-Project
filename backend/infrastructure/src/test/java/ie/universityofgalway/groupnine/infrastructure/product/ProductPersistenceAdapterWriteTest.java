@@ -51,7 +51,7 @@ class ProductPersistenceAdapterWriteTest {
         when(productRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
         Product domain = new Product(new ProductId(pid), "P", "d", "c", ProductStatus.DRAFT,
-                List.of(new Variant(new VariantId(vid), new Sku("NEW-SKU"), new Money(new BigDecimal("9.99"), Currency.getInstance("USD")), new Stock(5, 1), List.of())),
+                List.of(new Variant(new VariantId(vid), new Sku("NEW-SKU"), new Money(new BigDecimal("9.99"), Currency.getInstance("USD")), new Stock(5, 1), List.of(), "/products/p/variants/v/image")),
                 null, null);
 
         Product out = adapter.saveProduct(domain);
@@ -68,6 +68,7 @@ class ProductPersistenceAdapterWriteTest {
         assertEquals(5, ve.getStockQuantity());
         assertEquals(1, ve.getReservedQuantity());
         assertEquals(pid, out.getId().getId());
+        assertEquals("/products/p/variants/v/image", ve.getImageUrl());
     }
 
     @Test
@@ -102,6 +103,26 @@ class ProductPersistenceAdapterWriteTest {
         verify(variantRepo).delete(ve);
     }
 
+    @Test
+    void saveVariant_setsImageUrlOnEntity() {
+        UUID pid = UUID.randomUUID();
+        UUID vid = UUID.randomUUID();
+        ProductEntity product = new ProductEntity();
+        set(product, "uuid", pid);
+        when(productRepo.findByUuid(pid)).thenReturn(Optional.of(product));
+
+        when(variantRepo.findByUuid(vid)).thenReturn(Optional.empty());
+        when(variantRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        Variant domainVariant = new Variant(new VariantId(vid), new Sku("S"), new Money(new BigDecimal("1.00"), Currency.getInstance("EUR")), new Stock(1,0), List.of(), "/products/p/variants/v/image");
+        Variant saved = adapter.saveVariant(new ProductId(pid), domainVariant);
+
+        ArgumentCaptor<VariantEntity> cap = ArgumentCaptor.forClass(VariantEntity.class);
+        verify(variantRepo).save(cap.capture());
+        VariantEntity persisted = cap.getValue();
+        assertEquals("/products/p/variants/v/image", persisted.getImageUrl());
+    }
+
     private static void set(Object target, String field, Object value) {
         try {
             var f = target.getClass().getDeclaredField(field);
@@ -112,4 +133,3 @@ class ProductPersistenceAdapterWriteTest {
         }
     }
 }
-

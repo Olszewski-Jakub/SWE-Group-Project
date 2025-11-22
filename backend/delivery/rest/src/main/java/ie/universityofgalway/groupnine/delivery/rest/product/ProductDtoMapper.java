@@ -30,6 +30,7 @@ public final class ProductDtoMapper {
             v.getSku().getValue(),
             v.getPrice().getAmount().multiply(new java.math.BigDecimal("100")).intValue(),
             v.getPrice().getCurrency().getCurrencyCode(),
+            v.getImageUrl(),
             v.getAttributes() == null ? List.of()
                     : v.getAttributes().stream()
                     .map(a -> new AttributeDto(a.name(), a.value()))
