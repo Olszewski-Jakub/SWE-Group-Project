@@ -14,7 +14,8 @@ class ProductDtoRecordsTest {
         AttributeDto size  = new AttributeDto("size", "L");
         AttributeDto origin  = new AttributeDto("origin", "Brazil");
 
-        VariantResponse v = new VariantResponse("SKU-123", 1599, "EUR", "https://example/img.jpg", List.of(size, origin));
+        VariantResponse v = new VariantResponse("id-123", "SKU-123", 1599, "EUR", "https://example/img.jpg", List.of(size, origin));
+        assertEquals("id-123", v.id());
         assertEquals("SKU-123", v.sku());
         assertEquals(1599, v.priceCents());
         assertEquals("EUR", v.currency());
@@ -32,7 +33,7 @@ class ProductDtoRecordsTest {
                 "Rich taste",
                 "beverages",
                 "ACTIVE",
-                List.of(new VariantResponse("SKU-1", 250, "EUR", null, List.of(new AttributeDto("size", "L"), new AttributeDto("origin", "Brazil")))),
+                List.of(new VariantResponse("var-1", "SKU-1", 250, "EUR", null, List.of(new AttributeDto("size", "L"), new AttributeDto("origin", "Brazil")))),
                 created,
                 updated
         );

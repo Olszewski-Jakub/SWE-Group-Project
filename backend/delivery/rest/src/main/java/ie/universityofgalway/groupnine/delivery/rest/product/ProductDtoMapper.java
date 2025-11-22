@@ -27,6 +27,7 @@ public final class ProductDtoMapper {
   public static ProductResponse toDto(Product p) {
     List<VariantResponse> variantDTOs = p.getVariants().stream()
         .map(v -> new VariantResponse(
+            v.getId() == null ? null : v.getId().getId().toString(),
             v.getSku().getValue(),
             v.getPrice().getAmount().multiply(new java.math.BigDecimal("100")).intValue(),
             v.getPrice().getCurrency().getCurrencyCode(),
