@@ -88,25 +88,50 @@ function ProductsTable({ page = 0, size = 20, onPageChange, refreshTick = 0 }) {
   };
 
   const VariantManager = () => {
-    const [adding, setAdding] = useState(false);
-    const [form, setForm] = useState({ sku: '', priceAmount: '', priceCurrency: 'EUR', stockQuantity: '0', stockReserved: '0' });
+    const [showAddModal, setShowAddModal] = useState(false);
+    const [form, setForm] = useState({ sku: '', priceAmount: '', priceCurrency: 'EUR', stockQuantity: '0', stockReserved: '0', attrs: { roast:'', origin:'', grind:'', size_ml:'', caffeine:'', weight_g:'', count:'' }, customAttrs: [] });
+    const [showEditAttrsModal, setShowEditAttrsModal] = useState(false);
+    const [editVariantId, setEditVariantId] = useState('');
+    const [attrEdit, setAttrEdit] = useState({ roast:'', origin:'', grind:'', size_ml:'', caffeine:'', weight_g:'', count:'' });
+    const [attrEditCustom, setAttrEditCustom] = useState([]);
+    const buildAttributes = (attrsObj, customPairs=[]) => {
+      const pairs = Object.entries(attrsObj || {})
+        .filter(([_, v]) => v !== undefined && v !== null && `${v}`.trim() !== '')
+        .map(([name, value]) => ({ name, value: String(value).trim() }));
+      (Array.isArray(customPairs)?customPairs:[]).forEach(p => {
+        const n = (p?.name ?? '').trim();
+        const val = (p?.value ?? '').trim();
+        if (!n || !val) return;
+        pairs.push({ name: n, value: val });
+      });
+      return pairs;
+    };
     const onAdd = async (e) => {
       e.preventDefault(); if (!detail?.id) return;
-      await mgmtAddVariant(detail.id, { sku: form.sku, price: { amount: form.priceAmount, currency: form.priceCurrency }, stock: { quantity: form.stockQuantity, reserved: form.stockReserved }, attributes: [] });
-      setAdding(false); setForm({ sku: '', priceAmount: '', priceCurrency: 'EUR', stockQuantity: '0', stockReserved: '0' });
+      await mgmtAddVariant(detail.id, { sku: form.sku, price: { amount: form.priceAmount, currency: form.priceCurrency }, stock: { quantity: form.stockQuantity, reserved: form.stockReserved }, attributes: buildAttributes(form.attrs, form.customAttrs) });
+      setShowAddModal(false); setForm({ sku: '', priceAmount: '', priceCurrency: 'EUR', stockQuantity: '0', stockReserved: '0', attrs: { roast:'', origin:'', grind:'', size_ml:'', caffeine:'', weight_g:'', count:'' }, customAttrs: [] });
       try { setDetail(await mgmtGetProduct(detail.id)); } catch (_) {}
     };
     const onUpdate = async (variantId, patch) => { if (!detail?.id) return; await mgmtUpdateVariant(detail.id, variantId, patch); try { setDetail(await mgmtGetProduct(detail.id)); } catch (_) {} };
     const onDelete = async (variantId) => { if (!detail?.id) return; if (!confirm('Delete this variant?')) return; await mgmtDeleteVariant(detail.id, variantId); try { setDetail(await mgmtGetProduct(detail.id)); } catch (_) {} };
     const buildImageUrl = (u) => { if (!u) return null; const isAbs = /^(?:[a-z]+:)?\/\//i.test(u) || u.startsWith('data:'); if (isAbs) return u; const base = (process.env.NEXT_PUBLIC_API_BASE_URL || '').replace(/\/$/, ''); const path = u.startsWith('/') ? u : `/${u}`; return `${base}${path}`; };
+    const VARIANT_OPTIONS = {
+      roast: [ {v:'',l:'—'}, {v:'light',l:'Light'}, {v:'medium',l:'Medium'}, {v:'dark',l:'Dark'} ],
+      origin: [ {v:'',l:'—'}, 'Brazil','Colombia','Ethiopia','Kenya' ].map(x => typeof x==='string'?{v:x,l:x}:x),
+      grind: [ {v:'',l:'—'}, {v:'whole_beans',l:'Whole Beans'}, {v:'espresso',l:'Espresso'}, {v:'filter',l:'Filter'}, {v:'french_press',l:'French Press'} ],
+      size_ml: [ {v:'',l:'—'}, '250','350','500','1000' ].map(x => typeof x==='string'?{v:x,l:`${x} ml`}:x),
+      caffeine: [ {v:'',l:'—'}, {v:'regular',l:'Regular'}, {v:'decaf',l:'Decaf'} ]
+    };
     return (
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="text-base font-semibold">Variants</h3>
-          <button className="rounded-md border border-stone-300 px-3 py-1.5 text-sm hover:bg-stone-50" onClick={() => setAdding((v) => !v)}>{adding ? 'Cancel' : 'Add Variant'}</button>
+          <button className="rounded-md border border-stone-300 px-3 py-1.5 text-sm hover:bg-stone-50" onClick={() => { if (!detail?.id) return; window.location.href = `/admin/products/${detail.id}/variants/new`; }}>Create Variant</button>
         </div>
-        {adding && (
-          <form onSubmit={onAdd} className="rounded-lg border border-stone-200 bg-white/70 p-3 space-y-3">
+        {/* Replaced modal with dedicated page for improved UX */}
+        {/* <Modal open={showAddModal} onClose={() => setShowAddModal(false)} size="3xl" tall>
+          <form onSubmit={onAdd} className="space-y-3">
+            <div><h4 className="text-base font-semibold">Add Variant</h4><p className="text-sm text-stone-600">Create variant with attributes.</p></div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div><label className="block text-xs font-medium text-stone-700 mb-1">SKU</label><input className="w-full rounded border px-2 py-1.5" value={form.sku} onChange={(e)=>setForm({...form, sku:e.target.value})} required /></div>
               <div><label className="block text-xs font-medium text-stone-700 mb-1">Price Amount</label><input className="w-full rounded border px-2 py-1.5" value={form.priceAmount} onChange={(e)=>setForm({...form, priceAmount:e.target.value})} required /></div>
@@ -115,10 +140,70 @@ function ProductsTable({ page = 0, size = 20, onPageChange, refreshTick = 0 }) {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div><label className="block text-xs font-medium text-stone-700 mb-1">Stock Quantity</label><input className="w-full rounded border px-2 py-1.5" value={form.stockQuantity} onChange={(e)=>setForm({...form, stockQuantity:e.target.value})} /></div>
               <div><label className="block text-xs font-medium text-stone-700 mb-1">Reserved</label><input className="w-full rounded border px-2 py-1.5" value={form.stockReserved} onChange={(e)=>setForm({...form, stockReserved:e.target.value})} /></div>
-              <div className="flex items-end"><button className="w-full rounded-md bg-amber-600 text-white px-3 py-2">Add Variant</button></div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div>
+                <label className="block text-xs font-medium text-stone-700 mb-1">Roast</label>
+                <select className="w-full rounded border px-2 py-1.5" value={form.attrs.roast} onChange={(e)=>setForm({...form, attrs:{...form.attrs, roast:e.target.value}})}>{VARIANT_OPTIONS.roast.map(o=> <option key={o.v} value={o.v}>{o.l}</option>)}</select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-stone-700 mb-1">Origin</label>
+                <select className="w-full rounded border px-2 py-1.5" value={form.attrs.origin} onChange={(e)=>setForm({...form, attrs:{...form.attrs, origin:e.target.value}})}>{VARIANT_OPTIONS.origin.map(o=> <option key={o.v} value={o.v}>{o.l}</option>)}</select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-stone-700 mb-1">Grind</label>
+                <select className="w-full rounded border px-2 py-1.5" value={form.attrs.grind} onChange={(e)=>setForm({...form, attrs:{...form.attrs, grind:e.target.value}})}>{VARIANT_OPTIONS.grind.map(o=> <option key={o.v} value={o.v}>{o.l}</option>)}</select>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div>
+                <label className="block text-xs font-medium text-stone-700 mb-1">Size (ml)</label>
+                <select className="w-full rounded border px-2 py-1.5" value={form.attrs.size_ml} onChange={(e)=>setForm({...form, attrs:{...form.attrs, size_ml:e.target.value}})}>{VARIANT_OPTIONS.size_ml.map(o=> <option key={o.v} value={o.v}>{o.l}</option>)}</select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-stone-700 mb-1">Caffeine</label>
+                <select className="w-full rounded border px-2 py-1.5" value={form.attrs.caffeine} onChange={(e)=>setForm({...form, attrs:{...form.attrs, caffeine:e.target.value}})}>{VARIANT_OPTIONS.caffeine.map(o=> <option key={o.v} value={o.v}>{o.l}</option>)}</select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-stone-700 mb-1">Weight (g)</label>
+                <input className="w-full rounded border px-2 py-1.5" type="number" min="1" value={form.attrs.weight_g} onChange={(e)=>setForm({...form, attrs:{...form.attrs, weight_g:e.target.value}})} />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div>
+                <label className="block text-xs font-medium text-stone-700 mb-1">Count</label>
+                <input className="w-full rounded border px-2 py-1.5" type="number" min="1" value={form.attrs.count} onChange={(e)=>setForm({...form, attrs:{...form.attrs, count:e.target.value}})} />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2">
+              <button type="button" className="rounded-md border px-3 py-2" onClick={()=>setShowAddModal(false)}>Cancel</button>
+              <button className="rounded-md bg-amber-600 text-white px-3 py-2">Add Variant</button>
+            </div>
+            <div>
+              <div className="mt-2 text-sm font-semibold text-stone-800">Custom Attributes</div>
+              <div className="space-y-2">
+                {(form.customAttrs || []).map((row, i) => (
+                  <div key={i} className="grid grid-cols-5 gap-2 items-center">
+                    <input placeholder="name (e.g., milk)" className="col-span-2 rounded border px-2 py-1.5" value={row.name||''} onChange={(e)=>{
+                      const list = [...(form.customAttrs||[])]; list[i] = { ...list[i], name: e.target.value }; setForm({ ...form, customAttrs: list });
+                    }} />
+                    <input placeholder="value (e.g., oat)" className="col-span-2 rounded border px-2 py-1.5" value={row.value||''} onChange={(e)=>{
+                      const list = [...(form.customAttrs||[])]; list[i] = { ...list[i], value: e.target.value }; setForm({ ...form, customAttrs: list });
+                    }} />
+                    <button type="button" className="rounded-md border px-2 py-1 text-xs" onClick={()=>{
+                      const list = (form.customAttrs||[]).filter((_, idx) => idx !== i); setForm({ ...form, customAttrs: list });
+                    }}>Remove</button>
+                  </div>
+                ))}
+                <button type="button" className="rounded-md border px-3 py-1.5 text-xs" onClick={()=> setForm({ ...form, customAttrs: [ ...(form.customAttrs||[]), { name: '', value: '' } ] })}>Add custom attribute</button>
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 mt-4">
+              <button type="button" className="rounded-md border px-3 py-2" onClick={()=>setShowAddModal(false)}>Cancel</button>
+              <button className="rounded-md bg-amber-600 text-white px-3 py-2">Add Variant</button>
             </div>
           </form>
-        )}
+        </Modal> */}
         <div className="overflow-x-auto rounded border">
           <table className="min-w-full text-sm">
             <thead className="bg-stone-50"><tr>
@@ -136,7 +221,14 @@ function ProductsTable({ page = 0, size = 20, onPageChange, refreshTick = 0 }) {
                   <td className="px-3 py-2">{v.price?.amount} {v.price?.currency}</td>
                   <td className="px-3 py-2">{v.stock?.quantity} ({v.stock?.reserved} reserved)</td>
                   <td className="px-3 py-2 space-x-2">
-                    <button className="rounded-md border border-stone-300 px-2 py-1 text-xs hover:bg-stone-50" onClick={() => onUpdate(v.id, { sku: v.sku })}>Save</button>
+                    <button className="rounded-md border border-stone-300 px-2 py-1 text-xs hover:bg-stone-50" onClick={() => { setEditVariantId(v.id); const toObj = (list)=>{ const o={ roast:'', origin:'', grind:'', size_ml:'', caffeine:'', weight_g:'', count:'' };
+                      const custom = [];
+                      (Array.isArray(list)?list:[]).forEach(a=>{ if (a?.name && a?.value) {
+                        if (Object.hasOwn(o, a.name)) o[a.name]=String(a.value); else custom.push({ name: a.name, value: String(a.value) });
+                      }});
+                      setAttrEditCustom(custom);
+                      return o; };
+                      setAttrEdit(toObj(v.attributes)); setShowEditAttrsModal(true); }}>Edit Attrs</button>
                     <button className="rounded-md border border-red-300 text-red-700 px-2 py-1 text-xs hover:bg-red-50" onClick={() => onDelete(v.id)}>Delete</button>
                   </td>
                 </tr>
@@ -145,6 +237,68 @@ function ProductsTable({ page = 0, size = 20, onPageChange, refreshTick = 0 }) {
             </tbody>
           </table>
         </div>
+        <Modal open={showEditAttrsModal} onClose={() => setShowEditAttrsModal(false)} size="3xl" tall>
+          <div className="space-y-3">
+            <div><h4 className="text-base font-semibold">Edit Variant Attributes</h4></div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div>
+                <label className="block text-xs font-medium text-stone-700 mb-1">Roast</label>
+                <select className="w-full rounded border px-2 py-1.5" value={attrEdit.roast} onChange={(e)=>setAttrEdit({...attrEdit, roast:e.target.value})}>{VARIANT_OPTIONS.roast.map(o=> <option key={o.v} value={o.v}>{o.l}</option>)}</select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-stone-700 mb-1">Origin</label>
+                <select className="w-full rounded border px-2 py-1.5" value={attrEdit.origin} onChange={(e)=>setAttrEdit({...attrEdit, origin:e.target.value})}>{VARIANT_OPTIONS.origin.map(o=> <option key={o.v} value={o.v}>{o.l}</option>)}</select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-stone-700 mb-1">Grind</label>
+                <select className="w-full rounded border px-2 py-1.5" value={attrEdit.grind} onChange={(e)=>setAttrEdit({...attrEdit, grind:e.target.value})}>{VARIANT_OPTIONS.grind.map(o=> <option key={o.v} value={o.v}>{o.l}</option>)}</select>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div>
+                <label className="block text-xs font-medium text-stone-700 mb-1">Size (ml)</label>
+                <select className="w-full rounded border px-2 py-1.5" value={attrEdit.size_ml} onChange={(e)=>setAttrEdit({...attrEdit, size_ml:e.target.value})}>{VARIANT_OPTIONS.size_ml.map(o=> <option key={o.v} value={o.v}>{o.l}</option>)}</select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-stone-700 mb-1">Caffeine</label>
+                <select className="w-full rounded border px-2 py-1.5" value={attrEdit.caffeine} onChange={(e)=>setAttrEdit({...attrEdit, caffeine:e.target.value})}>{VARIANT_OPTIONS.caffeine.map(o=> <option key={o.v} value={o.v}>{o.l}</option>)}</select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-stone-700 mb-1">Weight (g)</label>
+                <input className="w-full rounded border px-2 py-1.5" type="number" min="1" value={attrEdit.weight_g} onChange={(e)=>setAttrEdit({...attrEdit, weight_g:e.target.value})} />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div>
+                <label className="block text-xs font-medium text-stone-700 mb-1">Count</label>
+                <input className="w-full rounded border px-2 py-1.5" type="number" min="1" value={attrEdit.count} onChange={(e)=>setAttrEdit({...attrEdit, count:e.target.value})} />
+              </div>
+            </div>
+            <div>
+              <div className="mt-1 text-sm font-semibold text-stone-800">Custom Attributes</div>
+              <div className="space-y-2">
+                {(attrEditCustom || []).map((row, i) => (
+                  <div key={i} className="grid grid-cols-5 gap-2 items-center">
+                    <input placeholder="name" className="col-span-2 rounded border px-2 py-1.5" value={row.name||''} onChange={(e)=>{
+                      const list = [...(attrEditCustom||[])]; list[i] = { ...list[i], name: e.target.value }; setAttrEditCustom(list);
+                    }} />
+                    <input placeholder="value" className="col-span-2 rounded border px-2 py-1.5" value={row.value||''} onChange={(e)=>{
+                      const list = [...(attrEditCustom||[])]; list[i] = { ...list[i], value: e.target.value }; setAttrEditCustom(list);
+                    }} />
+                    <button type="button" className="rounded-md border px-2 py-1 text-xs" onClick={()=>{
+                      const list = (attrEditCustom||[]).filter((_, idx) => idx !== i); setAttrEditCustom(list);
+                    }}>Remove</button>
+                  </div>
+                ))}
+                <button type="button" className="rounded-md border px-3 py-1.5 text-xs" onClick={()=> setAttrEditCustom([ ...(attrEditCustom||[]), { name: '', value: '' } ])}>Add custom attribute</button>
+              </div>
+            </div>
+            <div className="flex justify-end gap-2">
+              <button type="button" className="rounded-md border px-3 py-2" onClick={()=>setShowEditAttrsModal(false)}>Cancel</button>
+              <button className="rounded-md bg-amber-600 text-white px-3 py-2" onClick={async ()=>{ if (!editVariantId) return; await onUpdate(editVariantId, { attributes: buildAttributes(attrEdit, attrEditCustom) }); setShowEditAttrsModal(false); }}>Save</button>
+            </div>
+          </div>
+        </Modal>
       </div>
     );
   };
@@ -173,7 +327,7 @@ function ProductsTable({ page = 0, size = 20, onPageChange, refreshTick = 0 }) {
                   <td className="px-4 py-3 text-stone-600">{p.createdAt ? new Date(p.createdAt).toLocaleString() : '-'}</td>
                   <td className="px-4 py-3 space-x-2 whitespace-nowrap">
                     <button className="rounded-md border border-stone-300 px-2 py-1 text-xs hover:bg-stone-50" onClick={() => toggleExpand(p.id)}>{expandedId === p.id ? 'Hide' : 'Manage'}</button>
-                    <button className="rounded-md border border-amber-300 text-amber-800 px-2 py-1 text-xs hover:bg-amber-50" onClick={() => startEditProduct(p)}>Edit</button>
+                    <button className="rounded-md border border-amber-300 text-amber-800 px-2 py-1 text-xs hover:bg-amber-50" onClick={() => { window.location.href = `/admin/products/${p.id}/edit`; }}>Edit</button>
                     <button className="rounded-md border border-red-300 text-red-700 px-2 py-1 text-xs hover:bg-red-50" onClick={() => handleDeleteProduct(p.id)}>Delete</button>
                   </td>
                 </tr>
@@ -214,19 +368,7 @@ function ProductsTable({ page = 0, size = 20, onPageChange, refreshTick = 0 }) {
         </table>
       </div>
 
-      <Modal open={Boolean(editProductId)} onClose={() => setEditProductId(null)}>
-        <form onSubmit={submitEditProduct} className="space-y-4">
-          <div><h3 className="text-lg font-semibold">Edit Product</h3><p className="text-sm text-stone-600">Update product details.</p></div>
-          {actionError && <Alert type="error" title="Update failed" message={actionError} onClose={() => setActionError('')} />}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div><label className="block text-xs font-medium text-stone-700 mb-1">Name</label><input className="w-full rounded border px-3 py-2" value={editProductFields.name} onChange={(e)=>setEditProductFields({...editProductFields, name:e.target.value})} /></div>
-            <div><label className="block text-xs font-medium text-stone-700 mb-1">Category</label><select className="w-full rounded border px-3 py-2" value={editProductFields.category} onChange={(e)=>setEditProductFields({...editProductFields, category:e.target.value})}><option value="" disabled>Select category</option>{COFFEE_CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}</select></div>
-            <div><label className="block text-xs font-medium text-stone-700 mb-1">Status</label><select className="w-full rounded border px-3 py-2" value={editProductFields.status} onChange={(e)=>setEditProductFields({...editProductFields, status:e.target.value})}><option value="DRAFT">DRAFT</option><option value="ACTIVE">ACTIVE</option><option value="ARCHIVED">ARCHIVED</option></select></div>
-            <div><label className="block text-xs font-medium text-stone-700 mb-1">Description</label><textarea className="w-full rounded border px-3 py-2 min-h-[80px]" value={editProductFields.description} onChange={(e)=>setEditProductFields({...editProductFields, description:e.target.value})} /></div>
-          </div>
-          <div className="flex justify-end gap-2"><button type="button" className="rounded-md border px-4 py-2" onClick={()=>setEditProductId(null)} disabled={busy}>Cancel</button><button className="rounded-md bg-amber-600 text-white px-4 py-2 disabled:opacity-60" disabled={busy}>{busy ? 'Saving…' : 'Save'}</button></div>
-        </form>
-      </Modal>
+      {/* Edit product modal replaced by dedicated page /admin/products/[productId]/edit */}
     </div>
   );
 }
@@ -235,17 +377,23 @@ export default function ProductManagementPanel() {
   const [page, setPage] = useState(0);
   const [showCreate, setShowCreate] = useState(false);
   const [refreshTick, setRefreshTick] = useState(0);
-  const [createForm, setCreateForm] = useState({ name: '', description: '', category: '', status: 'ACTIVE', variants: [ { sku: '', priceAmount: '', priceCurrency: 'EUR', stockQuantity: '0', stockReserved: '0', imageFile: null } ] });
+  const [createForm, setCreateForm] = useState({ name: '', description: '', category: '', status: 'ACTIVE', variants: [ { sku: '', priceAmount: '', priceCurrency: 'EUR', stockQuantity: '0', stockReserved: '0', imageFile: null, attrs: { roast:'', origin:'', grind:'', size_ml:'', caffeine:'', weight_g:'', count:'' }, customAttrs: [] } ] });
   const [createError, setCreateError] = useState('');
   const [createBusy, setCreateBusy] = useState(false);
 
-  const addVariantRow = () => setCreateForm((f) => ({ ...f, variants: [...f.variants, { sku:'', priceAmount:'', priceCurrency:'EUR', stockQuantity:'0', stockReserved:'0', imageFile: null }] }));
+  const addVariantRow = () => setCreateForm((f) => ({ ...f, variants: [...f.variants, { sku:'', priceAmount:'', priceCurrency:'EUR', stockQuantity:'0', stockReserved:'0', imageFile: null, attrs: { roast:'', origin:'', grind:'', size_ml:'', caffeine:'', weight_g:'', count:'' }, customAttrs: [] }] }));
   const removeVariantRow = (idx) => setCreateForm((f) => ({ ...f, variants: f.variants.filter((_, i) => i !== idx) }));
   const updateVariantField = (idx, key, value) => setCreateForm((f) => ({ ...f, variants: f.variants.map((v, i) => i === idx ? { ...v, [key]: value } : v) }));
+  const updateVariantAttr = (idx, key, value) => setCreateForm((f) => ({ ...f, variants: f.variants.map((v, i) => i === idx ? { ...v, attrs: { ...(v.attrs||{}), [key]: value } } : v) }));
+  const updateVariantCustomRow = (idx, rowIdx, patch) => setCreateForm((f) => ({ ...f, variants: f.variants.map((v, i) => {
+    if (i !== idx) return v; const list = Array.isArray(v.customAttrs) ? [...v.customAttrs] : []; list[rowIdx] = { ...(list[rowIdx]||{ name:'', value:'' }), ...patch }; return { ...v, customAttrs: list };
+  }) }));
+  const addVariantCustomRow = (idx) => setCreateForm((f) => ({ ...f, variants: f.variants.map((v, i) => i===idx ? { ...v, customAttrs: [ ...(v.customAttrs||[]), { name:'', value:'' } ] } : v) }));
+  const removeVariantCustomRow = (idx, rowIdx) => setCreateForm((f) => ({ ...f, variants: f.variants.map((v, i) => i===idx ? { ...v, customAttrs: (v.customAttrs||[]).filter((_, j) => j !== rowIdx) } : v) }));
 
   const submitCreate = async (e) => {
     e.preventDefault();
-    try { setCreateBusy(true); await createProductWithForm(createForm); setShowCreate(false); setRefreshTick((t)=>t+1); setCreateForm({ name: '', description: '', category: '', status: 'ACTIVE', variants: [ { sku: '', priceAmount: '', priceCurrency: 'EUR', stockQuantity: '0', stockReserved: '0', imageFile: null } ] }); setCreateError(''); }
+    try { setCreateBusy(true); await createProductWithForm(createForm); setShowCreate(false); setRefreshTick((t)=>t+1); setCreateForm({ name: '', description: '', category: '', status: 'ACTIVE', variants: [ { sku: '', priceAmount: '', priceCurrency: 'EUR', stockQuantity: '0', stockReserved: '0', imageFile: null, attrs: { roast:'', origin:'', grind:'', size_ml:'', caffeine:'', weight_g:'', count:'' }, customAttrs: [] } ] }); setCreateError(''); }
     catch (e) { setCreateError(e?.message || 'Create failed'); }
     finally { setCreateBusy(false); }
   };
@@ -254,10 +402,11 @@ export default function ProductManagementPanel() {
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold text-stone-900">Product Management</h2>
-        <button className="rounded-md bg-amber-600 px-3 py-2 text-sm font-semibold text-white hover:bg-amber-700" onClick={() => setShowCreate((v) => !v)}>{showCreate ? 'Close' : 'Create Product'}</button>
+        <button className="rounded-md bg-amber-600 px-3 py-2 text-sm font-semibold text-white hover:bg-amber-700" onClick={() => { window.location.href = '/admin/products/new'; }}>Create Product</button>
       </div>
 
-      <Modal open={showCreate} onClose={() => setShowCreate(false)}>
+      {/* Replaced with dedicated page at /admin/products/new */}
+      {/* <Modal open={showCreate} onClose={() => setShowCreate(false)} size="4xl" tall>
         <form onSubmit={submitCreate} className="space-y-4">
           <div><h3 className="text-lg font-semibold">Create Product</h3><p className="text-sm text-stone-600">Add a new product with one or more variants.</p></div>
           {createError && <Alert type="error" title="Create failed" message={createError} onClose={() => setCreateError('')} />}
@@ -284,6 +433,73 @@ export default function ProductManagementPanel() {
                       <div><label className="block text-xs font-medium text-stone-700 mb-1">Reserved</label><input className="w-full rounded border px-2 py-1.5" value={v.stockReserved} onChange={(e)=>updateVariantField(idx,'stockReserved',e.target.value)} /></div>
                       <div><label className="block text-xs font-medium text-stone-700 mb-1">Image</label><div className="flex items-center gap-3"><input className="rounded border px-2 py-1.5 w-full" type="file" accept="image/*" onChange={(e)=>updateVariantField(idx,'imageFile', e.target.files?.[0] || null)} />{v.imageFile && <img alt="preview" className="h-12 w-12 rounded object-cover ring-1 ring-black/5" src={URL.createObjectURL(v.imageFile)} />}</div></div>
                     </div>
+                    <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      <div><label className="block text-xs font-medium text-stone-700 mb-1">Roast</label>
+                        <select className="w-full rounded border px-2 py-1.5" value={v.attrs?.roast||''} onChange={(e)=>updateVariantAttr(idx,'roast',e.target.value)}>
+                          <option value="">—</option>
+                          <option value="light">Light</option>
+                          <option value="medium">Medium</option>
+                          <option value="dark">Dark</option>
+                        </select>
+                      </div>
+                      <div><label className="block text-xs font-medium text-stone-700 mb-1">Origin</label>
+                        <select className="w-full rounded border px-2 py-1.5" value={v.attrs?.origin||''} onChange={(e)=>updateVariantAttr(idx,'origin',e.target.value)}>
+                          <option value="">—</option>
+                          <option value="Brazil">Brazil</option>
+                          <option value="Colombia">Colombia</option>
+                          <option value="Ethiopia">Ethiopia</option>
+                          <option value="Kenya">Kenya</option>
+                        </select>
+                      </div>
+                      <div><label className="block text-xs font-medium text-stone-700 mb-1">Grind</label>
+                        <select className="w-full rounded border px-2 py-1.5" value={v.attrs?.grind||''} onChange={(e)=>updateVariantAttr(idx,'grind',e.target.value)}>
+                          <option value="">—</option>
+                          <option value="whole_beans">Whole Beans</option>
+                          <option value="espresso">Espresso</option>
+                          <option value="filter">Filter</option>
+                          <option value="french_press">French Press</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      <div><label className="block text-xs font-medium text-stone-700 mb-1">Size (ml)</label>
+                        <select className="w-full rounded border px-2 py-1.5" value={v.attrs?.size_ml||''} onChange={(e)=>updateVariantAttr(idx,'size_ml',e.target.value)}>
+                          <option value="">—</option>
+                          <option value="250">250 ml</option>
+                          <option value="350">350 ml</option>
+                          <option value="500">500 ml</option>
+                          <option value="1000">1000 ml</option>
+                        </select>
+                      </div>
+                      <div><label className="block text-xs font-medium text-stone-700 mb-1">Caffeine</label>
+                        <select className="w-full rounded border px-2 py-1.5" value={v.attrs?.caffeine||''} onChange={(e)=>updateVariantAttr(idx,'caffeine',e.target.value)}>
+                          <option value="">—</option>
+                          <option value="regular">Regular</option>
+                          <option value="decaf">Decaf</option>
+                        </select>
+                      </div>
+                      <div><label className="block text-xs font-medium text-stone-700 mb-1">Weight (g)</label>
+                        <input className="w-full rounded border px-2 py-1.5" type="number" min="1" value={v.attrs?.weight_g||''} onChange={(e)=>updateVariantAttr(idx,'weight_g',e.target.value)} />
+                      </div>
+                    </div>
+                    <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      <div><label className="block text-xs font-medium text-stone-700 mb-1">Count</label>
+                        <input className="w-full rounded border px-2 py-1.5" type="number" min="1" value={v.attrs?.count||''} onChange={(e)=>updateVariantAttr(idx,'count',e.target.value)} />
+                      </div>
+                    </div>
+                    <div className="mt-3">
+                      <div className="text-sm font-semibold text-stone-800">Custom Attributes</div>
+                      <div className="space-y-2 mt-1">
+                        {(v.customAttrs || []).map((row, rIdx) => (
+                          <div key={rIdx} className="grid grid-cols-5 gap-2 items-center">
+                            <input placeholder="name" className="col-span-2 rounded border px-2 py-1.5" value={row.name||''} onChange={(e)=>updateVariantCustomRow(idx, rIdx, { name: e.target.value })} />
+                            <input placeholder="value" className="col-span-2 rounded border px-2 py-1.5" value={row.value||''} onChange={(e)=>updateVariantCustomRow(idx, rIdx, { value: e.target.value })} />
+                            <button type="button" className="rounded-md border px-2 py-1 text-xs" onClick={()=>removeVariantCustomRow(idx, rIdx)}>Remove</button>
+                          </div>
+                        ))}
+                        <button type="button" className="rounded-md border px-3 py-1.5 text-xs" onClick={()=>addVariantCustomRow(idx)}>Add custom attribute</button>
+                      </div>
+                    </div>
                     <div className="mt-3 flex justify-end"><button type="button" className="rounded-md border border-red-300 text-red-700 px-3 py-1.5 text-sm hover:bg-red-50" onClick={()=>removeVariantRow(idx)}>Remove</button></div>
                   </div>
                 ))}
@@ -292,10 +508,9 @@ export default function ProductManagementPanel() {
           </div>
           <div className="flex justify-end gap-2"><button type="button" className="rounded-md border px-4 py-2" onClick={()=>setShowCreate(false)} disabled={createBusy}>Cancel</button><button className="rounded-md bg-amber-600 text-white px-4 py-2 disabled:opacity-60" disabled={createBusy}>{createBusy ? 'Creating…' : 'Create'}</button></div>
         </form>
-      </Modal>
+      </Modal> */}
 
       <ProductsTable page={page} size={20} onPageChange={setPage} refreshTick={refreshTick} />
     </div>
   );
 }
-

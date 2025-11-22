@@ -25,13 +25,27 @@ public class UpdateVariantUseCase {
         validateStock(qty, res);
 
         String imageUrl = cmd.getImageUrl() != null ? cmd.getImageUrl() : existing.getImageUrl();
+        java.util.List<Attribute> attrs = existing.getAttributes();
+        if (cmd.getAttributes() != null) {
+            attrs = cmd.getAttributes().stream()
+                    .filter(p -> p != null && p.getName() != null && p.getValue() != null)
+                    .map(p -> {
+                        String raw = p.getName().trim();
+                        String norm = raw.toLowerCase(java.util.Locale.ROOT).replaceAll("[^a-z0-9_]", "_");
+                        norm = norm.replaceAll("_+", "_");
+                        norm = norm.replaceAll("^_+|_+$", "");
+                        if (norm.isEmpty()) norm = raw; // fallback to original if normalization empties it
+                        return new Attribute(norm, p.getValue());
+                    })
+                    .toList();
+        }
 
         Variant updated = new Variant(
                 existing.getId(),
                 new Sku(sku),
                 new Money(amount, java.util.Currency.getInstance(currencyCode.toUpperCase())),
                 new Stock(qty, res),
-                existing.getAttributes(),
+                attrs,
                 imageUrl
         );
         return port.saveVariant(productId, updated);

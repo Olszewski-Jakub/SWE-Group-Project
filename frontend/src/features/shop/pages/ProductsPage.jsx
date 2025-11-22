@@ -54,9 +54,9 @@ export default function ProductsPage() {
 
   // Accordion state for filters (expanded sections)
   const [openSections, setOpenSections] = useState({
-    sort: true,
-    category: true,
-    price: true,
+    sort: false,
+    category: false,
+    price: false,
   });
 
   // Ref to store the debounce timers
@@ -434,7 +434,7 @@ export default function ProductsPage() {
       {/* Attribute Filters (Roast, Origin, Size) */}
       {ATTRIBUTE_FILTERS.map((attribute) => (
         <div key={attribute.name} className="mb-4 border-b border-stone-200 pb-4">
-          <details className="group" open>
+          <details className="group">
             <summary className="cursor-pointer list-none flex items-center justify-between">
               <h3 className="text-sm font-semibold text-stone-900">{attribute.label}</h3>
               <svg className="w-4 h-4 text-stone-700 transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 011.08 1.04l-4.25 4.25a.75.75 0 01-1.06 0L5.21 8.27a.75.75 0 01.02-1.06z" clipRule="evenodd"/></svg>
