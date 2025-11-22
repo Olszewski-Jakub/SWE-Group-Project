@@ -40,6 +40,12 @@ WORKDIR /app
 # Copy built JAR from build stage (accept both release and SNAPSHOT)
 COPY --from=build /workspace/integration/build/libs/*.jar /app/app.jar
 
+# Ensure writable image storage directory and set property env
+RUN mkdir -p /app/data/product-images \
+    && chown -R appuser:appgroup /app
+
+ENV APP_IMAGES_DIR=/app/data/product-images
+
 # Expose HTTP port
 EXPOSE 8888 8889 8080
 

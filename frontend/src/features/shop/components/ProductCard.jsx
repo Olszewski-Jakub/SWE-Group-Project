@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CATEGORIES } from "@/constants/productFilters";
 
 /**
  * ProductCard displays a single product's information in a card format.
@@ -38,6 +39,27 @@ export default function ProductCard({ product }) {
       }).format(firstVariant.priceCents/100)
     : 'Not available';
 
+  // Build a category label from known filters; fallback to a humanized category
+  const CATEGORY_LABEL_MAP = (function () {
+    try {
+      const map = {};
+      (Array.isArray(CATEGORIES) ? CATEGORIES : []).forEach((c) => {
+        if (!c) return;
+        const val = (c.value ?? '').toString().toLowerCase();
+        const lab = c.label ?? '';
+        if (val) map[val] = lab;
+        if (lab) map[lab.toLowerCase()] = lab;
+      });
+      return map;
+    } catch (_) {
+      return {};
+    }
+  })();
+
+  const humanize = (s) => (s || '').toString().replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim().replace(/\b\w/g, (m) => m.toUpperCase());
+  const categoryKey = (product.category || '').toString().toLowerCase();
+  const categoryLabel = CATEGORY_LABEL_MAP[categoryKey] || humanize(product.category || '');
+
   return (
     <Link href={`/product/${product.id}`}>
       <div className="group flex flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
@@ -63,7 +85,7 @@ export default function ProductCard({ product }) {
         {/* Card Content Area */}
         <div className="flex flex-grow flex-col p-5">
           <h3 className="text-lg font-semibold text-[#7B542F]">{product.name}</h3>
-          <p className="mb-4 text-sm font-medium capitalize text-[#B6771D]">{product.category.toLowerCase()}</p>
+          <p className="mb-4 text-sm font-medium text-[#B6771D]">{categoryLabel}</p>
           
           {/* This div uses `mt-auto` to push itself to the bottom of the card */}
           <div className="mt-auto flex items-center justify-between">

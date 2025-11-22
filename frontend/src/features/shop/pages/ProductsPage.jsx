@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import ProductsGrid from '../components/ProductsGrid';
 import { getProducts, postSearch } from '../../../lib/ProductService';
 import { CATEGORIES, SORT_OPTIONS, ATTRIBUTE_FILTERS } from '@/constants/productFilters';
+import {COFFEE_CATEGORIES} from "@/constants/coffeeCategories";
 
 /**
  * ProductsPage is the main component for the product catalog.
@@ -236,7 +237,7 @@ export default function ProductsPage() {
           }}
           className="w-full px-4 py-2 border border-[#B6771D] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7B542F]"
         >
-          {CATEGORIES.map((category) => (
+          {COFFEE_CATEGORIES.map((category) => (
             <option key={category.value} value={category.value}>
               {category.label}
             </option>

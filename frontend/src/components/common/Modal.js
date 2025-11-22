@@ -6,22 +6,19 @@ import { classNames } from '../../utils/helpers';
 
 export default function Modal({ open, onClose, children }) {
   if (typeof document === 'undefined') return null;
+  if (!open) return null; // Unmount when closed to avoid visibility/pointer issues
   return createPortal(
     <Fragment>
       <div
-        className={classNames(
-          'fixed inset-0 bg-black/30 transition-opacity',
-          open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-        )}
+        className={classNames('fixed inset-0 bg-black/30 opacity-100 pointer-events-auto transition-opacity z-40')}
         onClick={onClose}
       />
-      <div
-        className={classNames(
-          'fixed inset-0 flex items-center justify-center p-4',
-          open ? 'pointer-events-auto' : 'pointer-events-none'
-        )}
-      >
-        <div className={classNames('w-full max-w-md rounded bg-white p-6 shadow transition-transform', open ? 'scale-100' : 'scale-95')}>
+      <div className={classNames('fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-auto')}>
+        <div
+          role="dialog"
+          aria-modal="true"
+          className={classNames('w-full max-w-2xl rounded-lg bg-white p-6 shadow-xl ring-1 ring-black/5 transform transition-all duration-150 ease-out scale-100 max-h-[85vh] overflow-auto')}
+        >
           {children}
         </div>
       </div>
@@ -29,4 +26,3 @@ export default function Modal({ open, onClose, children }) {
     document.body
   );
 }
-
