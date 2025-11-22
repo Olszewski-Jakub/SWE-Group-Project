@@ -14,6 +14,7 @@ public final class Variant {
     private final Money price;
     private final Stock stock;
     private final List<Attribute> attributes;
+    private final String imageUrl; // optional
 
     public Variant(VariantId id, Sku sku, Money price, Stock stock, List<Attribute> attributes) {
         this.id = id;
@@ -21,6 +22,16 @@ public final class Variant {
         this.price = price;
         this.stock = stock;
         this.attributes = List.copyOf(attributes); // Ensure immutability
+        this.imageUrl = null;
+    }
+
+    public Variant(VariantId id, Sku sku, Money price, Stock stock, List<Attribute> attributes, String imageUrl) {
+        this.id = id;
+        this.sku = sku;
+        this.price = price;
+        this.stock = stock;
+        this.attributes = List.copyOf(attributes);
+        this.imageUrl = imageUrl;
     }
 
     // Getters
@@ -29,6 +40,7 @@ public final class Variant {
     public Money getPrice() { return price; }
     public Stock getStock() { return stock; }
     public List<Attribute> getAttributes() { return List.copyOf(attributes); } // Return immutable view
+    public String getImageUrl() { return imageUrl; }
 
     @Override
     public boolean equals(Object o) {
@@ -39,12 +51,13 @@ public final class Variant {
                Objects.equals(sku, variant.sku) &&
                Objects.equals(price, variant.price) &&
                Objects.equals(stock, variant.stock) &&
-               Objects.equals(attributes, variant.attributes);
+               Objects.equals(attributes, variant.attributes) &&
+               Objects.equals(imageUrl, variant.imageUrl);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, sku, price, stock, attributes);
+        return Objects.hash(id, sku, price, stock, attributes, imageUrl);
     }
 
     @Override
@@ -54,7 +67,8 @@ public final class Variant {
                "sku=" + sku + ", " +
                "price=" + price + ", " +
                "stock=" + stock + ", " +
-               "attributes=" + attributes +
+               "attributes=" + attributes + ", " +
+               "imageUrl=" + imageUrl +
                ']';
     }
 }

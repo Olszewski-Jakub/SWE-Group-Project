@@ -57,7 +57,8 @@ public class VariantPersistenceAdapter implements VariantPort {
                 new Sku(entity.getSku()),
                 new Money(BigDecimal.valueOf(entity.getPriceCents() / 100.0), currency),
                 new Stock(entity.getStockQuantity(), entity.getReservedQuantity()),
-                Collections.emptyList()
+                Collections.emptyList(),
+                entity.getImageUrl()
         );
     }
 }

@@ -25,7 +25,7 @@ public class CreateProductUseCase {
         if (product.getVariants() != null) {
             normalizedVariants = product.getVariants().stream().map(v -> {
                 VariantId vid = (v.getId() == null || v.getId().getId() == null) ? new VariantId(UUID.randomUUID()) : v.getId();
-                Variant nv = new Variant(vid, v.getSku(), v.getPrice(), v.getStock(), v.getAttributes());
+                Variant nv = new Variant(vid, v.getSku(), v.getPrice(), v.getStock(), v.getAttributes(), v.getImageUrl());
                 validateVariant(nv);
                 return nv;
             }).toList();
