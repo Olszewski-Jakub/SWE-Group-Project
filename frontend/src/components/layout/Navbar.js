@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { classNames } from '@/utils/helpers';
 import Button from '../ui/Button';
 import { useAuth } from '@/hooks/useAuth';
+import { useCart } from '@/features/cart/CartContext';
 
 function CoffeeIcon({ className = 'h-5 w-5' }) {
   return (
@@ -90,6 +91,25 @@ function LogOutIcon({ className = 'h-4 w-4' }) {
   );
 }
 
+function CartIcon({ className = 'h-5 w-5' }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="9" cy="21" r="1" />
+      <circle cx="20" cy="21" r="1" />
+      <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+    </svg>
+  );
+}
+
+
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
@@ -99,6 +119,9 @@ export default function Navbar() {
   const containerRef = useRef(null);
   const linkRefs = useRef({});
   const indicatorRef = useRef(null);
+  const { items: cartItems, toggleCart } = useCart(); // renamed to cartItems
+  const itemsInCart = Array.isArray(cartItems) ? cartItems.reduce((a, b) => a + (b.quantity || 0), 0) : 0;
+
 
   const handleLogout = async () => {
     await signOut();
@@ -166,13 +189,19 @@ export default function Navbar() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center gap-6">
-            <Link href="/" className="group flex items-center gap-2 text-lg font-semibold tracking-tight text-stone-900">
+            <Link
+              href="/"
+              className="group flex items-center gap-2 text-lg font-semibold tracking-tight text-stone-900"
+            >
               <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-gradient-to-br from-amber-600 to-orange-500 text-white shadow-sm ring-1 ring-black/5 transition-colors group-hover:from-amber-700 group-hover:to-orange-600">
                 <CoffeeIcon className="h-4 w-4" />
               </span>
               <span className="hidden sm:inline">StackOverFlowedCup</span>
             </Link>
-            <div ref={containerRef} className="relative hidden md:flex items-center gap-1">
+            <div
+              ref={containerRef}
+              className="relative hidden md:flex items-center gap-1"
+            >
               {items.map((item) => {
                 const Icon = item.icon;
                 return (
@@ -181,10 +210,12 @@ export default function Navbar() {
                     href={item.href}
                     prefetch
                     className={classNames(
-                      'group relative inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium text-stone-700 hover:text-stone-900 hover:bg-stone-100/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 transition-colors',
-                      pathname === item.href && 'text-stone-900'
+                      "group relative inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium text-stone-700 hover:text-stone-900 hover:bg-stone-100/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 transition-colors",
+                      pathname === item.href && "text-stone-900"
                     )}
-                    ref={(el) => { if (el) linkRefs.current[item.href] = el; }}
+                    ref={(el) => {
+                      if (el) linkRefs.current[item.href] = el;
+                    }}
                   >
                     <Icon className="h-4 w-4 opacity-80 group-hover:opacity-100" />
                     <span>{item.label}</span>
@@ -194,7 +225,7 @@ export default function Navbar() {
               <span
                 ref={indicatorRef}
                 className="pointer-events-none absolute -bottom-px h-1 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 shadow-[0_0_0_1px_rgba(0,0,0,0.05)] transition-[transform,width] duration-300 ease-out"
-                style={{ width: 0, transform: 'translateX(0px)' }}
+                style={{ width: 0, transform: "translateX(0px)" }}
               />
             </div>
           </div>
@@ -210,12 +241,30 @@ export default function Navbar() {
               {/* Hamburger / Close icons */}
               {open ? (
                 // X icon
-                <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <svg
+                  className="h-6 w-6"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden
+                >
                   <path d="M18 6 6 18M6 6l12 12" />
                 </svg>
               ) : (
                 // Hamburger icon
-                <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <svg
+                  className="h-6 w-6"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden
+                >
                   <path d="M3 6h18M3 12h18M3 18h18" />
                 </svg>
               )}
@@ -223,8 +272,25 @@ export default function Navbar() {
             <div className="hidden md:flex items-center gap-3">
               {isAuthenticated ? (
                 <>
+                  {/* CART BUTTON */}
+                  <button
+                    onClick={toggleCart}
+                    className="relative rounded-full p-2 hover:bg-stone-100 transition cursor-pointer"
+                    aria-label="Open cart"
+                  >
+                    <CartIcon className="h-5 w-5 text-stone-800" />
+                    {itemsInCart > 0 && (
+                      <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-semibold shadow">
+                        {itemsInCart}
+                      </span>
+                    )}
+                  </button>
+
                   <Link href="/profile" prefetch>
-                    <Button variant="primary" className="rounded-full shadow-md shadow-amber-200/40">
+                    <Button
+                      variant="primary"
+                      className="rounded-full shadow-md shadow-amber-200/40"
+                    >
                       <UserIcon className="mr-2" />
                       Profile
                     </Button>
@@ -253,13 +319,14 @@ export default function Navbar() {
         {open && (
           <div className="md:hidden">
             {/* Backdrop overlay (below panel) */}
+
             <button
               type="button"
               aria-label="Close menu backdrop"
               onClick={() => setOpen(false)}
               className={classNames(
-                'fixed inset-x-0 top-16 bottom-0 z-40 bg-stone-950/10 backdrop-blur-0 transition-all duration-300 ease-out',
-                menuAnim && 'bg-stone-950/20 backdrop-blur-sm'
+                "fixed inset-x-0 top-16 bottom-0 z-40 bg-stone-950/10 backdrop-blur-0 transition-all duration-300 ease-out",
+                menuAnim && "bg-stone-950/20 backdrop-blur-sm"
               )}
             />
 
@@ -267,9 +334,11 @@ export default function Navbar() {
             <div className="fixed inset-x-0 top-16 z-50">
               <div
                 className={classNames(
-                  'overflow-hidden rounded-none ring-1 ring-black/5 bg-white/95 backdrop-blur-xl shadow-2xl transition-all duration-300 ease-out',
-                  'origin-top transform',
-                  menuAnim ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-2 scale-[0.98]'
+                  "overflow-hidden rounded-none ring-1 ring-black/5 bg-white/95 backdrop-blur-xl shadow-2xl transition-all duration-300 ease-out",
+                  "origin-top transform",
+                  menuAnim
+                    ? "opacity-100 translate-y-0 scale-100"
+                    : "opacity-0 -translate-y-2 scale-[0.98]"
                 )}
               >
                 <div className="flex flex-col p-1">
@@ -281,8 +350,8 @@ export default function Navbar() {
                         href={item.href}
                         prefetch
                         className={classNames(
-                          'inline-flex items-center gap-2 px-4 py-3 text-base font-medium text-stone-800 hover:bg-stone-100/80',
-                          pathname === item.href && 'text-stone-900'
+                          "inline-flex items-center gap-2 px-4 py-3 text-base font-medium text-stone-800 hover:bg-stone-100/80",
+                          pathname === item.href && "text-stone-900"
                         )}
                       >
                         <Icon className="h-5 w-5 opacity-80" />
@@ -290,6 +359,20 @@ export default function Navbar() {
                       </Link>
                     );
                   })}
+                  {/* Mobile cart link */}
+                  {/* Mobile cart link */}
+                  <button
+                    onClick={toggleCart}
+                    className="inline-flex items-center gap-2 px-4 py-3 text-base font-medium text-amber-700 hover:text-amber-800 hover:bg-amber-50 rounded-md transition-colors focus:outline-none cursor-pointer"
+                  >
+                    <CartIcon className="h-5 w-5 text-amber-700 group-hover:text-amber-800" />
+                    <span>My Shopping Cart</span>
+                    {itemsInCart > 0 && (
+                      <span className="ml-2 flex h-5 w-5 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-semibold">
+                        {itemsInCart}
+                      </span>
+                    )}
+                  </button>
                 </div>
                 <div className="border-t border-stone-200/80" />
                 <div className="px-4 py-3">
