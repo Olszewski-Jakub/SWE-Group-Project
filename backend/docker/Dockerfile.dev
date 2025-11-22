@@ -35,6 +35,12 @@ WORKDIR /app
 # NOTE: fix here — use the correct stage name "jre-build"
 COPY --from=jre-build /workspace/integration/build/libs/*-SNAPSHOT.jar /app/app.jar
 
+# Prepare writable image storage and set property
+RUN mkdir -p /app/data/product-images \
+    && chown -R appuser:appgroup /app
+
+ENV APP_IMAGES_DIR=/app/data/product-images
+
 EXPOSE 8080
 USER appuser
 

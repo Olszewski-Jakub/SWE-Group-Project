@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { CATEGORIES } from "@/constants/productFilters";
 import VariantInfo from "./VariantInfo";
 
 export default function ProductInfo({ product }) {
@@ -26,9 +28,24 @@ export default function ProductInfo({ product }) {
     <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Breadcrumbs or page heading area */}
       <header className="mb-6">
-        <p className="text-sm uppercase tracking-wide text-[#B6771D]/90">
-          {product?.category}
-        </p>
+        {(() => {
+          const map = (Array.isArray(CATEGORIES) ? CATEGORIES : []).reduce((acc, c) => {
+            if (!c) return acc;
+            const v = (c.value ?? '').toString().toLowerCase();
+            const l = c.label ?? '';
+            if (v) acc[v] = l;
+            if (l) acc[l.toLowerCase()] = l;
+            return acc;
+          }, {});
+          const humanize = (s) => (s || '').toString().replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim().replace(/\b\w/g, (m) => m.toUpperCase());
+          const key = (product?.category || '').toString().toLowerCase();
+          const catLabel = map[key] || humanize(product?.category || '');
+          return (
+            <Link href="/products" className="inline-flex items-center gap-2 text-sm tracking-wide text-[#B6771D]/90 hover:text-[#7B542F]">
+              <span className="uppercase">{catLabel}</span>
+            </Link>
+          );
+        })()}
         <h1 className="mt-1 text-2xl font-bold text-[#7B542F]">
           {product?.name}
         </h1>

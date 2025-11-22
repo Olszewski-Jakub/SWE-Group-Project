@@ -1,7 +1,7 @@
 "use client";
 
 import AuthGuard from './AuthGuard';
-import { useAuth } from '../../hooks/useAuth';
+import {useAuth} from '../../hooks/useAuth';
 
 export default function RoleGuard({ requireRoles = [], fallback = null, children }) {
   return (
@@ -15,8 +15,8 @@ export default function RoleGuard({ requireRoles = [], fallback = null, children
 
 function RoleOnly({ requireRoles = [], fallback = null, children }) {
   const { roles = [] } = useAuth();
-  const hasRoles = requireRoles.every((r) => roles.includes(r));
-  if (!hasRoles) {
+    const hasRoles = requireRoles.length === 0 ? true : requireRoles.some((r) => roles.includes(r));
+    if (!hasRoles) {
     return fallback || (
       <div className="mx-auto max-w-2xl rounded border border-yellow-200 bg-yellow-50 p-6 text-yellow-900">
         <h2 className="mb-2 text-lg font-semibold">403 — Forbidden</h2>

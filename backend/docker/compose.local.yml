@@ -53,6 +53,7 @@ services:
       MAILJET_API_SECRET: ${MAILJET_API_SECRET:-changeme}
       MAIL_FROM_EMAIL: ${MAIL_FROM_EMAIL:-no-reply@example.com}
       MAIL_FROM_NAME: ${MAIL_FROM_NAME:-GroupNine}
+      APP_IMAGES_DIR: "/app/data/product-images"
       # The app's application-local.yml already points to jdbc:postgresql://db:5432/demo_db
       # If you prefer env-only config, uncomment:
       # SPRING_DATASOURCE_URL: "jdbc:postgresql://db:5432/demo_db"
@@ -60,6 +61,8 @@ services:
       # SPRING_DATASOURCE_PASSWORD: "demo"
     ports:
       - "8080:8080"
+    volumes:
+      - app-images:/app/data
     healthcheck:
       test: [ "CMD", "wget", "--spider", "-q", "http://localhost:8080/api/health" ]
       interval: 5s
@@ -79,3 +82,4 @@ services:
 
 volumes:
   db-data:
+  app-images:
