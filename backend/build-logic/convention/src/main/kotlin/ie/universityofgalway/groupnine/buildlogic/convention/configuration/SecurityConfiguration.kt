@@ -17,7 +17,6 @@ internal fun Project.configureSecurity() {
         implementation(libs.library("spring-boot-starter"))
         implementation(libs.library("spring-boot-starter-oauth2-resource-server"))
         implementation(libs.library("spring-boot-starter-security"))
-        implementation(libs.library("spring-boot-starter-security"))
         implementation(libs.library("spring-boot-starter-validation"))
         implementation(libs.library("spring-boot-starter-web"))
         implementation(libs.library("spring-context"))
