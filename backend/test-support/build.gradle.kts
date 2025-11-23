@@ -14,15 +14,15 @@ repositories { mavenCentral() }
 
 dependencies {
     implementation(libs.jackson.databind)
-    implementation(libs.spring.boot.starter.web)
-    implementation(libs.spring.boot.starter.validation)
-    implementation(libs.spring.boot.starter.test)
+    implementation(libs.junit.jupiter)
     implementation(libs.spring.boot.starter.data.jpa)
     implementation(libs.spring.boot.starter.security)
+    implementation(libs.spring.boot.starter.test)
+    implementation(libs.spring.boot.starter.validation)
+    implementation(libs.spring.boot.starter.web)
     implementation(platform(libs.junit.bom))
-    implementation(libs.junit.jupiter)
-    testRuntimeOnly(libs.junit.platform.launcher)
     testRuntimeOnly(libs.junit.platform.engine)
+    testRuntimeOnly(libs.junit.platform.launcher)
 
 }
 

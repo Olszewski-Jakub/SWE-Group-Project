@@ -8,11 +8,13 @@ group = "ie.universityofgalway.groupnine.delivery.webhook"
 version = project.findProperty("version")!!
 
 dependencies {
-    implementation(libs.spring.boot.starter.web)
-    implementation(project(":service"))
     implementation(project(":domain"))
+    implementation(project(":service"))
     implementation(project(":util"))
-    implementation("com.stripe:stripe-java:24.9.0")
+
+    implementation(libs.spring.boot.starter.web)
+    implementation(libs.stripe.java)
+
     testImplementation(libs.spring.boot.starter.test)
 }
 
