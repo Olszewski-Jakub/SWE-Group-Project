@@ -4,17 +4,17 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "dev:local": "NEXT_PUBLIC_ENVIRONMENT=local NEXT_PUBLIC_API_BASE_URL=http://localhost:8080/api/v1 next dev --turbopack",
-    "dev:dev": "NEXT_PUBLIC_ENVIRONMENT=dev NEXT_PUBLIC_API_BASE_URL=https://api.bushive.app/swe next dev --turbopack",
-    "build": "NEXT_PUBLIC_API_BASE_URL=https://api.bushive.app/swe next build --turbopack",
-    "build:dev": "NEXT_PUBLIC_API_BASE_URL=https://api.bushive.app/swe NEXT_PUBLIC_ENVIRONMENT=dev next build --turbopack",
-    "build:prod": "NEXT_PUBLIC_API_BASE_URL=https://api.bushive.app/swe NEXT_PUBLIC_ENVIRONMENT=prod next build --turbopack",
+    "dev:local": "cross-env NEXT_PUBLIC_ENVIRONMENT=local NEXT_PUBLIC_API_BASE_URL=http://localhost:8080/api/v1 next dev --turbopack",
+    "dev:dev": "cross-env NEXT_PUBLIC_ENVIRONMENT=dev NEXT_PUBLIC_API_BASE_URL=https://api.bushive.app/swe next dev --turbopack",
+    "build": "cross-env NEXT_PUBLIC_API_BASE_URL=https://api.bushive.app/swe next build --turbopack",
+    "build:dev": "cross-env NEXT_PUBLIC_API_BASE_URL=https://api.bushive.app/swe NEXT_PUBLIC_ENVIRONMENT=dev next build --turbopack",
+    "build:prod": "cross-env NEXT_PUBLIC_API_BASE_URL=https://api.bushive.app/swe NEXT_PUBLIC_ENVIRONMENT=prod next build --turbopack",
     "start": "next start",
-    "start:dev": "NEXT_PUBLIC_API_BASE_URL=https://api.bushive.app/swe NEXT_PUBLIC_ENVIRONMENT=dev next start",
-    "start:prod": "NEXT_PUBLIC_API_BASE_URL=https://api.bushive.app/swe NEXT_PUBLIC_ENVIRONMENT=prod next start"
+    "start:dev": "cross-env NEXT_PUBLIC_API_BASE_URL=https://api.bushive.app/swe NEXT_PUBLIC_ENVIRONMENT=dev next start",
+    "start:prod": "cross-env NEXT_PUBLIC_API_BASE_URL=https://api.bushive.app/swe NEXT_PUBLIC_ENVIRONMENT=prod next start"
   },
   "dependencies": {
-    "axios": "^1.12.2",
+    "axios": "^1.13.2",
     "next": "15.5.3",
     "react": "19.1.0",
     "react-dom": "19.1.0"
@@ -22,6 +22,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "autoprefixer": "^10.4.21",
+    "cross-env": "^10.1.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.16"
   }

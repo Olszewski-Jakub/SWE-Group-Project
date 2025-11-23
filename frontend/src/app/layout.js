@@ -2,6 +2,8 @@ import '../styles/globals.css';
 import { AuthProvider } from '../features/auth/AuthContext';
 import Navbar from '../components/layout/Navbar';
 import EnvBadge from '../components/common/EnvBadge';
+import { CartProvider } from '../features/cart/CartContext';
+import CartPanel from '../components/cart/CartPanel';
 
 export const metadata = {
   title: 'StackOverFlowedCup',
@@ -13,9 +15,14 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body>
         <AuthProvider>
-          <Navbar />
-          <main className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">{children}</main>
-          <EnvBadge />
+          <CartProvider>
+            <Navbar />
+            <CartPanel />
+            <main className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
+              {children}
+            </main>
+            <EnvBadge />
+          </CartProvider>
         </AuthProvider>
       </body>
     </html>
