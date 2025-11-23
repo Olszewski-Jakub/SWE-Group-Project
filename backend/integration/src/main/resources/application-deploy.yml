@@ -76,8 +76,8 @@ app:
   flyway:
     repair-on-start: true
   checkout:
-    success-path: "${CHECKOUT_SUCCESS_PATH:/checkout/success}"
-    cancel-path: "${CHECKOUT_CANCEL_PATH:/checkout/cancel}"
+    success-path: /checkout/success
+    cancel-path: /checkout/cancel
     shipping:
       allowed-countries: IE,
       rate-ids: shr_1SO4hr5VVAd3gFAtZQYKJSR3, shr_1SO4hS5VVAd3gFAtCCAMifwR
