@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useCart } from "@/features/cart/CartContext";
+import { createCheckoutSession } from "@/lib/CheckoutService";
 
 export default function CartPanel() {
   const {
@@ -12,6 +13,8 @@ export default function CartPanel() {
     clearCart,
     total,
     updateItemQuantity,
+    cartId,
+    refresh,
   } = useCart();
 
   // Format numbers as Euro currency
@@ -145,8 +148,20 @@ export default function CartPanel() {
             </div>
 
             <button
-              onClick={() => {
-                /* integrate checkout here */
+              onClick={async () => {
+                try {
+                  let id = cartId;
+                  if (!id) {
+                    const mapped = await refresh();
+                    id = mapped?.cartId;
+                  }
+                  if (!id) throw new Error("No cart available for checkout");
+                  const { checkoutUrl } = await createCheckoutSession(id);
+                  if (!checkoutUrl) throw new Error("No checkoutUrl returned");
+                  window.location.assign(checkoutUrl);
+                } catch (err) {
+                  console.error("Failed to start checkout:", err?.message || err);
+                }
               }}
               className="bg-amber-700 hover:bg-amber-800 text-white rounded-md w-full py-3 font-semibold text-lg transition-colors shadow-md cursor-pointer"
             >
