@@ -23,7 +23,7 @@ internal fun Project.configureIntegration() {
         implementation(libs.library("spring-boot-starter-actuator"))
         implementation(libs.library("spring-boot-starter-data-jpa"))
         implementation(libs.library("spring-boot-starter-data-redis"))
-        implementation(libs.library("spring-boot.starter-amqp"))
+        implementation(libs.library("spring-boot-starter-amqp"))
         implementation(libs.library("spring-boot.starter-data-redis"))
         implementation(libs.library("spring-boot-starter-security"))
         implementation(libs.library("spring-context"))
