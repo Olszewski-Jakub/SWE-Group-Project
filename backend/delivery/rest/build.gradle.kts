@@ -7,20 +7,20 @@ plugins {
 }
 
 dependencies {
-    
-    implementation(project(":service"))
     implementation(project(":domain"))
     implementation(project(":security"))
-    implementation(libs.spring.boot.starter.security)
+    implementation(project(":service"))
     implementation(project(":util"))
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
 
-    implementation(libs.spring.boot.starter.data.jpa) 
-    implementation(libs.spring.boot.starter.web)
+    implementation(libs.spring.boot.starter.data.jpa)
+    implementation(libs.spring.boot.starter.security)
     implementation(libs.spring.boot.starter.validation)
-    testImplementation(libs.spring.boot.starter.test)
-    testImplementation(libs.jackson.databind)
+    implementation(libs.spring.boot.starter.web)
+    implementation(libs.springdoc.openapi.starter.webmvc.ui)
+
     testImplementation(project(":test-support"))
+    testImplementation(libs.jackson.databind)
+    testImplementation(libs.spring.boot.starter.test)
 }
 
 coverage {
