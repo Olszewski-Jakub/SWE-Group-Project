@@ -14,7 +14,6 @@ dependencies {
     implementation(project(":domain"))
     implementation(project(":infrastructure"))
     implementation(project(":security"))
-    implementation(project(":security"))
     implementation(project(":service"))
     implementation(project(":util"))
 }
