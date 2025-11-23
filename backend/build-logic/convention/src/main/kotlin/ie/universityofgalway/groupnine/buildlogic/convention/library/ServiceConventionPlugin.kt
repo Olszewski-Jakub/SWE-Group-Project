@@ -1,6 +1,6 @@
 package ie.universityofgalway.groupnine.buildlogic.convention.library
 
-import ie.universityofgalway.groupnine.buildlogic.convention.configuration.configureSerivce
+import ie.universityofgalway.groupnine.buildlogic.convention.configuration.configureService
 import ie.universityofgalway.groupnine.buildlogic.convention.extensions.applyIfMissing
 import ie.universityofgalway.groupnine.buildlogic.convention.extensions.configureJava17ToolchainIfPresent
 import ie.universityofgalway.groupnine.buildlogic.convention.extensions.libs
@@ -21,6 +21,6 @@ class ServiceConventionPlugin : Plugin<Project> {
         apply(plugin = libs.plugin("convention-testing"))
         apply(plugin = libs.plugin("convention-jacoco"))
 
-        configureSerivce()
+        configureService()
     }
 }
