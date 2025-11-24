@@ -1,6 +1,9 @@
-import axiosClient from '@/lib/axiosClient';
+import axiosClient, { getAccessToken } from '@/lib/axiosClient';
 
 export async function getCart() {
+  // Only call the API when the user is signed in
+  const token = getAccessToken();
+  if (!token) return null;
   const res = await axiosClient.get('/cart/my');
   return res.data;
 }
