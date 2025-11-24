@@ -8,6 +8,7 @@ import {
   useCallback,
 } from "react";
 import * as cartService from "./services/CartService";
+import { useAuth } from "../../hooks/useAuth";
 
 const CartContext = createContext();
 
@@ -65,6 +66,7 @@ function mapCartDtoToState(cartDto) {
 }
 
 export const CartProvider = ({ children }) => {
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [items, setItems] = useState([]);
   const [total, setTotal] = useState(0);
@@ -74,6 +76,13 @@ export const CartProvider = ({ children }) => {
   const toggleCart = () => setIsOpen((prev) => !prev);
 
   const fetchCart = useCallback(async () => {
+    // Avoid calling the API when user is not signed in
+    if (!isAuthenticated) {
+      setItems([]);
+      setTotal(0);
+      setCartId(null);
+      return { items: [], total: 0, cartId: null };
+    }
     try {
       setLoading(true);
       const data = await cartService.getCart();
@@ -95,11 +104,13 @@ export const CartProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [isAuthenticated]);
 
   useEffect(() => {
-    fetchCart();
-  }, [fetchCart]);
+    if (!authLoading && isAuthenticated) {
+      fetchCart();
+    }
+  }, [fetchCart, authLoading, isAuthenticated]);
 
   const addItem = async (variantId, quantity = 1) => {
     if (!variantId) throw new Error("variantId is required");
