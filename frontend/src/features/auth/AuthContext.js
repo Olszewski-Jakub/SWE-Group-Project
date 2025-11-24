@@ -24,7 +24,6 @@ export function AuthProvider({ children }) {
   const [isClient, setIsClient] = useState(false);
   const mountedRef = useRef(true);
 
-  // Helper to sync roles from current token
   const syncRolesFromToken = useCallback(() => {
     const token = getAccessToken();
     const r = getJwtRoles(token) || [];
@@ -69,7 +68,6 @@ export function AuthProvider({ children }) {
     // Mark that we are running on the client to avoid SSR hydration mismatch
     setIsClient(true);
     mountedRef.current = true;
-    // Provide default scheduler so 401-based refreshes also reschedule proactively
     setDefaultRefreshScheduler(async () => {
       try {
         const newToken = await apiRefresh({ onRefreshSchedule: scheduleRefresh });
@@ -78,18 +76,11 @@ export function AuthProvider({ children }) {
     });
     (async () => {
       try {
-        // Load any persisted token and schedule refresh (uses localStorage)
         const token = bootstrapToken({ onRefreshSchedule: scheduleRefresh });
         if (token) {
           syncRolesFromToken();
-          // Set optimistic user from JWT claims immediately (API may not have /auth/me)
           const optimistic = userFromToken();
           if (mountedRef.current) setUser(optimistic);
-          // Try to hydrate from /auth/me if available; ignore failures
-          try {
-            const me = await fetchMe({ suppressLogoutOn401: true });
-            if (me && mountedRef.current) setUser(me);
-          } catch (_) {}
         }
       } finally {
         if (mountedRef.current) setLoading(false);
@@ -134,7 +125,6 @@ export function AuthProvider({ children }) {
     const t = await apiRefresh({ onRefreshSchedule: scheduleRefresh });
     if (t) {
       syncRolesFromToken();
-      // Update user from token immediately; API hydration optional
       const optimistic = userFromToken();
       if (mountedRef.current) setUser(optimistic);
       try {
@@ -145,7 +135,6 @@ export function AuthProvider({ children }) {
     return t;
   }, [scheduleRefresh, syncRolesFromToken, userFromToken]);
 
-  // Allow axios to trigger logout + redirect
   useEffect(() => {
     setLogoutHandler(async () => {
       try { await signOut(); } catch (_) {}
@@ -167,7 +156,6 @@ export function AuthProvider({ children }) {
     signOut,
     refresh,
   }), [user, roles, loading, signIn, signUp, signOut, refresh]);
-  // Avoid SSR/client hydration mismatch and ensure we only read browser storage on client
   if (!isClient) return null;
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
